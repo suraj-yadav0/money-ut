@@ -6,12 +6,21 @@ QtObject {
     id: database
 
     property var db: null
+    property bool initialized: false
 
     // ===== INITIALIZATION =====
+    function ensureInitialized() {
+        if (!initialized || db === null) {
+            init();
+        }
+    }
+
     function init() {
+        if (initialized && db !== null) return;
         db = LocalStorage.openDatabaseSync("QuantroDB", "1.0", "Quantro Money Manager Database", 1000000);
         createTables();
         seedDefaultData();
+        initialized = true;
     }
 
     function createTables() {
@@ -172,6 +181,7 @@ QtObject {
 
     // ===== USER SETTINGS =====
     function getUserSettings() {
+        ensureInitialized();
         var settings = null;
         db.transaction(function(tx) {
             var result = tx.executeSql('SELECT * FROM user_settings LIMIT 1');
@@ -203,6 +213,7 @@ QtObject {
     }
 
     function isOnboarded() {
+        ensureInitialized();
         var onboarded = false;
         db.transaction(function(tx) {
             var result = tx.executeSql('SELECT is_onboarded FROM user_settings LIMIT 1');
@@ -215,6 +226,7 @@ QtObject {
 
     // ===== CATEGORIES =====
     function getCategories(type) {
+        ensureInitialized();
         var categories = [];
         db.transaction(function(tx) {
             var sql = type ? 'SELECT * FROM categories WHERE type = ? ORDER BY name' :
@@ -253,6 +265,7 @@ QtObject {
 
     // ===== TRANSACTIONS =====
     function addTransaction(amount, type, categoryId, note, paymentMode, timestamp, goalId, receiptPath, isRecurring) {
+        ensureInitialized();
         var insertedId = -1;
         db.transaction(function(tx) {
             var result = tx.executeSql(
@@ -298,6 +311,7 @@ QtObject {
     }
 
     function getTransactionById(id) {
+        ensureInitialized();
         var transaction = null;
         db.transaction(function(tx) {
             var result = tx.executeSql(
@@ -312,6 +326,7 @@ QtObject {
     }
 
     function getTransactions(startDate, endDate, type, limit) {
+        ensureInitialized();
         var transactions = [];
         db.transaction(function(tx) {
             var sql = 'SELECT t.*, c.name as category_name, c.icon as category_icon, g.name as goal_name FROM transactions t ' +
@@ -374,6 +389,7 @@ QtObject {
 
     // ===== DASHBOARD STATS =====
     function getDashboardStats(startDate, endDate) {
+        ensureInitialized();
         var stats = {
             totalIncome: 0,
             totalExpenses: 0,
