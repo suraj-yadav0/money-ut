@@ -24,6 +24,11 @@ MainView {
     // Signal emitted when transaction data changes so active tabs can refresh
     signal transactionDataChanged()
 
+    // Navigation helpers — avoids Lomiri Page.pageStack property shadowing
+    // the PageStack id when pages are embedded rather than pushed.
+    function navigateTo(page) { pageStack.push(page); }
+    function navigateBack()   { pageStack.pop(); }
+
     Component.onCompleted: {
         Database.ensureInitialized();
         isOnboarded = Database.isOnboarded();
@@ -51,7 +56,7 @@ MainView {
             onOnboardingComplete: {
                 root.isOnboarded = true;
                 pageStack.clear();
-                pageStack.push(appShell);
+                root.navigateTo(appShell);
             }
         }
     }
@@ -204,7 +209,7 @@ MainView {
                     MouseArea {
                         anchors.fill: parent
                         cursorShape: Qt.PointingHandCursor
-                        onClicked: pageStack.push(addTransactionPageComponent)
+                        onClicked: root.navigateTo(addTransactionPageComponent)
                     }
                 }
             }
@@ -225,15 +230,15 @@ MainView {
                     id: dashboardPage
                     anchors.fill: parent
                     visible: currentTab === 0
-                    onOpenCalendar: pageStack.push(calendarPageComponent)
-                    onOpenSettings: pageStack.push(settingsPageComponent)
-                    onOpenInsights: pageStack.push(insightsPageComponent)
-                    onOpenAllTransactions: pageStack.push(allTransactionsPageComponent)
-                    onOpenAddTransaction: pageStack.push(addTransactionPageComponent)
+                    onOpenCalendar: root.navigateTo(calendarPageComponent)
+                    onOpenSettings: root.navigateTo(settingsPageComponent)
+                    onOpenInsights: root.navigateTo(insightsPageComponent)
+                    onOpenAllTransactions: root.navigateTo(allTransactionsPageComponent)
+                    onOpenAddTransaction: root.navigateTo(addTransactionPageComponent)
                     onEditTransaction: {
                         var pg = addTransactionPageComponent.createObject(null);
                         pg.loadTransaction(transaction);
-                        pageStack.push(pg);
+                        root.navigateTo(pg);
                     }
                 }
 
@@ -286,7 +291,7 @@ MainView {
                 MouseArea {
                     anchors.fill: parent
                     cursorShape: Qt.PointingHandCursor
-                    onClicked: pageStack.push(addTransactionPageComponent)
+                    onClicked: root.navigateTo(addTransactionPageComponent)
                 }
 
                 // Glow shadow
@@ -484,7 +489,7 @@ MainView {
                 var pg = dayTransactionsPageComponent.createObject(null);
                 pg.selectedDate = selectedDate;
                 pg.refreshData();
-                pageStack.push(pg);
+                root.navigateTo(pg);
             }
         }
     }
@@ -496,7 +501,7 @@ MainView {
             onEditTransaction: {
                 var pg = addTransactionPageComponent.createObject(null);
                 pg.loadTransaction(transaction);
-                pageStack.push(pg);
+                root.navigateTo(pg);
             }
         }
     }
@@ -511,12 +516,12 @@ MainView {
 
         InsightsPage {
             onNavigateToBudget: {
-                pageStack.pop();
+                root.navigateBack();
                 currentTab = 1;
             }
             onNavigateToTransactions: {
-                pageStack.pop();
-                pageStack.push(allTransactionsPageComponent);
+                root.navigateBack();
+                root.navigateTo(allTransactionsPageComponent);
             }
         }
     }
@@ -528,7 +533,7 @@ MainView {
             onEditTransaction: {
                 var pg = addTransactionPageComponent.createObject(null);
                 pg.loadTransaction(transaction);
-                pageStack.push(pg);
+                root.navigateTo(pg);
             }
         }
     }
@@ -538,11 +543,11 @@ MainView {
 
         AddTransactionPage {
             onTransactionSaved: {
-                pageStack.pop();
+                root.navigateBack();
                 root.transactionDataChanged();
             }
             onCancelled: {
-                pageStack.pop();
+                root.navigateBack();
             }
         }
     }
