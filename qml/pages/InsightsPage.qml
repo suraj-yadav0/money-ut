@@ -42,16 +42,16 @@ Page {
             right: parent.right
             bottom: parent.bottom
         }
-        contentHeight: contentColumn.height + Theme.spacing2XL
+        contentHeight: contentColumn.height + units.gu(3)
         clip: true
 
         ColumnLayout {
             id: contentColumn
-            width: parent.width - Theme.spacingLG * 2
+            width: parent.width - units.gu(4)
             anchors.horizontalCenter: parent.horizontalCenter
-            spacing: Theme.spacingLG
+            spacing: units.gu(2)
 
-            Item { Layout.preferredHeight: Theme.spacingSM }
+            Item { Layout.preferredHeight: units.gu(1) }
 
             // Insights list
             Repeater {
@@ -61,45 +61,49 @@ Page {
                     Layout.fillWidth: true
 
                     ColumnLayout {
-                        spacing: Theme.spacingMD
+                        spacing: units.gu(1.5)
 
                         RowLayout {
                             Layout.fillWidth: true
-                            spacing: Theme.spacingSM
+                            spacing: units.gu(1)
 
                             // Severity icon
-                            Rectangle {
-                                width: 44
-                                height: 44
-                                radius: 22
-                                color: Qt.rgba(
+                            LomiriShape {
+                                Layout.preferredWidth: units.gu(5)
+                                Layout.preferredHeight: units.gu(5)
+                                aspect: LomiriShape.Flat
+                                radius: "large"
+                                relativeRadius: 0.5
+                                backgroundColor: Qt.rgba(
                                     Theme.getInsightColor(modelData.severity).r,
                                     Theme.getInsightColor(modelData.severity).g,
                                     Theme.getInsightColor(modelData.severity).b,
                                     0.15
                                 )
 
-                                Label {
+                                Icon {
                                     anchors.centerIn: parent
-                                    text: getSeverityIcon(modelData.severity)
-                                    font.pixelSize: 20
+                                    width: units.gu(2.5)
+                                    height: units.gu(2.5)
+                                    name: getSeverityIcon(modelData.severity)
+                                    color: Theme.getInsightColor(modelData.severity)
                                 }
                             }
 
                             ColumnLayout {
                                 Layout.fillWidth: true
-                                spacing: 2
+                                spacing: units.dp(2)
 
                                 Label {
                                     text: modelData.title
-                                    font.pixelSize: Theme.fontSizeMD
+                                    fontSize: "medium"
                                     font.weight: Font.DemiBold
                                     color: Theme.gray900
                                 }
 
                                 Label {
                                     text: modelData.severity.charAt(0).toUpperCase() + modelData.severity.slice(1)
-                                    font.pixelSize: Theme.fontSizeXS
+                                    fontSize: "x-small"
                                     color: Theme.getInsightColor(modelData.severity)
                                     font.weight: Font.Medium
                                 }
@@ -108,19 +112,20 @@ Page {
 
                         Label {
                             text: modelData.description
-                            font.pixelSize: Theme.fontSizeMD
+                            fontSize: "medium"
                             color: Theme.gray700
                             wrapMode: Text.WordWrap
                             Layout.fillWidth: true
                         }
 
                         // Tip box
-                        Rectangle {
+                        LomiriShape {
                             Layout.fillWidth: true
                             visible: modelData.tip !== undefined
-                            radius: Theme.radiusSM
-                            color: Qt.rgba(Theme.secondary.r, Theme.secondary.g, Theme.secondary.b, 0.1)
-                            height: tipContent.height + Theme.spacingSM * 2
+                            aspect: LomiriShape.Flat
+                            radius: "small"
+                            backgroundColor: Qt.rgba(Theme.secondary.r, Theme.secondary.g, Theme.secondary.b, 0.1)
+                            implicitHeight: tipContent.height + units.gu(2)
 
                             Row {
                                 id: tipContent
@@ -128,21 +133,24 @@ Page {
                                     left: parent.left
                                     right: parent.right
                                     top: parent.top
-                                    margins: Theme.spacingSM
+                                    margins: units.gu(1)
                                 }
-                                spacing: Theme.spacingSM
+                                spacing: units.gu(1)
 
-                                Label {
-                                    text: "💡"
-                                    font.pixelSize: 16
+                                Icon {
+                                    width: units.gu(2.5)
+                                    height: units.gu(2.5)
+                                    name: "info"
+                                    color: Theme.secondary
+                                    anchors.verticalCenter: parent.verticalCenter
                                 }
 
                                 Label {
                                     text: modelData.tip || ""
-                                    font.pixelSize: Theme.fontSizeSM
+                                    fontSize: "small"
                                     color: Theme.gray700
                                     wrapMode: Text.WordWrap
-                                    width: parent.width - 30
+                                    width: parent.width - units.gu(4)
                                 }
                             }
                         }
@@ -162,22 +170,22 @@ Page {
             // Empty state
             EmptyState {
                 Layout.fillWidth: true
-                Layout.topMargin: Theme.spacing3XL
+                Layout.topMargin: units.gu(4)
                 visible: insights.length === 0
-                emoji: "💡"
+                iconName: "info"
                 title: "No Insights Yet"
                 subtitle: "Add more transactions to get personalized financial insights"
             }
 
-            Item { Layout.preferredHeight: Theme.spacing2XL }
+            Item { Layout.preferredHeight: units.gu(3) }
         }
     }
 
     function getSeverityIcon(severity) {
         switch (severity) {
-            case "critical": return "🚨";
-            case "warning": return "⚠️";
-            default: return "ℹ️";
+            case "critical": return "dialog-warning-symbolic";
+            case "warning": return "dialog-warning-symbolic";
+            default: return "info";
         }
     }
 

@@ -192,7 +192,7 @@ Page {
                 Layout.fillWidth: true
                 Layout.topMargin: units.gu(4)
                 visible: goals.length === 0
-                emoji: "🎯"
+                iconName: "starred"
                 title: "No Goals Yet"
                 subtitle: "Start saving for something special"
                 actionText: "Create Goal"

@@ -11,8 +11,8 @@ Page {
     property var settings: null
     property var stats: null
     property string selectedFilter: "thisMonth"
-    property string chartType: "pie"  // pie, bar, trend
-    property string dataMode: "expense"  // expense, income
+    property string chartType: "pie"
+    property string dataMode: "expense"
 
     signal openCalendar()
     signal openSettings()
@@ -62,23 +62,22 @@ Page {
             right: parent.right
             bottom: parent.bottom
         }
-        contentHeight: contentColumn.height + Theme.spacing2XL
+        contentHeight: contentColumn.height + units.gu(3)
         clip: true
 
-        // Pull to refresh
         onContentYChanged: {
-            if (contentY < -80 && !dragging) {
+            if (contentY < -units.gu(10) && !dragging) {
                 refreshData();
             }
         }
 
         ColumnLayout {
             id: contentColumn
-            width: parent.width - Theme.spacingLG * 2
+            width: parent.width - units.gu(4)
             anchors.horizontalCenter: parent.horizontalCenter
-            spacing: Theme.spacingLG
+            spacing: units.gu(2)
 
-            Item { Layout.preferredHeight: Theme.spacingSM }
+            Item { Layout.preferredHeight: units.gu(1) }
 
             // Date filter bar
             DateFilterBar {
@@ -134,31 +133,32 @@ Page {
             }
 
             // Chart container
-            Rectangle {
+            LomiriShape {
                 Layout.fillWidth: true
-                Layout.preferredHeight: 260
-                color: Qt.rgba(1, 1, 1, 0.7)
-                radius: Theme.radiusLG
+                Layout.preferredHeight: units.gu(32)
+                aspect: LomiriShape.Flat
+                radius: "large"
+                backgroundColor: Qt.rgba(1, 1, 1, 0.7)
 
                 // Pie chart
                 PieChart {
                     anchors.centerIn: parent
                     visible: chartType === "pie"
-                    width: parent.width - Theme.spacingLG * 2
+                    width: parent.width - units.gu(4)
                     data: getChartData()
                 }
 
                 // Bar chart
                 Flickable {
                     anchors.fill: parent
-                    anchors.margins: Theme.spacingSM
+                    anchors.margins: units.gu(1)
                     visible: chartType === "bar"
                     contentWidth: barChart.width
                     clip: true
 
                     BarChart {
                         id: barChart
-                        height: parent.height - Theme.spacingMD
+                        height: parent.height - units.gu(1.5)
                         data: getChartData()
                         currencyCode: dashboardPage.currencyCode
                     }
@@ -167,14 +167,14 @@ Page {
                 // Line chart
                 Flickable {
                     anchors.fill: parent
-                    anchors.margins: Theme.spacingSM
+                    anchors.margins: units.gu(1)
                     visible: chartType === "trend"
                     contentWidth: lineChart.width
                     clip: true
 
                     LineChart {
                         id: lineChart
-                        height: parent.height - Theme.spacingMD
+                        height: parent.height - units.gu(1.5)
                         data: getTrendData()
                         currencyCode: dashboardPage.currencyCode
                         lineColor: dataMode === "expense" ? Theme.expense : Theme.income
@@ -185,7 +185,7 @@ Page {
                 EmptyState {
                     anchors.centerIn: parent
                     visible: (!stats || stats.categoryBreakdown.length === 0) && chartType !== "trend"
-                    emoji: "📊"
+                    iconName: "view-grid-symbolic"
                     title: "No Data Yet"
                     subtitle: "Add some transactions to see your charts"
                 }
@@ -197,7 +197,7 @@ Page {
 
                 Label {
                     text: "Recent Transactions"
-                    font.pixelSize: Theme.fontSizeLG
+                    fontSize: "large"
                     font.weight: Font.DemiBold
                     color: Theme.gray900
                 }
@@ -212,7 +212,7 @@ Page {
                     Label {
                         id: seeAllLabel
                         text: "See All →"
-                        font.pixelSize: Theme.fontSizeMD
+                        fontSize: "medium"
                         color: Theme.primary
                     }
                 }
@@ -221,19 +221,18 @@ Page {
             // Recent transactions list
             GlassCard {
                 Layout.fillWidth: true
-                implicitHeight: recentList.height + Theme.spacingLG * 2
+                implicitHeight: recentList.height + units.gu(4)
                 visible: recentTransactions.length > 0
 
                 Column {
                     id: recentList
-                    width: parent.width
-                    spacing: 1
+                    Layout.fillWidth: true
 
                     Repeater {
                         model: recentTransactions
 
                         TransactionItem {
-                            width: parent.width
+                            width: recentList.width
                             transaction: modelData
                             currencyCode: dashboardPage.currencyCode
 
@@ -250,16 +249,16 @@ Page {
             // Empty state for transactions
             EmptyState {
                 Layout.fillWidth: true
-                Layout.topMargin: Theme.spacing2XL
+                Layout.topMargin: units.gu(3)
                 visible: recentTransactions.length === 0
-                emoji: "💸"
+                iconName: "stock_note"
                 title: "No Transactions Yet"
                 subtitle: "Tap the + button to add your first transaction"
                 actionText: "Add Transaction"
                 onActionClicked: openAddTransaction()
             }
 
-            Item { Layout.preferredHeight: Theme.spacing3XL }
+            Item { Layout.preferredHeight: units.gu(4) }
         }
     }
 
@@ -283,7 +282,6 @@ Page {
             return item.amount > 0;
         });
 
-        // Limit to top 5 for readability
         var top5 = filtered.slice(0, 5);
 
         return top5.map(function(item, index) {

@@ -44,77 +44,77 @@ Page {
             right: parent.right
             bottom: parent.bottom
         }
-        contentHeight: contentColumn.height + Theme.spacing2XL
+        contentHeight: contentColumn.height + units.gu(3)
         clip: true
 
         ColumnLayout {
             id: contentColumn
-            width: parent.width - Theme.spacingLG * 2
+            width: parent.width - units.gu(4)
             anchors.horizontalCenter: parent.horizontalCenter
-            spacing: Theme.spacingLG
+            spacing: units.gu(2)
 
-            Item { Layout.preferredHeight: Theme.spacingSM }
+            Item { Layout.preferredHeight: units.gu(1) }
 
             // Day summary card
             GlassCard {
                 Layout.fillWidth: true
 
                 RowLayout {
-                    spacing: Theme.spacingMD
+                    spacing: units.gu(1.5)
 
                     ColumnLayout {
                         Layout.fillWidth: true
-                        spacing: 2
+                        spacing: units.dp(2)
 
                         Label {
                             text: "Income"
-                            font.pixelSize: Theme.fontSizeXS
+                            fontSize: "x-small"
                             color: Theme.gray500
                         }
 
                         Label {
                             text: Theme.formatCurrency(daySummary.income, currencyCode)
-                            font.pixelSize: Theme.fontSizeMD
+                            fontSize: "medium"
                             font.weight: Font.DemiBold
                             color: Theme.income
                         }
                     }
 
-                    Rectangle { width: 1; height: 35; color: Theme.gray200 }
+                    Rectangle { width: units.dp(1); height: units.gu(4); color: Theme.gray200 }
 
                     ColumnLayout {
                         Layout.fillWidth: true
-                        spacing: 2
+                        spacing: units.dp(2)
 
                         Label {
                             text: "Expenses"
-                            font.pixelSize: Theme.fontSizeXS
+                            fontSize: "x-small"
                             color: Theme.gray500
                         }
 
                         Label {
                             text: Theme.formatCurrency(daySummary.expenses, currencyCode)
-                            font.pixelSize: Theme.fontSizeMD
+                            fontSize: "medium"
                             font.weight: Font.DemiBold
                             color: Theme.expense
                         }
                     }
 
-                    Rectangle { width: 1; height: 35; color: Theme.gray200 }
+                    Rectangle { width: units.dp(1); height: units.gu(4); color: Theme.gray200 }
 
                     ColumnLayout {
                         Layout.fillWidth: true
-                        spacing: 2
+                        spacing: units.dp(2)
 
                         Label {
                             text: "Net"
-                            font.pixelSize: Theme.fontSizeXS
+                            fontSize: "x-small"
                             color: Theme.gray500
                         }
 
                         Label {
                             text: Theme.formatCurrency(daySummary.net, currencyCode)
-                            font.pixelSize: Theme.fontSizeMD
+                            fontSize: "medium"
                             font.weight: Font.DemiBold
                             color: daySummary.net >= 0 ? Theme.income : Theme.expense
                         }
@@ -126,18 +126,17 @@ Page {
             GlassCard {
                 Layout.fillWidth: true
                 visible: transactions.length > 0
-                implicitHeight: transactionsList.height + Theme.spacingLG * 2
+                implicitHeight: transactionsList.height + units.gu(4)
 
                 Column {
                     id: transactionsList
-                    width: parent.width
-                    spacing: 1
+                    Layout.fillWidth: true
 
                     Repeater {
                         model: transactions
 
                         TransactionItem {
-                            width: parent.width
+                            width: transactionsList.width
                             transaction: modelData
                             currencyCode: dayTransactionsPage.currencyCode
 
@@ -154,14 +153,14 @@ Page {
             // Empty state
             EmptyState {
                 Layout.fillWidth: true
-                Layout.topMargin: Theme.spacing2XL
+                Layout.topMargin: units.gu(3)
                 visible: transactions.length === 0
-                emoji: "📅"
+                iconName: "calendar"
                 title: "No Transactions"
                 subtitle: "No transactions on this day"
             }
 
-            Item { Layout.preferredHeight: Theme.spacing2XL }
+            Item { Layout.preferredHeight: units.gu(3) }
         }
     }
 
@@ -173,7 +172,6 @@ Page {
 
         transactions = Database.getTransactionsByDate(selectedDate);
 
-        // Calculate day summary
         daySummary = { income: 0, expenses: 0, net: 0 };
         for (var i = 0; i < transactions.length; i++) {
             if (transactions[i].type === "income") {

@@ -24,8 +24,7 @@ MainView {
     // Signal emitted when transaction data changes so active tabs can refresh
     signal transactionDataChanged()
 
-    // Navigation helpers — avoids Lomiri Page.pageStack property shadowing
-    // the PageStack id when pages are embedded rather than pushed.
+    // Navigation helpers
     function navigateTo(page) { pageStack.push(page); }
     function navigateBack()   { pageStack.pop(); }
 
@@ -126,9 +125,9 @@ MainView {
                         top: parent.top
                         left: parent.left
                         right: parent.right
-                        topMargin: Theme.spacingLG
+                        topMargin: units.gu(2)
                     }
-                    spacing: Theme.spacingXS
+                    spacing: units.gu(0.5)
 
                     Repeater {
                         model: [
@@ -144,7 +143,7 @@ MainView {
 
                             Column {
                                 anchors.centerIn: parent
-                                spacing: 2
+                                spacing: units.dp(2)
 
                                 Icon {
                                     width: units.gu(3)
@@ -156,7 +155,7 @@ MainView {
 
                                 Label {
                                     text: modelData.label
-                                    font.pixelSize: Theme.fontSizeXS
+                                    fontSize: "x-small"
                                     color: currentTab === modelData.tab ? Theme.primary : Theme.gray500
                                     font.weight: currentTab === modelData.tab ? Font.DemiBold : Font.Normal
                                     anchors.horizontalCenter: parent.horizontalCenter
@@ -173,7 +172,7 @@ MainView {
                                 }
                                 width: units.dp(3)
                                 color: Theme.primary
-                                radius: 2
+                                radius: units.dp(2)
                             }
 
                             MouseArea {
@@ -185,25 +184,24 @@ MainView {
                 }
 
                 // Add transaction button at bottom of side nav
-                Rectangle {
+                LomiriShape {
                     anchors {
                         horizontalCenter: parent.horizontalCenter
                         bottom: parent.bottom
-                        bottomMargin: Theme.spacing2XL
+                        bottomMargin: units.gu(3)
                     }
-                    width: 48
-                    height: 48
-                    radius: 24
-                    gradient: Gradient {
-                        GradientStop { position: 0.0; color: Theme.primary }
-                        GradientStop { position: 1.0; color: Theme.primaryDark }
-                    }
+                    width: units.gu(6)
+                    height: units.gu(6)
+                    aspect: LomiriShape.Flat
+                    radius: "large"
+                    relativeRadius: 0.5
+                    backgroundColor: Theme.primary
 
-                    Label {
+                    Icon {
                         anchors.centerIn: parent
-                        text: "+"
-                        font.pixelSize: 28
-                        font.weight: Font.Light
+                        width: units.gu(3)
+                        height: units.gu(3)
+                        name: "add"
                         color: Theme.white
                     }
 
@@ -263,7 +261,7 @@ MainView {
             }
 
             // ---- FAB: Add Transaction (phone layout only) ----
-            Rectangle {
+            LomiriShape {
                 id: fab
                 visible: !root.isWideLayout
                 z: 10
@@ -272,20 +270,18 @@ MainView {
                     bottom: bottomNav.top
                     bottomMargin: -height / 2
                 }
-                width: 56
-                height: 56
-                radius: 28
+                width: units.gu(7)
+                height: units.gu(7)
+                aspect: LomiriShape.Flat
+                radius: "large"
+                relativeRadius: 0.5
+                backgroundColor: Theme.primary
 
-                gradient: Gradient {
-                    GradientStop { position: 0.0; color: Theme.primary }
-                    GradientStop { position: 1.0; color: Theme.primaryDark }
-                }
-
-                Label {
+                Icon {
                     anchors.centerIn: parent
-                    text: "+"
-                    font.pixelSize: 32
-                    font.weight: Font.Light
+                    width: units.gu(3.5)
+                    height: units.gu(3.5)
+                    name: "add"
                     color: Theme.white
                 }
 
@@ -298,8 +294,8 @@ MainView {
                 // Glow shadow
                 Rectangle {
                     anchors.centerIn: parent
-                    width: parent.width + 8
-                    height: parent.height + 8
+                    width: parent.width + units.gu(1)
+                    height: parent.height + units.gu(1)
                     z: -1
                     radius: width / 2
                     color: Qt.rgba(Theme.primary.r, Theme.primary.g, Theme.primary.b, 0.3)
@@ -315,7 +311,7 @@ MainView {
                     right: parent.right
                     bottom: parent.bottom
                 }
-                height: 70
+                height: units.gu(8)
                 color: Theme.white
 
                 Rectangle {
@@ -324,15 +320,15 @@ MainView {
                         left: parent.left
                         right: parent.right
                     }
-                    height: 1
+                    height: units.dp(1)
                     color: Theme.gray200
                 }
 
                 RowLayout {
                     anchors {
                         fill: parent
-                        leftMargin: Theme.spacingSM
-                        rightMargin: Theme.spacingSM
+                        leftMargin: units.gu(1)
+                        rightMargin: units.gu(1)
                     }
                     spacing: 0
 
@@ -343,7 +339,7 @@ MainView {
 
                         ColumnLayout {
                             anchors.centerIn: parent
-                            spacing: 4
+                            spacing: units.dp(4)
 
                             Icon {
                                 width: units.gu(3)
@@ -355,7 +351,7 @@ MainView {
 
                             Label {
                                 text: "Home"
-                                font.pixelSize: Theme.fontSizeXS
+                                fontSize: "x-small"
                                 color: currentTab === 0 ? Theme.primary : Theme.gray500
                                 font.weight: currentTab === 0 ? Font.DemiBold : Font.Normal
                                 Layout.alignment: Qt.AlignHCenter
@@ -375,7 +371,7 @@ MainView {
 
                         ColumnLayout {
                             anchors.centerIn: parent
-                            spacing: 4
+                            spacing: units.dp(4)
 
                             Icon {
                                 width: units.gu(3)
@@ -387,7 +383,7 @@ MainView {
 
                             Label {
                                 text: "Budget"
-                                font.pixelSize: Theme.fontSizeXS
+                                fontSize: "x-small"
                                 color: currentTab === 1 ? Theme.primary : Theme.gray500
                                 font.weight: currentTab === 1 ? Font.DemiBold : Font.Normal
                                 Layout.alignment: Qt.AlignHCenter
@@ -413,7 +409,7 @@ MainView {
 
                         ColumnLayout {
                             anchors.centerIn: parent
-                            spacing: 4
+                            spacing: units.dp(4)
 
                             Icon {
                                 width: units.gu(3)
@@ -425,7 +421,7 @@ MainView {
 
                             Label {
                                 text: "Worth"
-                                font.pixelSize: Theme.fontSizeXS
+                                fontSize: "x-small"
                                 color: currentTab === 2 ? Theme.primary : Theme.gray500
                                 font.weight: currentTab === 2 ? Font.DemiBold : Font.Normal
                                 Layout.alignment: Qt.AlignHCenter
@@ -445,7 +441,7 @@ MainView {
 
                         ColumnLayout {
                             anchors.centerIn: parent
-                            spacing: 4
+                            spacing: units.dp(4)
 
                             Icon {
                                 width: units.gu(3)
@@ -457,7 +453,7 @@ MainView {
 
                             Label {
                                 text: "Goals"
-                                font.pixelSize: Theme.fontSizeXS
+                                fontSize: "x-small"
                                 color: currentTab === 3 ? Theme.primary : Theme.gray500
                                 font.weight: currentTab === 3 ? Font.DemiBold : Font.Normal
                                 Layout.alignment: Qt.AlignHCenter

@@ -40,8 +40,8 @@ ListItem {
     RowLayout {
         anchors {
             fill: parent
-            leftMargin: units.gu(1)
-            rightMargin: units.gu(1)
+            leftMargin: units.gu(2)
+            rightMargin: units.gu(2)
             topMargin: units.gu(0.5)
             bottomMargin: units.gu(0.5)
         }
@@ -57,10 +57,12 @@ ListItem {
                 Qt.rgba(Theme.income.r, Theme.income.g, Theme.income.b, 0.15) :
                 Qt.rgba(Theme.expense.r, Theme.expense.g, Theme.expense.b, 0.15)
 
-            Label {
+            Icon {
                 anchors.centerIn: parent
-                text: getCategoryEmoji(transaction ? transaction.category_icon : "")
-                font.pixelSize: units.gu(2.5)
+                width: units.gu(2.5)
+                height: units.gu(2.5)
+                name: getCategoryIcon(transaction ? transaction.category_icon : "")
+                color: transaction && transaction.type === "income" ? Theme.income : Theme.expense
             }
         }
 
@@ -130,15 +132,27 @@ ListItem {
         }
     }
 
-    function getCategoryEmoji(icon) {
-        var emojiMap = {
-            "restaurant": "🍽️", "directions_car": "🚗", "shopping_bag": "🛍️",
-            "movie": "🎬", "receipt_long": "📄", "local_hospital": "🏥",
-            "school": "🎓", "spa": "💆", "local_grocery_store": "🛒",
-            "card_giftcard": "🎁", "savings": "💰", "show_chart": "📊",
-            "family_restroom": "👨‍👩‍👧", "more_horiz": "⋯",
-            "work": "💼", "laptop": "💻", "trending_up": "📈", "attach_money": "💵"
+    function getCategoryIcon(icon) {
+        var iconMap = {
+            "restaurant": "like",
+            "directions_car": "stock_transport-car",
+            "shopping_bag": "stock_store",
+            "movie": "stock_music",
+            "receipt_long": "stock_document",
+            "local_hospital": "stock_health",
+            "school": "stock_note",
+            "spa": "like",
+            "local_grocery_store": "stock_store",
+            "card_giftcard": "stock_event",
+            "savings": "save",
+            "show_chart": "stock_website",
+            "family_restroom": "contact-group",
+            "more_horiz": "other-actions",
+            "work": "stock_application",
+            "laptop": "computer-symbolic",
+            "trending_up": "stock_website",
+            "attach_money": "save"
         };
-        return emojiMap[icon] || "📝";
+        return iconMap[icon] || "stock_note";
     }
 }

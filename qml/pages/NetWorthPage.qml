@@ -169,17 +169,17 @@ Page {
                 clip: true
 
                 model: [
-                    { key: "all", label: "All", emoji: "" },
-                    { key: "savings", label: "Savings", emoji: "💰" },
-                    { key: "investment", label: "Investment", emoji: "📈" },
-                    { key: "property", label: "Property", emoji: "🏠" },
-                    { key: "gold", label: "Gold", emoji: "🥇" },
-                    { key: "loan", label: "Loan", emoji: "🏦" },
-                    { key: "other", label: "Other", emoji: "📦" }
+                    { key: "all", label: "All" },
+                    { key: "savings", label: "Savings" },
+                    { key: "investment", label: "Investment" },
+                    { key: "property", label: "Property" },
+                    { key: "gold", label: "Gold" },
+                    { key: "loan", label: "Loan" },
+                    { key: "other", label: "Other" }
                 ]
 
                 delegate: CategoryChip {
-                    text: modelData.emoji + " " + modelData.label
+                    text: modelData.label
                     selected: assetFilter === modelData.key
                     onClicked: {
                         assetFilter = modelData.key;
@@ -226,10 +226,12 @@ Page {
                             radius: "large"
                             backgroundColor: Qt.rgba(Theme.primary.r, Theme.primary.g, Theme.primary.b, 0.15)
 
-                            Label {
+                            Icon {
                                 anchors.centerIn: parent
-                                text: getAssetEmoji(modelData.type)
-                                font.pixelSize: units.gu(2.5)
+                                width: units.gu(2.5)
+                                height: units.gu(2.5)
+                                name: getAssetIcon(modelData.type)
+                                color: Theme.primary
                             }
                         }
 
@@ -293,7 +295,7 @@ Page {
                 Layout.fillWidth: true
                 Layout.topMargin: units.gu(3)
                 visible: assets.length === 0
-                emoji: "🏦"
+                iconName: "stock_store"
                 title: "No Assets Yet"
                 subtitle: "Add your assets and liabilities to track net worth"
                 actionText: "Add Asset"
@@ -371,7 +373,7 @@ Page {
                     model: Theme.assetTypes
 
                     CategoryChip {
-                        text: modelData.emoji + " " + modelData.name
+                        text: modelData.name
                         selected: assetTypeTracker.text === modelData.type
                         onClicked: {
                             assetTypeTracker.text = modelData.type;
@@ -503,13 +505,13 @@ Page {
         loadAssets();
     }
 
-    function getAssetEmoji(type) {
+    function getAssetIcon(type) {
         for (var i = 0; i < Theme.assetTypes.length; i++) {
             if (Theme.assetTypes[i].type === type) {
-                return Theme.assetTypes[i].emoji;
+                return Theme.assetTypes[i].icon;
             }
         }
-        return "📦";
+        return "other-actions";
     }
 
     function getAssetTypeName(type) {

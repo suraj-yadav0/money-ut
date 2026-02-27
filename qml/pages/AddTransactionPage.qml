@@ -218,7 +218,7 @@ Page {
                     model: Database.getCategories(transactionType)
 
                     CategoryChip {
-                        text: getCategoryEmoji(modelData.icon) + " " + modelData.name
+                        text: modelData.name
                         selected: selectedCategoryId === modelData.id
                         onClicked: selectedCategoryId = modelData.id
                     }
@@ -347,9 +347,11 @@ Page {
                 RowLayout {
                     spacing: units.gu(1)
 
-                    Label {
-                        text: "📅"
-                        font.pixelSize: units.gu(2.5)
+                    Icon {
+                        width: units.gu(2.5)
+                        height: units.gu(2.5)
+                        name: "calendar"
+                        color: Theme.primary
                     }
 
                     Label {
@@ -503,16 +505,28 @@ Page {
         noteInput.text = note;
     }
 
-    function getCategoryEmoji(icon) {
-        var emojiMap = {
-            "restaurant": "🍽️", "directions_car": "🚗", "shopping_bag": "🛍️",
-            "movie": "🎬", "receipt_long": "📄", "local_hospital": "🏥",
-            "school": "🎓", "spa": "💆", "local_grocery_store": "🛒",
-            "card_giftcard": "🎁", "savings": "💰", "show_chart": "📊",
-            "family_restroom": "👨‍👩‍👧", "more_horiz": "⋯", "work": "💼",
-            "laptop": "💻", "trending_up": "📈", "attach_money": "💵"
+    function getCategoryIcon(icon) {
+        var iconMap = {
+            "restaurant": "like",
+            "directions_car": "stock_transport-car",
+            "shopping_bag": "stock_store",
+            "movie": "stock_music",
+            "receipt_long": "stock_document",
+            "local_hospital": "stock_health",
+            "school": "stock_note",
+            "spa": "like",
+            "local_grocery_store": "stock_store",
+            "card_giftcard": "stock_event",
+            "savings": "save",
+            "show_chart": "stock_website",
+            "family_restroom": "contact-group",
+            "more_horiz": "other-actions",
+            "work": "stock_application",
+            "laptop": "computer-symbolic",
+            "trending_up": "stock_website",
+            "attach_money": "save"
         };
-        return emojiMap[icon] || "📝";
+        return iconMap[icon] || "stock_note";
     }
 
     Component.onCompleted: {

@@ -6,7 +6,8 @@ import ".."
 Item {
     id: emptyState
 
-    property string emoji: "📝"
+    property string iconName: "stock_note"
+    property string emoji: ""
     property string title: "No Data"
     property string subtitle: ""
     property string actionText: ""
@@ -23,9 +24,11 @@ Item {
         spacing: units.gu(1.5)
         width: parent.width * 0.8
 
-        Label {
-            text: emptyState.emoji
-            font.pixelSize: units.gu(6)
+        Icon {
+            width: units.gu(6)
+            height: units.gu(6)
+            name: emptyState.iconName
+            color: Theme.gray400
             Layout.alignment: Qt.AlignHCenter
         }
 

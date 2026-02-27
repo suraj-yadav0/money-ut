@@ -72,10 +72,12 @@ Page {
                             radius: "large"
                             backgroundColor: Qt.rgba(getBudgetStatusColor().r, getBudgetStatusColor().g, getBudgetStatusColor().b, 0.15)
 
-                            Label {
+                            Icon {
                                 anchors.centerIn: parent
-                                text: getBudgetStatusIcon()
-                                font.pixelSize: units.gu(2.5)
+                                width: units.gu(2.5)
+                                height: units.gu(2.5)
+                                name: getBudgetStatusIconName()
+                                color: getBudgetStatusColor()
                             }
                         }
 
@@ -201,10 +203,12 @@ Page {
                                 radius: "large"
                                 backgroundColor: Qt.rgba(Theme.primary.r, Theme.primary.g, Theme.primary.b, 0.15)
 
-                                Label {
+                                Icon {
                                     anchors.centerIn: parent
-                                    text: getCategoryEmoji(modelData.categoryIcon)
-                                    font.pixelSize: units.gu(2)
+                                    width: units.gu(2)
+                                    height: units.gu(2)
+                                    name: getCategoryIcon(modelData.categoryIcon)
+                                    color: Theme.primary
                                 }
                             }
 
@@ -249,7 +253,7 @@ Page {
                 Layout.fillWidth: true
                 Layout.topMargin: units.gu(4)
                 visible: !budgetStats || budgetStats.categories.length === 0
-                emoji: "💰"
+                iconName: "save"
                 title: "No Budgets Set"
                 subtitle: "Set budgets for your categories to track spending"
                 actionText: "Set Budget"
@@ -286,9 +290,11 @@ Page {
                             width: parent.width
                             spacing: units.gu(1)
 
-                            Label {
-                                text: getCategoryEmoji(modelData.icon)
-                                font.pixelSize: units.gu(2.5)
+                            Icon {
+                                width: units.gu(2.5)
+                                height: units.gu(2.5)
+                                name: getCategoryIcon(modelData.icon)
+                                color: Theme.primary
                             }
 
                             Label {
@@ -363,22 +369,31 @@ Page {
         return Theme.getBudgetColor(budgetStats.percentUsed);
     }
 
-    function getBudgetStatusIcon() {
-        if (!budgetStats) return "✓";
-        if (budgetStats.percentUsed >= 1) return "⚠️";
-        if (budgetStats.percentUsed >= 0.8) return "⚡";
-        return "✓";
+    function getBudgetStatusIconName() {
+        if (!budgetStats) return "ok";
+        if (budgetStats.percentUsed >= 1) return "dialog-warning-symbolic";
+        if (budgetStats.percentUsed >= 0.8) return "dialog-warning-symbolic";
+        return "ok";
     }
 
-    function getCategoryEmoji(icon) {
-        var emojiMap = {
-            "restaurant": "🍽️", "directions_car": "🚗", "shopping_bag": "🛍️",
-            "movie": "🎬", "receipt_long": "📄", "local_hospital": "🏥",
-            "school": "🎓", "spa": "💆", "local_grocery_store": "🛒",
-            "card_giftcard": "🎁", "savings": "💰", "show_chart": "📊",
-            "family_restroom": "👨‍👩‍👧", "more_horiz": "⋯"
+    function getCategoryIcon(icon) {
+        var iconMap = {
+            "restaurant": "like",
+            "directions_car": "stock_transport-car",
+            "shopping_bag": "stock_store",
+            "movie": "stock_music",
+            "receipt_long": "stock_document",
+            "local_hospital": "stock_health",
+            "school": "stock_note",
+            "spa": "like",
+            "local_grocery_store": "stock_store",
+            "card_giftcard": "stock_event",
+            "savings": "save",
+            "show_chart": "stock_website",
+            "family_restroom": "contact-group",
+            "more_horiz": "other-actions"
         };
-        return emojiMap[icon] || "📝";
+        return iconMap[icon] || "stock_note";
     }
 
     Component.onCompleted: {

@@ -1,4 +1,5 @@
 import QtQuick 2.7
+import Lomiri.Components 1.3
 import ".."
 
 Item {
@@ -6,11 +7,11 @@ Item {
 
     property var data: []
     property string currencyCode: "INR"
-    property int barWidth: 40
-    property int barSpacing: 8
+    property int barWidth: units.gu(5)
+    property int barSpacing: units.gu(1)
 
-    width: Math.max(data.length * (barWidth + barSpacing) + 60, 200)
-    height: 200
+    width: Math.max(data.length * (barWidth + barSpacing) + units.gu(8), units.gu(25))
+    height: units.gu(25)
 
     property real maxValue: {
         var max = 0;
@@ -24,18 +25,18 @@ Item {
     Column {
         id: yAxis
         x: 0
-        y: 10
-        width: 45
-        height: barChart.height - 50
+        y: units.gu(1)
+        width: units.gu(5.5)
+        height: barChart.height - units.gu(6)
 
         Repeater {
             model: 5
 
-            Text {
+            Label {
                 width: parent.width
-                height: (barChart.height - 50) / 4
+                height: (barChart.height - units.gu(6)) / 4
                 text: Theme.formatCompactCurrency(maxValue * (1 - index / 4), currencyCode)
-                font.pixelSize: Theme.fontSizeXS
+                fontSize: "x-small"
                 color: Theme.gray500
                 horizontalAlignment: Text.AlignRight
                 verticalAlignment: Text.AlignTop
@@ -46,10 +47,10 @@ Item {
     // Chart area
     Item {
         id: chartArea
-        x: 50
-        y: 10
-        width: barChart.width - 60
-        height: barChart.height - 50
+        x: units.gu(6)
+        y: units.gu(1)
+        width: barChart.width - units.gu(8)
+        height: barChart.height - units.gu(6)
 
         // Grid lines
         Repeater {
@@ -58,7 +59,7 @@ Item {
             Rectangle {
                 y: chartArea.height * (index / 4)
                 width: chartArea.width
-                height: 1
+                height: units.dp(1)
                 color: Theme.gray200
             }
         }
@@ -78,9 +79,9 @@ Item {
 
                     Rectangle {
                         width: barWidth
-                        height: Math.max((modelData.value / maxValue) * parent.height, 4)
+                        height: Math.max((modelData.value / maxValue) * parent.height, units.dp(4))
                         anchors.bottom: parent.bottom
-                        radius: 4
+                        radius: units.dp(4)
                         color: modelData.color || Theme.chartColors[index % Theme.chartColors.length]
 
                         Behavior on height {
@@ -89,11 +90,11 @@ Item {
                     }
 
                     // X-axis label
-                    Text {
-                        y: parent.height + Theme.spacingXS
+                    Label {
+                        y: parent.height + units.gu(0.5)
                         anchors.horizontalCenter: parent.horizontalCenter
                         text: modelData.label ? modelData.label.substring(0, 6) : ""
-                        font.pixelSize: Theme.fontSizeXS
+                        fontSize: "x-small"
                         color: Theme.gray500
                         rotation: -45
                         transformOrigin: Item.TopLeft
