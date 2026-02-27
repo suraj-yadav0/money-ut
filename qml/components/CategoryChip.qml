@@ -11,8 +11,6 @@ AbstractButton {
     property color selectedColor: Theme.primary
     property color defaultColor: Theme.white
 
-    signal clicked()
-
     width: content.width + units.gu(2.5)
     height: units.gu(4)
 
@@ -44,6 +42,4 @@ AbstractButton {
             }
         }
     }
-
-    onClicked: chip.clicked()
 }

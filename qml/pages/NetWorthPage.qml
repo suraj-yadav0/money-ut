@@ -161,29 +161,36 @@ Page {
             }
 
             // Asset type filter
-            ListView {
+            Flickable {
                 Layout.fillWidth: true
                 height: units.gu(5)
-                orientation: ListView.Horizontal
-                spacing: units.gu(1)
+                contentWidth: filterRow.width
                 clip: true
+                flickableDirection: Flickable.HorizontalFlick
 
-                model: [
-                    { key: "all", label: "All" },
-                    { key: "savings", label: "Savings" },
-                    { key: "investment", label: "Investment" },
-                    { key: "property", label: "Property" },
-                    { key: "gold", label: "Gold" },
-                    { key: "loan", label: "Loan" },
-                    { key: "other", label: "Other" }
-                ]
+                Row {
+                    id: filterRow
+                    spacing: units.gu(1)
 
-                delegate: CategoryChip {
-                    text: modelData.label
-                    selected: assetFilter === modelData.key
-                    onClicked: {
-                        assetFilter = modelData.key;
-                        loadAssets();
+                    Repeater {
+                        model: [
+                            { key: "all", label: "All" },
+                            { key: "savings", label: "Savings" },
+                            { key: "investment", label: "Investment" },
+                            { key: "property", label: "Property" },
+                            { key: "gold", label: "Gold" },
+                            { key: "loan", label: "Loan" },
+                            { key: "other", label: "Other" }
+                        ]
+
+                        delegate: CategoryChip {
+                            text: modelData.label
+                            selected: assetFilter === modelData.key
+                            onClicked: {
+                                assetFilter = modelData.key;
+                                loadAssets();
+                            }
+                        }
                     }
                 }
             }
