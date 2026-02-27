@@ -4,18 +4,17 @@ import ".."
 Item {
     id: pieChart
 
-    property var data: []  // Array of { label, value, color }
+    property var data: []
     property int donutRadius: 35
     property bool showLegend: true
 
     implicitWidth: 200
-    implicitHeight: chartCanvas.height + (showLegend ? legendColumn.height + Theme.spacingSM : 0)
+    implicitHeight: chartCanvas.height + (showLegend && data.length > 0 ? legendColumn.height + Theme.spacingSM : 0)
 
     Canvas {
         id: chartCanvas
-        anchors.horizontalCenter: pieChart.horizontalCenter
-        width: Math.min(pieChart.width - 20, 160)
-        height: width
+        width: parent.width
+        height: Math.min(parent.width - 20, 160)
 
         onPaint: {
             var ctx = getContext("2d");
@@ -54,23 +53,14 @@ Item {
         }
     }
 
-    Connections {
-        target: pieChart
-        onDataChanged: chartCanvas.requestPaint()
-        onWidthChanged: chartCanvas.requestPaint()
-    }
-
+    onDataChanged: chartCanvas.requestPaint()
     onWidthChanged: chartCanvas.requestPaint()
     Component.onCompleted: chartCanvas.requestPaint()
 
-    // Legend
     Column {
         id: legendColumn
-        anchors {
-            top: chartCanvas.bottom
-            topMargin: Theme.spacingSM
-            horizontalCenter: pieChart.horizontalCenter
-        }
+        y: chartCanvas.height + Theme.spacingSM
+        width: parent.width
         visible: showLegend && pieChart.data.length > 0
         spacing: Theme.spacingXS
 
@@ -78,6 +68,7 @@ Item {
             columns: 2
             columnSpacing: Theme.spacingMD
             rowSpacing: Theme.spacingXS
+            anchors.horizontalCenter: parent.horizontalCenter
 
             Repeater {
                 model: pieChart.data

@@ -35,13 +35,13 @@ Page {
                 iconName: "settings"
                 text: "Settings"
                 onTriggered: openSettings()
+            },
+            Action {
+                iconName: "calendar"
+                text: "Calendar"
+                onTriggered: openCalendar()
             }
         ]
-
-        MouseArea {
-            anchors.fill: parent
-            onClicked: openCalendar()
-        }
     }
 
     // Background

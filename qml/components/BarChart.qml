@@ -4,12 +4,12 @@ import ".."
 Item {
     id: barChart
 
-    property var data: []  // Array of { label, value, color }
+    property var data: []
     property string currencyCode: "INR"
     property int barWidth: 40
     property int barSpacing: 8
 
-    width: Math.max(data.length * (barWidth + barSpacing), 200)
+    width: Math.max(data.length * (barWidth + barSpacing) + 60, 200)
     height: 200
 
     property real maxValue: {
@@ -20,16 +20,36 @@ Item {
         return max || 1;
     }
 
+    // Y-axis labels
+    Column {
+        id: yAxis
+        x: 0
+        y: 10
+        width: 45
+        height: parent.height - 50
+
+        Repeater {
+            model: 5
+
+            Text {
+                width: parent.width
+                height: (barChart.height - 50) / 4
+                text: Theme.formatCompactCurrency(maxValue * (1 - index / 4), currencyCode)
+                font.pixelSize: Theme.fontSizeXS
+                color: Theme.gray500
+                horizontalAlignment: Text.AlignRight
+                verticalAlignment: Text.AlignTop
+            }
+        }
+    }
+
     // Chart area
     Item {
         id: chartArea
-        anchors {
-            fill: parent
-            leftMargin: 50  // Y-axis labels
-            bottomMargin: 40  // X-axis labels
-            rightMargin: 10
-            topMargin: 10
-        }
+        x: 50
+        y: 10
+        width: parent.width - 60
+        height: parent.height - 50
 
         // Grid lines
         Repeater {
@@ -66,79 +86,19 @@ Item {
                         Behavior on height {
                             NumberAnimation { duration: Theme.animationNormal; easing.type: Easing.OutCubic }
                         }
-
-                        // Tooltip on hover
-                        MouseArea {
-                            anchors.fill: parent
-                            hoverEnabled: true
-
-                            onEntered: tooltip.visible = true
-                            onExited: tooltip.visible = false
-                        }
-
-                        Rectangle {
-                            id: tooltip
-                            visible: false
-                            anchors {
-                                bottom: parent.top
-                                bottomMargin: 4
-                                horizontalCenter: parent.horizontalCenter
-                            }
-                            width: tooltipText.width + Theme.spacingSM * 2
-                            height: tooltipText.height + Theme.spacingXS * 2
-                            color: Theme.gray900
-                            radius: 4
-
-                            Text {
-                                id: tooltipText
-                                anchors.centerIn: parent
-                                text: Theme.formatCurrency(modelData.value, currencyCode)
-                                font.pixelSize: Theme.fontSizeXS
-                                color: Theme.white
-                            }
-                        }
                     }
 
                     // X-axis label
                     Text {
-                        anchors {
-                            top: parent.bottom
-                            topMargin: Theme.spacingXS
-                            horizontalCenter: parent.horizontalCenter
-                        }
-                        text: modelData.label.substring(0, 6)
+                        y: parent.height + Theme.spacingXS
+                        anchors.horizontalCenter: parent.horizontalCenter
+                        text: modelData.label ? modelData.label.substring(0, 6) : ""
                         font.pixelSize: Theme.fontSizeXS
                         color: Theme.gray500
                         rotation: -45
                         transformOrigin: Item.TopLeft
                     }
                 }
-            }
-        }
-    }
-
-    // Y-axis labels
-    Column {
-        anchors {
-            left: barChart.left
-            top: barChart.top
-            topMargin: 10
-            bottom: barChart.bottom
-            bottomMargin: 40
-        }
-        width: 45
-
-        Repeater {
-            model: 5
-
-            Text {
-                width: parent.width
-                height: (barChart.height - 50) / 4
-                text: Theme.formatCompactCurrency(maxValue * (1 - index / 4), currencyCode)
-                font.pixelSize: Theme.fontSizeXS
-                color: Theme.gray500
-                horizontalAlignment: Text.AlignRight
-                verticalAlignment: Text.AlignTop
             }
         }
     }
