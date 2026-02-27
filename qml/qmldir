@@ -1,0 +1,4 @@
+module money-ut
+
+singleton Theme 1.0 Theme.qml
+singleton Database 1.0 Database.qml

@@ -1,4 +1,7 @@
 {
-    "policy_groups": [],
+    "policy_groups": [
+        "content_exchange",
+        "usermetrics"
+    ],
     "policy_version": 20.04
 }
