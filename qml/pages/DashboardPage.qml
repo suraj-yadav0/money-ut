@@ -134,61 +134,60 @@ Page {
             }
 
             // Chart container
-            GlassCard {
+            Rectangle {
                 Layout.fillWidth: true
-                implicitHeight: 280
+                Layout.preferredHeight: 260
+                color: Qt.rgba(255, 255, 255, 0.7)
+                radius: Theme.radiusLG
 
-                Item {
+                // Pie chart
+                PieChart {
+                    anchors.centerIn: parent
+                    visible: chartType === "pie"
+                    width: parent.width - Theme.spacingLG * 2
+                    data: getChartData()
+                }
+
+                // Bar chart
+                Flickable {
                     anchors.fill: parent
+                    anchors.margins: Theme.spacingSM
+                    visible: chartType === "bar"
+                    contentWidth: barChart.width
+                    clip: true
 
-                    // Pie chart
-                    PieChart {
-                        anchors.centerIn: parent
-                        visible: chartType === "pie"
-                        width: Math.min(parent.width, 240)
-                        height: 240
+                    BarChart {
+                        id: barChart
+                        height: parent.height - Theme.spacingMD
                         data: getChartData()
+                        currencyCode: dashboardPage.currencyCode
                     }
+                }
 
-                    // Bar chart
-                    Flickable {
-                        anchors.fill: parent
-                        visible: chartType === "bar"
-                        contentWidth: barChart.width
-                        clip: true
+                // Line chart
+                Flickable {
+                    anchors.fill: parent
+                    anchors.margins: Theme.spacingSM
+                    visible: chartType === "trend"
+                    contentWidth: lineChart.width
+                    clip: true
 
-                        BarChart {
-                            id: barChart
-                            height: parent.height
-                            data: getChartData()
-                            currencyCode: dashboardPage.currencyCode
-                        }
+                    LineChart {
+                        id: lineChart
+                        height: parent.height - Theme.spacingMD
+                        data: getTrendData()
+                        currencyCode: dashboardPage.currencyCode
+                        lineColor: dataMode === "expense" ? Theme.expense : Theme.income
                     }
+                }
 
-                    // Line chart
-                    Flickable {
-                        anchors.fill: parent
-                        visible: chartType === "trend"
-                        contentWidth: lineChart.width
-                        clip: true
-
-                        LineChart {
-                            id: lineChart
-                            height: parent.height
-                            data: getTrendData()
-                            currencyCode: dashboardPage.currencyCode
-                            lineColor: dataMode === "expense" ? Theme.expense : Theme.income
-                        }
-                    }
-
-                    // Empty state
-                    EmptyState {
-                        anchors.centerIn: parent
-                        visible: (!stats || stats.categoryBreakdown.length === 0) && chartType !== "trend"
-                        emoji: "📊"
-                        title: "No Data Yet"
-                        subtitle: "Add some transactions to see your charts"
-                    }
+                // Empty state
+                EmptyState {
+                    anchors.centerIn: parent
+                    visible: (!stats || stats.categoryBreakdown.length === 0) && chartType !== "trend"
+                    emoji: "📊"
+                    title: "No Data Yet"
+                    subtitle: "Add some transactions to see your charts"
                 }
             }
 
@@ -199,7 +198,7 @@ Page {
                 Text {
                     text: "Recent Transactions"
                     font.pixelSize: Theme.fontSizeLG
-                    font.weight: Font.SemiBold
+                    font.weight: Font.DemiBold
                     color: Theme.gray900
                 }
 

@@ -89,7 +89,7 @@ Page {
                         Text {
                             text: Theme.formatCurrency(monthTotals.income, currencyCode)
                             font.pixelSize: Theme.fontSizeMD
-                            font.weight: Font.SemiBold
+                            font.weight: Font.DemiBold
                             color: Theme.income
                         }
                     }
@@ -109,7 +109,7 @@ Page {
                         Text {
                             text: Theme.formatCurrency(monthTotals.expenses, currencyCode)
                             font.pixelSize: Theme.fontSizeMD
-                            font.weight: Font.SemiBold
+                            font.weight: Font.DemiBold
                             color: Theme.expense
                         }
                     }
@@ -129,7 +129,7 @@ Page {
                         Text {
                             text: Theme.formatCurrency(monthTotals.net, currencyCode)
                             font.pixelSize: Theme.fontSizeMD
-                            font.weight: Font.SemiBold
+                            font.weight: Font.DemiBold
                             color: monthTotals.net >= 0 ? Theme.income : Theme.expense
                         }
                     }
@@ -148,7 +148,7 @@ Page {
                         width: (parent.width) / 7
                         text: modelData
                         font.pixelSize: Theme.fontSizeSM
-                        font.weight: Font.SemiBold
+                        font.weight: Font.DemiBold
                         color: index === 0 ? Theme.expense : (index === 6 ? Theme.income : Theme.gray600)
                         horizontalAlignment: Text.AlignHCenter
                     }

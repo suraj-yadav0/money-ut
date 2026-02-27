@@ -75,7 +75,7 @@ Page {
                         Text {
                             text: Theme.formatCurrency(daySummary.income, currencyCode)
                             font.pixelSize: Theme.fontSizeMD
-                            font.weight: Font.SemiBold
+                            font.weight: Font.DemiBold
                             color: Theme.income
                         }
                     }
@@ -95,7 +95,7 @@ Page {
                         Text {
                             text: Theme.formatCurrency(daySummary.expenses, currencyCode)
                             font.pixelSize: Theme.fontSizeMD
-                            font.weight: Font.SemiBold
+                            font.weight: Font.DemiBold
                             color: Theme.expense
                         }
                     }
@@ -115,7 +115,7 @@ Page {
                         Text {
                             text: Theme.formatCurrency(daySummary.net, currencyCode)
                             font.pixelSize: Theme.fontSizeMD
-                            font.weight: Font.SemiBold
+                            font.weight: Font.DemiBold
                             color: daySummary.net >= 0 ? Theme.income : Theme.expense
                         }
                     }

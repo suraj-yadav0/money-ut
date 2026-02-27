@@ -38,7 +38,7 @@ Rectangle {
         Text {
             text: chip.text
             font.pixelSize: Theme.fontSizeSM
-            font.weight: selected ? Font.SemiBold : Font.Normal
+            font.weight: selected ? Font.DemiBold : Font.Normal
             color: selected ? Theme.white : Theme.gray700
             anchors.verticalCenter: parent.verticalCenter
         }

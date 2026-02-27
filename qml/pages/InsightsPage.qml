@@ -93,7 +93,7 @@ Page {
                                 Text {
                                     text: modelData.title
                                     font.pixelSize: Theme.fontSizeMD
-                                    font.weight: Font.SemiBold
+                                    font.weight: Font.DemiBold
                                     color: Theme.gray900
                                 }
 
@@ -161,7 +161,7 @@ Page {
                                 anchors.centerIn: parent
                                 text: modelData.actionText || ""
                                 font.pixelSize: Theme.fontSizeSM
-                                font.weight: Font.SemiBold
+                                font.weight: Font.DemiBold
                                 color: Theme.white
                             }
 

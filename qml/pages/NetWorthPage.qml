@@ -103,7 +103,7 @@ Page {
                         Text {
                             text: Theme.formatCompactCurrency(netWorthData ? netWorthData.totalAssets : 0, currencyCode)
                             font.pixelSize: Theme.fontSizeMD
-                            font.weight: Font.SemiBold
+                            font.weight: Font.DemiBold
                             color: Theme.income
                         }
                     }
@@ -126,7 +126,7 @@ Page {
                         Text {
                             text: Theme.formatCompactCurrency(netWorthData ? netWorthData.totalLiabilities : 0, currencyCode)
                             font.pixelSize: Theme.fontSizeMD
-                            font.weight: Font.SemiBold
+                            font.weight: Font.DemiBold
                             color: Theme.expense
                         }
                     }
@@ -149,7 +149,7 @@ Page {
                         Text {
                             text: Theme.formatCompactCurrency(netWorthData ? netWorthData.goalSavings : 0, currencyCode)
                             font.pixelSize: Theme.fontSizeMD
-                            font.weight: Font.SemiBold
+                            font.weight: Font.DemiBold
                             color: Theme.primary
                         }
                     }
@@ -192,7 +192,7 @@ Page {
                 Text {
                     text: "Your Assets"
                     font.pixelSize: Theme.fontSizeLG
-                    font.weight: Font.SemiBold
+                    font.weight: Font.DemiBold
                     color: Theme.gray900
                 }
 
@@ -236,7 +236,7 @@ Page {
                             Text {
                                 text: modelData.name
                                 font.pixelSize: Theme.fontSizeMD
-                                font.weight: Font.SemiBold
+                                font.weight: Font.DemiBold
                                 color: Theme.gray900
                             }
 
@@ -270,7 +270,7 @@ Page {
                         Text {
                             text: (modelData.is_liability === 1 ? "-" : "+") + Theme.formatCurrency(modelData.value, currencyCode)
                             font.pixelSize: Theme.fontSizeMD
-                            font.weight: Font.SemiBold
+                            font.weight: Font.DemiBold
                             color: modelData.is_liability === 1 ? Theme.expense : Theme.income
                         }
                     }
@@ -307,7 +307,7 @@ Page {
                     Text {
                         text: "Net Worth Trend"
                         font.pixelSize: Theme.fontSizeMD
-                        font.weight: Font.SemiBold
+                        font.weight: Font.DemiBold
                         color: Theme.gray900
                     }
 
@@ -530,7 +530,7 @@ Page {
                             anchors.centerIn: parent
                             text: "Delete"
                             font.pixelSize: Theme.fontSizeMD
-                            font.weight: Font.SemiBold
+                            font.weight: Font.DemiBold
                             color: Theme.white
                         }
 
@@ -551,7 +551,7 @@ Page {
                             anchors.centerIn: parent
                             text: editingAsset ? "Update" : "Add Asset"
                             font.pixelSize: Theme.fontSizeMD
-                            font.weight: Font.SemiBold
+                            font.weight: Font.DemiBold
                             color: Theme.white
                         }
 

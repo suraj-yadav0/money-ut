@@ -55,7 +55,7 @@ Row {
                 anchors.centerIn: parent
                 text: modelData.label
                 font.pixelSize: Theme.fontSizeSM
-                font.weight: segmentedButton.selectedKey === modelData.key ? Font.SemiBold : Font.Normal
+                font.weight: segmentedButton.selectedKey === modelData.key ? Font.DemiBold : Font.Normal
                 color: segmentedButton.selectedKey === modelData.key ? Theme.white : activeColor
             }
 

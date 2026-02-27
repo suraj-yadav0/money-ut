@@ -77,7 +77,7 @@ Page {
                             Text {
                                 text: Theme.formatCurrency(budgetStats ? budgetStats.totalSpent : 0, currencyCode) + " spent"
                                 font.pixelSize: Theme.fontSizeLG
-                                font.weight: Font.SemiBold
+                                font.weight: Font.DemiBold
                                 color: Theme.gray900
                             }
 
@@ -116,7 +116,7 @@ Page {
                             Text {
                                 text: Theme.formatCurrency(budgetStats ? budgetStats.totalRemaining : 0, currencyCode)
                                 font.pixelSize: Theme.fontSizeMD
-                                font.weight: Font.SemiBold
+                                font.weight: Font.DemiBold
                                 color: (budgetStats && budgetStats.totalRemaining >= 0) ? Theme.income : Theme.expense
                             }
                         }
@@ -138,7 +138,7 @@ Page {
                                 property int daysLeft: getDaysLeftInMonth()
                                 text: Theme.formatCurrency(budgetStats && daysLeft > 0 ? budgetStats.totalRemaining / daysLeft : 0, currencyCode)
                                 font.pixelSize: Theme.fontSizeMD
-                                font.weight: Font.SemiBold
+                                font.weight: Font.DemiBold
                                 color: Theme.gray900
                             }
                         }
@@ -159,7 +159,7 @@ Page {
                             Text {
                                 text: getDaysLeftInMonth()
                                 font.pixelSize: Theme.fontSizeMD
-                                font.weight: Font.SemiBold
+                                font.weight: Font.DemiBold
                                 color: Theme.gray900
                             }
                         }
@@ -171,7 +171,7 @@ Page {
             Text {
                 text: "Category Budgets"
                 font.pixelSize: Theme.fontSizeLG
-                font.weight: Font.SemiBold
+                font.weight: Font.DemiBold
                 color: Theme.gray900
                 visible: budgetStats && budgetStats.categories.length > 0
             }
@@ -210,7 +210,7 @@ Page {
                                 Text {
                                     text: modelData.categoryName
                                     font.pixelSize: Theme.fontSizeMD
-                                    font.weight: Font.SemiBold
+                                    font.weight: Font.DemiBold
                                     color: Theme.gray900
                                 }
 

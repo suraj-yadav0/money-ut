@@ -73,7 +73,7 @@ Page {
                     Text {
                         text: Theme.getSmartDateHeader(modelData)
                         font.pixelSize: Theme.fontSizeSM
-                        font.weight: Font.SemiBold
+                        font.weight: Font.DemiBold
                         color: Theme.gray500
                         Layout.topMargin: index > 0 ? Theme.spacingMD : 0
                     }

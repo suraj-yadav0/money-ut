@@ -230,7 +230,7 @@ MainView {
                                 text: "Home"
                                 font.pixelSize: Theme.fontSizeXS
                                 color: currentTab === 0 ? Theme.primary : Theme.gray500
-                                font.weight: currentTab === 0 ? Font.SemiBold : Font.Normal
+                                font.weight: currentTab === 0 ? Font.DemiBold : Font.Normal
                                 Layout.alignment: Qt.AlignHCenter
                             }
                         }
@@ -266,7 +266,7 @@ MainView {
                                 text: "Budget"
                                 font.pixelSize: Theme.fontSizeXS
                                 color: currentTab === 1 ? Theme.primary : Theme.gray500
-                                font.weight: currentTab === 1 ? Font.SemiBold : Font.Normal
+                                font.weight: currentTab === 1 ? Font.DemiBold : Font.Normal
                                 Layout.alignment: Qt.AlignHCenter
                             }
                         }
@@ -308,7 +308,7 @@ MainView {
                                 text: "Worth"
                                 font.pixelSize: Theme.fontSizeXS
                                 color: currentTab === 2 ? Theme.primary : Theme.gray500
-                                font.weight: currentTab === 2 ? Font.SemiBold : Font.Normal
+                                font.weight: currentTab === 2 ? Font.DemiBold : Font.Normal
                                 Layout.alignment: Qt.AlignHCenter
                             }
                         }
@@ -344,7 +344,7 @@ MainView {
                                 text: "Goals"
                                 font.pixelSize: Theme.fontSizeXS
                                 color: currentTab === 3 ? Theme.primary : Theme.gray500
-                                font.weight: currentTab === 3 ? Font.SemiBold : Font.Normal
+                                font.weight: currentTab === 3 ? Font.DemiBold : Font.Normal
                                 Layout.alignment: Qt.AlignHCenter
                             }
                         }

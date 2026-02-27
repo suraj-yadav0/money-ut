@@ -99,7 +99,7 @@ Page {
                             anchors.centerIn: parent
                             text: "Expense"
                             font.pixelSize: Theme.fontSizeMD
-                            font.weight: transactionType === "expense" ? Font.SemiBold : Font.Normal
+                            font.weight: transactionType === "expense" ? Font.DemiBold : Font.Normal
                             color: transactionType === "expense" ? Theme.white : Theme.gray600
                         }
 
@@ -122,7 +122,7 @@ Page {
                             anchors.centerIn: parent
                             text: "Income"
                             font.pixelSize: Theme.fontSizeMD
-                            font.weight: transactionType === "income" ? Font.SemiBold : Font.Normal
+                            font.weight: transactionType === "income" ? Font.DemiBold : Font.Normal
                             color: transactionType === "income" ? Theme.white : Theme.gray600
                         }
 
@@ -201,7 +201,7 @@ Page {
             Text {
                 text: "Category"
                 font.pixelSize: Theme.fontSizeMD
-                font.weight: Font.SemiBold
+                font.weight: Font.DemiBold
                 color: Theme.gray700
             }
 
@@ -224,7 +224,7 @@ Page {
             Text {
                 text: "Link to Goal"
                 font.pixelSize: Theme.fontSizeMD
-                font.weight: Font.SemiBold
+                font.weight: Font.DemiBold
                 color: Theme.gray700
                 visible: transactionType === "expense"
             }
@@ -302,7 +302,7 @@ Page {
             Text {
                 text: "Payment Mode"
                 font.pixelSize: Theme.fontSizeMD
-                font.weight: Font.SemiBold
+                font.weight: Font.DemiBold
                 color: Theme.gray700
             }
 
@@ -331,7 +331,7 @@ Page {
             Text {
                 text: "Date"
                 font.pixelSize: Theme.fontSizeMD
-                font.weight: Font.SemiBold
+                font.weight: Font.DemiBold
                 color: Theme.gray700
             }
 
@@ -379,7 +379,7 @@ Page {
                     anchors.centerIn: parent
                     text: isEditing ? "Update Transaction" : "Add Transaction"
                     font.pixelSize: Theme.fontSizeLG
-                    font.weight: Font.SemiBold
+                    font.weight: Font.DemiBold
                     color: canSave() ? Theme.white : Theme.gray500
                 }
 
@@ -408,7 +408,7 @@ Page {
                     anchors.centerIn: parent
                     text: "Delete Transaction"
                     font.pixelSize: Theme.fontSizeLG
-                    font.weight: Font.SemiBold
+                    font.weight: Font.DemiBold
                     color: Theme.expense
                 }
 
@@ -507,7 +507,7 @@ Page {
                         anchors.centerIn: parent
                         text: "Confirm"
                         font.pixelSize: Theme.fontSizeMD
-                        font.weight: Font.SemiBold
+                        font.weight: Font.DemiBold
                         color: Theme.white
                     }
 

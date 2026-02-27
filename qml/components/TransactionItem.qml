@@ -43,7 +43,7 @@ Rectangle {
                 text: "Edit"
                 color: Theme.white
                 font.pixelSize: Theme.fontSizeMD
-                font.weight: Font.SemiBold
+                font.weight: Font.DemiBold
             }
         }
 
@@ -60,7 +60,7 @@ Rectangle {
                 text: "Delete"
                 color: Theme.white
                 font.pixelSize: Theme.fontSizeMD
-                font.weight: Font.SemiBold
+                font.weight: Font.DemiBold
             }
             Text {
                 text: "🗑️"
@@ -114,7 +114,7 @@ Rectangle {
                 Text {
                     text: transaction ? transaction.category_name : ""
                     font.pixelSize: Theme.fontSizeMD
-                    font.weight: Font.SemiBold
+                    font.weight: Font.DemiBold
                     color: Theme.gray900
                     elide: Text.ElideRight
                     Layout.fillWidth: true
@@ -158,7 +158,7 @@ Rectangle {
                           (transaction.type === "income" ? "+" : "-") +
                           Theme.formatCurrency(transaction.amount, currencyCode) : ""
                     font.pixelSize: Theme.fontSizeMD
-                    font.weight: Font.SemiBold
+                    font.weight: Font.DemiBold
                     color: transaction && transaction.type === "income" ? Theme.income : Theme.expense
                     Layout.alignment: Qt.AlignRight
                 }

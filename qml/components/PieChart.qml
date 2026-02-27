@@ -1,72 +1,80 @@
 import QtQuick 2.7
 import ".."
 
-Canvas {
+Item {
     id: pieChart
 
     property var data: []  // Array of { label, value, color }
     property int donutRadius: 35
     property bool showLegend: true
 
-    width: 200
-    height: 200 + (showLegend ? legendHeight : 0)
+    implicitWidth: 200
+    implicitHeight: chartCanvas.height + (showLegend ? legendColumn.height + Theme.spacingSM : 0)
 
-    property int legendHeight: Math.ceil(data.length / 2) * 28 + Theme.spacingMD
+    Canvas {
+        id: chartCanvas
+        anchors.horizontalCenter: pieChart.horizontalCenter
+        width: Math.min(pieChart.width - 20, 160)
+        height: width
 
-    onDataChanged: requestPaint()
-    onWidthChanged: requestPaint()
-    onHeightChanged: requestPaint()
+        onPaint: {
+            var ctx = getContext("2d");
+            ctx.reset();
 
-    onPaint: {
-        var ctx = getContext("2d");
-        ctx.reset();
+            if (pieChart.data.length === 0) return;
 
-        if (data.length === 0) return;
+            var centerX = width / 2;
+            var centerY = height / 2;
+            var radius = Math.min(centerX, centerY) - 5;
+            var innerRadius = radius * (pieChart.donutRadius / 100);
 
-        var centerX = width / 2;
-        var centerY = (height - (showLegend ? legendHeight : 0)) / 2;
-        var radius = Math.min(centerX, centerY) - 10;
-        var innerRadius = radius * (donutRadius / 100);
+            var total = 0;
+            for (var i = 0; i < pieChart.data.length; i++) {
+                total += pieChart.data[i].value;
+            }
 
-        var total = 0;
-        for (var i = 0; i < data.length; i++) {
-            total += data[i].value;
-        }
+            if (total === 0) return;
 
-        if (total === 0) return;
+            var startAngle = -Math.PI / 2;
 
-        var startAngle = -Math.PI / 2;
+            for (var j = 0; j < pieChart.data.length; j++) {
+                var sliceAngle = (pieChart.data[j].value / total) * 2 * Math.PI;
+                var endAngle = startAngle + sliceAngle;
 
-        for (var j = 0; j < data.length; j++) {
-            var sliceAngle = (data[j].value / total) * 2 * Math.PI;
-            var endAngle = startAngle + sliceAngle;
+                ctx.beginPath();
+                ctx.fillStyle = pieChart.data[j].color || Theme.chartColors[j % Theme.chartColors.length];
 
-            ctx.beginPath();
-            ctx.fillStyle = data[j].color || Theme.chartColors[j % Theme.chartColors.length];
+                ctx.arc(centerX, centerY, radius, startAngle, endAngle);
+                ctx.arc(centerX, centerY, innerRadius, endAngle, startAngle, true);
+                ctx.closePath();
+                ctx.fill();
 
-            // Draw arc
-            ctx.arc(centerX, centerY, radius, startAngle, endAngle);
-            ctx.arc(centerX, centerY, innerRadius, endAngle, startAngle, true);
-            ctx.closePath();
-            ctx.fill();
-
-            startAngle = endAngle;
+                startAngle = endAngle;
+            }
         }
     }
 
+    Connections {
+        target: pieChart
+        onDataChanged: chartCanvas.requestPaint()
+    }
+
+    Component.onCompleted: chartCanvas.requestPaint()
+
     // Legend
     Column {
+        id: legendColumn
         anchors {
-            top: parent.top
-            topMargin: height - legendHeight
-            horizontalCenter: parent.horizontalCenter
+            top: chartCanvas.bottom
+            topMargin: Theme.spacingSM
+            horizontalCenter: pieChart.horizontalCenter
         }
-        visible: showLegend
+        visible: showLegend && pieChart.data.length > 0
         spacing: Theme.spacingXS
 
         Grid {
             columns: 2
-            columnSpacing: Theme.spacingLG
+            columnSpacing: Theme.spacingMD
             rowSpacing: Theme.spacingXS
 
             Repeater {
@@ -74,22 +82,22 @@ Canvas {
 
                 Row {
                     spacing: Theme.spacingXS
-                    width: 120
+                    width: 110
 
                     Rectangle {
-                        width: 12
-                        height: 12
-                        radius: 6
+                        width: 10
+                        height: 10
+                        radius: 5
                         color: modelData.color || Theme.chartColors[index % Theme.chartColors.length]
                         anchors.verticalCenter: parent.verticalCenter
                     }
 
                     Text {
-                        text: modelData.label + " (" + modelData.percentage.toFixed(0) + "%)"
+                        text: modelData.label + " (" + (modelData.percentage ? modelData.percentage.toFixed(0) : 0) + "%)"
                         font.pixelSize: Theme.fontSizeXS
                         color: Theme.gray600
                         elide: Text.ElideRight
-                        width: 100
+                        width: 90
                         anchors.verticalCenter: parent.verticalCenter
                     }
                 }

@@ -137,7 +137,7 @@ Page {
                         anchors.centerIn: parent
                         text: "Get Started"
                         font.pixelSize: Theme.fontSizeLG
-                        font.weight: Font.SemiBold
+                        font.weight: Font.DemiBold
                         color: Theme.white
                     }
 
@@ -268,7 +268,7 @@ Page {
                         anchors.centerIn: parent
                         text: "Continue"
                         font.pixelSize: Theme.fontSizeLG
-                        font.weight: Font.SemiBold
+                        font.weight: Font.DemiBold
                         color: monthlyIncome > 0 ? Theme.white : Theme.gray500
                     }
 
@@ -341,7 +341,7 @@ Page {
                             Text {
                                 text: Theme.formatFullCurrency(monthlyIncome, currency)
                                 font.pixelSize: Theme.fontSizeLG
-                                font.weight: Font.SemiBold
+                                font.weight: Font.DemiBold
                                 color: Theme.income
                             }
                         }
@@ -367,7 +367,7 @@ Page {
                                 property int daysInMonth: new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0).getDate()
                                 text: Theme.formatCurrency(monthlyIncome / daysInMonth, currency) + "/day"
                                 font.pixelSize: Theme.fontSizeLG
-                                font.weight: Font.SemiBold
+                                font.weight: Font.DemiBold
                                 color: Theme.primary
                             }
                         }
@@ -387,7 +387,7 @@ Page {
                         anchors.centerIn: parent
                         text: "Start Tracking"
                         font.pixelSize: Theme.fontSizeLG
-                        font.weight: Font.SemiBold
+                        font.weight: Font.DemiBold
                         color: Theme.white
                     }
 

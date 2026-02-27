@@ -31,7 +31,7 @@ Item {
         Text {
             text: emptyState.title
             font.pixelSize: Theme.fontSizeXL
-            font.weight: Font.SemiBold
+            font.weight: Font.DemiBold
             color: Theme.gray700
             Layout.alignment: Qt.AlignHCenter
             horizontalAlignment: Text.AlignHCenter
@@ -61,7 +61,7 @@ Item {
                 anchors.centerIn: parent
                 text: emptyState.actionText
                 font.pixelSize: Theme.fontSizeMD
-                font.weight: Font.SemiBold
+                font.weight: Font.DemiBold
                 color: Theme.white
             }
 

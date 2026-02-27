@@ -140,7 +140,7 @@ GlassContainer {
                 Text {
                     text: Theme.formatCurrency(totalIncome, currencyCode)
                     font.pixelSize: Theme.fontSizeLG
-                    font.weight: Font.SemiBold
+                    font.weight: Font.DemiBold
                     color: Theme.income
                 }
             }
@@ -165,7 +165,7 @@ GlassContainer {
                 Text {
                     text: Theme.formatCurrency(totalExpenses, currencyCode)
                     font.pixelSize: Theme.fontSizeLG
-                    font.weight: Font.SemiBold
+                    font.weight: Font.DemiBold
                     color: Theme.expense
                 }
             }

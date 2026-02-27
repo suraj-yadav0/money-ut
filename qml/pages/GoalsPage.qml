@@ -71,7 +71,7 @@ Page {
                                 Text {
                                     text: modelData.name
                                     font.pixelSize: Theme.fontSizeLG
-                                    font.weight: Font.SemiBold
+                                    font.weight: Font.DemiBold
                                     color: Theme.gray900
                                 }
 
@@ -146,7 +146,7 @@ Page {
                                 anchors.centerIn: parent
                                 text: "Add Money"
                                 font.pixelSize: Theme.fontSizeMD
-                                font.weight: Font.SemiBold
+                                font.weight: Font.DemiBold
                                 color: Theme.white
                             }
 
@@ -178,7 +178,7 @@ Page {
                                 Text {
                                     text: "Goal Completed!"
                                     font.pixelSize: Theme.fontSizeMD
-                                    font.weight: Font.SemiBold
+                                    font.weight: Font.DemiBold
                                     color: Theme.income
                                 }
                             }
@@ -344,7 +344,7 @@ Page {
                             anchors.centerIn: parent
                             text: "Delete"
                             font.pixelSize: Theme.fontSizeMD
-                            font.weight: Font.SemiBold
+                            font.weight: Font.DemiBold
                             color: Theme.white
                         }
 
@@ -365,7 +365,7 @@ Page {
                             anchors.centerIn: parent
                             text: editingGoal ? "Update" : "Create Goal"
                             font.pixelSize: Theme.fontSizeMD
-                            font.weight: Font.SemiBold
+                            font.weight: Font.DemiBold
                             color: Theme.white
                         }
 
@@ -463,7 +463,7 @@ Page {
                         anchors.centerIn: parent
                         text: "Add"
                         font.pixelSize: Theme.fontSizeMD
-                        font.weight: Font.SemiBold
+                        font.weight: Font.DemiBold
                         color: Theme.white
                     }
 
@@ -543,7 +543,7 @@ Page {
                     Text {
                         text: "Done"
                         font.pixelSize: Theme.fontSizeMD
-                        font.weight: Font.SemiBold
+                        font.weight: Font.DemiBold
                         color: Theme.white
                     }
                 }

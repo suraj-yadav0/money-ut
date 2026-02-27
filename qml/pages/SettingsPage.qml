@@ -55,7 +55,7 @@ Page {
             Text {
                 text: "Income"
                 font.pixelSize: Theme.fontSizeMD
-                font.weight: Font.SemiBold
+                font.weight: Font.DemiBold
                 color: Theme.gray500
             }
 
@@ -120,7 +120,7 @@ Page {
             Text {
                 text: "Preferences"
                 font.pixelSize: Theme.fontSizeMD
-                font.weight: Font.SemiBold
+                font.weight: Font.DemiBold
                 color: Theme.gray500
             }
 
@@ -189,7 +189,7 @@ Page {
             Text {
                 text: "About"
                 font.pixelSize: Theme.fontSizeMD
-                font.weight: Font.SemiBold
+                font.weight: Font.DemiBold
                 color: Theme.gray500
             }
 
@@ -248,7 +248,7 @@ Page {
             Text {
                 text: "Data"
                 font.pixelSize: Theme.fontSizeMD
-                font.weight: Font.SemiBold
+                font.weight: Font.DemiBold
                 color: Theme.gray500
             }
 
@@ -429,7 +429,7 @@ Page {
                             anchors.centerIn: parent
                             text: "Clear"
                             font.pixelSize: Theme.fontSizeMD
-                            font.weight: Font.SemiBold
+                            font.weight: Font.DemiBold
                             color: Theme.white
                         }
 

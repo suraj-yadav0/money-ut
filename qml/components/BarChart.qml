@@ -120,10 +120,10 @@ Item {
     // Y-axis labels
     Column {
         anchors {
-            left: parent.left
-            top: parent.top
+            left: barChart.left
+            top: barChart.top
             topMargin: 10
-            bottom: parent.bottom
+            bottom: barChart.bottom
             bottomMargin: 40
         }
         width: 45

@@ -111,10 +111,10 @@ Canvas {
     // X-axis labels
     Row {
         anchors {
-            bottom: parent.bottom
-            left: parent.left
+            bottom: lineChart.bottom
+            left: lineChart.left
             leftMargin: chartPadding
-            right: parent.right
+            right: lineChart.right
             rightMargin: chartPadding
         }
         height: chartPadding - 5
