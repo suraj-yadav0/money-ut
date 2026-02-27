@@ -26,7 +26,7 @@ Item {
         x: 0
         y: 10
         width: 45
-        height: parent.height - 50
+        height: barChart.height - 50
 
         Repeater {
             model: 5
@@ -48,8 +48,8 @@ Item {
         id: chartArea
         x: 50
         y: 10
-        width: parent.width - 60
-        height: parent.height - 50
+        width: barChart.width - 60
+        height: barChart.height - 50
 
         // Grid lines
         Repeater {

@@ -13,8 +13,8 @@ Item {
 
     Canvas {
         id: chartCanvas
-        width: parent.width
-        height: Math.min(parent.width - 20, 160)
+        width: pieChart.width
+        height: Math.min(pieChart.width - 20, 160)
 
         onPaint: {
             var ctx = getContext("2d");
@@ -60,7 +60,7 @@ Item {
     Column {
         id: legendColumn
         y: chartCanvas.height + Theme.spacingSM
-        width: parent.width
+        width: pieChart.width
         visible: showLegend && pieChart.data.length > 0
         spacing: Theme.spacingXS
 

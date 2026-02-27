@@ -18,7 +18,12 @@ MainView {
     property bool isOnboarded: false
     property int currentTab: 0
 
-    // Check onboarding status on start
+    // Convergent layout: side rail on wide/desktop, bottom nav on phone
+    property bool isWideLayout: root.width >= units.gu(90)
+
+    // Signal emitted when transaction data changes so active tabs can refresh
+    signal transactionDataChanged()
+
     Component.onCompleted: {
         Database.ensureInitialized();
         isOnboarded = Database.isOnboarded();
@@ -38,20 +43,20 @@ MainView {
         }
     }
 
-    // Onboarding page component
+    // ---- Onboarding ----
     Component {
         id: onboardingPage
 
         OnboardingPage {
             onOnboardingComplete: {
-                isOnboarded = true;
+                root.isOnboarded = true;
                 pageStack.clear();
                 pageStack.push(appShell);
             }
         }
     }
 
-    // Main app shell component
+    // ---- Main App Shell (convergent layout) ----
     Component {
         id: appShell
 
@@ -60,9 +65,23 @@ MainView {
 
             header: PageHeader {
                 visible: false
+                height: 0
             }
 
-            // Background
+            // Refresh the active tab when transaction data changes
+            Connections {
+                target: root
+                onTransactionDataChanged: {
+                    switch (currentTab) {
+                        case 0: dashboardPage.refreshData(); break;
+                        case 1: budgetPage.refreshData(); break;
+                        case 2: netWorthPage.refreshData(); break;
+                        case 3: goalsPage.refreshData(); break;
+                    }
+                }
+            }
+
+            // Background gradient
             Rectangle {
                 anchors.fill: parent
                 gradient: Gradient {
@@ -72,76 +91,184 @@ MainView {
                 }
             }
 
-            // Tab content using Loader to preserve state
-            Item {
+            // ---- Convergent: Side navigation rail (wide/desktop screens) ----
+            Rectangle {
+                id: sideNav
+                visible: root.isWideLayout
+                z: 2
                 anchors {
                     top: parent.top
+                    bottom: parent.bottom
                     left: parent.left
-                    right: parent.right
-                    bottom: bottomNav.top
+                }
+                width: units.gu(10)
+                color: Theme.white
+
+                // Right-edge separator
+                Rectangle {
+                    anchors {
+                        top: parent.top
+                        right: parent.right
+                        bottom: parent.bottom
+                    }
+                    width: units.dp(1)
+                    color: Theme.gray200
                 }
 
-                // Dashboard
-                Loader {
-                    id: dashboardLoader
-                    anchors.fill: parent
-                    active: true
-                    visible: currentTab === 0
-                    sourceComponent: DashboardPage {
-                        onOpenCalendar: pageStack.push(calendarPageComponent)
-                        onOpenSettings: pageStack.push(settingsPageComponent)
-                        onOpenInsights: pageStack.push(insightsPageComponent)
-                        onOpenAllTransactions: pageStack.push(allTransactionsPageComponent)
-                        onOpenAddTransaction: pageStack.push(addTransactionPageComponent)
-                        onEditTransaction: {
-                            var page = addTransactionPageComponent.createObject(pageStack);
-                            page.loadTransaction(transaction);
-                            pageStack.push(page);
+                Column {
+                    id: sideNavItems
+                    anchors {
+                        top: parent.top
+                        left: parent.left
+                        right: parent.right
+                        topMargin: Theme.spacingLG
+                    }
+                    spacing: Theme.spacingXS
+
+                    Repeater {
+                        model: [
+                            { emoji: "🏠", label: "Home", tab: 0 },
+                            { emoji: "💰", label: "Budget", tab: 1 },
+                            { emoji: "📊", label: "Worth", tab: 2 },
+                            { emoji: "🎯", label: "Goals", tab: 3 }
+                        ]
+
+                        Item {
+                            width: sideNavItems.width
+                            height: units.gu(7)
+
+                            Column {
+                                anchors.centerIn: parent
+                                spacing: 2
+
+                                Text {
+                                    text: modelData.emoji
+                                    font.pixelSize: 24
+                                    anchors.horizontalCenter: parent.horizontalCenter
+                                    opacity: currentTab === modelData.tab ? 1.0 : 0.5
+                                }
+
+                                Text {
+                                    text: modelData.label
+                                    font.pixelSize: Theme.fontSizeXS
+                                    color: currentTab === modelData.tab ? Theme.primary : Theme.gray500
+                                    font.weight: currentTab === modelData.tab ? Font.DemiBold : Font.Normal
+                                    anchors.horizontalCenter: parent.horizontalCenter
+                                }
+                            }
+
+                            // Active tab indicator
+                            Rectangle {
+                                visible: currentTab === modelData.tab
+                                anchors {
+                                    left: parent.left
+                                    top: parent.top
+                                    bottom: parent.bottom
+                                }
+                                width: units.dp(3)
+                                color: Theme.primary
+                                radius: 2
+                            }
+
+                            MouseArea {
+                                anchors.fill: parent
+                                onClicked: switchTab(modelData.tab)
+                            }
                         }
                     }
                 }
 
-                // Budget
-                Loader {
-                    id: budgetLoader
-                    anchors.fill: parent
-                    active: currentTab === 1
-                    visible: currentTab === 1
-                    sourceComponent: BudgetPage {}
-                }
+                // Add transaction button at bottom of side nav
+                Rectangle {
+                    anchors {
+                        horizontalCenter: parent.horizontalCenter
+                        bottom: parent.bottom
+                        bottomMargin: Theme.spacing2XL
+                    }
+                    width: 48
+                    height: 48
+                    radius: 24
+                    gradient: Gradient {
+                        GradientStop { position: 0.0; color: Theme.primary }
+                        GradientStop { position: 1.0; color: Theme.primaryDark }
+                    }
 
-                // Net Worth
-                Loader {
-                    id: netWorthLoader
-                    anchors.fill: parent
-                    active: currentTab === 2
-                    visible: currentTab === 2
-                    sourceComponent: NetWorthPage {}
-                }
+                    Text {
+                        anchors.centerIn: parent
+                        text: "+"
+                        font.pixelSize: 28
+                        font.weight: Font.Light
+                        color: Theme.white
+                    }
 
-                // Goals
-                Loader {
-                    id: goalsLoader
-                    anchors.fill: parent
-                    active: currentTab === 3
-                    visible: currentTab === 3
-                    sourceComponent: GoalsPage {}
+                    MouseArea {
+                        anchors.fill: parent
+                        cursorShape: Qt.PointingHandCursor
+                        onClicked: pageStack.push(addTransactionPageComponent)
+                    }
                 }
             }
 
-            // Center FAB
+            // ---- Content area with direct page instances (no Loaders) ----
+            Item {
+                id: contentArea
+                anchors {
+                    top: parent.top
+                    left: parent.left
+                    leftMargin: root.isWideLayout ? units.gu(10) : 0
+                    right: parent.right
+                    bottom: parent.bottom
+                    bottomMargin: root.isWideLayout ? 0 : bottomNav.height
+                }
+
+                DashboardPage {
+                    id: dashboardPage
+                    anchors.fill: parent
+                    visible: currentTab === 0
+                    onOpenCalendar: pageStack.push(calendarPageComponent)
+                    onOpenSettings: pageStack.push(settingsPageComponent)
+                    onOpenInsights: pageStack.push(insightsPageComponent)
+                    onOpenAllTransactions: pageStack.push(allTransactionsPageComponent)
+                    onOpenAddTransaction: pageStack.push(addTransactionPageComponent)
+                    onEditTransaction: {
+                        var pg = addTransactionPageComponent.createObject(null);
+                        pg.loadTransaction(transaction);
+                        pageStack.push(pg);
+                    }
+                }
+
+                BudgetPage {
+                    id: budgetPage
+                    anchors.fill: parent
+                    visible: currentTab === 1
+                }
+
+                NetWorthPage {
+                    id: netWorthPage
+                    anchors.fill: parent
+                    visible: currentTab === 2
+                }
+
+                GoalsPage {
+                    id: goalsPage
+                    anchors.fill: parent
+                    visible: currentTab === 3
+                }
+            }
+
+            // ---- FAB: Add Transaction (phone layout only) ----
             Rectangle {
                 id: fab
+                visible: !root.isWideLayout
+                z: 10
                 anchors {
                     horizontalCenter: parent.horizontalCenter
                     bottom: bottomNav.top
                     bottomMargin: -height / 2
                 }
-                z: 10
                 width: 56
                 height: 56
                 radius: 28
-                color: Theme.primary
 
                 gradient: Gradient {
                     GradientStop { position: 0.0; color: Theme.primary }
@@ -162,29 +289,21 @@ MainView {
                     onClicked: pageStack.push(addTransactionPageComponent)
                 }
 
-                // Shadow effect
+                // Glow shadow
                 Rectangle {
-                    anchors.fill: parent
-                    anchors.margins: -4
+                    anchors.centerIn: parent
+                    width: parent.width + 8
+                    height: parent.height + 8
                     z: -1
-                    radius: 32
-                    color: "transparent"
-                    border.width: 0
-
-                    Rectangle {
-                        anchors.centerIn: parent
-                        width: parent.width
-                        height: parent.height
-                        radius: parent.width / 2
-                        color: Qt.rgba(Theme.primary.r, Theme.primary.g, Theme.primary.b, 0.3)
-                        z: -1
-                    }
+                    radius: width / 2
+                    color: Qt.rgba(Theme.primary.r, Theme.primary.g, Theme.primary.b, 0.3)
                 }
             }
 
-            // Bottom navigation
+            // ---- Bottom navigation (phone layout only) ----
             Rectangle {
                 id: bottomNav
+                visible: !root.isWideLayout
                 anchors {
                     left: parent.left
                     right: parent.right
@@ -238,12 +357,7 @@ MainView {
 
                         MouseArea {
                             anchors.fill: parent
-                            onClicked: {
-                                currentTab = 0;
-                                if (dashboardLoader.item) {
-                                    dashboardLoader.item.refreshData();
-                                }
-                            }
+                            onClicked: switchTab(0)
                         }
                     }
 
@@ -274,12 +388,7 @@ MainView {
 
                         MouseArea {
                             anchors.fill: parent
-                            onClicked: {
-                                currentTab = 1;
-                                if (budgetLoader.item) {
-                                    budgetLoader.item.refreshData();
-                                }
-                            }
+                            onClicked: switchTab(1)
                         }
                     }
 
@@ -316,12 +425,7 @@ MainView {
 
                         MouseArea {
                             anchors.fill: parent
-                            onClicked: {
-                                currentTab = 2;
-                                if (netWorthLoader.item) {
-                                    netWorthLoader.item.refreshData();
-                                }
-                            }
+                            onClicked: switchTab(2)
                         }
                     }
 
@@ -352,29 +456,35 @@ MainView {
 
                         MouseArea {
                             anchors.fill: parent
-                            onClicked: {
-                                currentTab = 3;
-                                if (goalsLoader.item) {
-                                    goalsLoader.item.refreshData();
-                                }
-                            }
+                            onClicked: switchTab(3)
                         }
                     }
+                }
+            }
+
+            // Tab switching with data refresh
+            function switchTab(tab) {
+                currentTab = tab;
+                switch (tab) {
+                    case 0: dashboardPage.refreshData(); break;
+                    case 1: budgetPage.refreshData(); break;
+                    case 2: netWorthPage.refreshData(); break;
+                    case 3: goalsPage.refreshData(); break;
                 }
             }
         }
     }
 
-    // Page components for navigation
+    // ---- Secondary page components for push navigation ----
     Component {
         id: calendarPageComponent
 
         CalendarPage {
             onDaySelected: {
-                var page = dayTransactionsPageComponent.createObject(pageStack);
-                page.selectedDate = selectedDate;
-                page.refreshData();
-                pageStack.push(page);
+                var pg = dayTransactionsPageComponent.createObject(null);
+                pg.selectedDate = selectedDate;
+                pg.refreshData();
+                pageStack.push(pg);
             }
         }
     }
@@ -384,9 +494,9 @@ MainView {
 
         DayTransactionsPage {
             onEditTransaction: {
-                var page = addTransactionPageComponent.createObject(pageStack);
-                page.loadTransaction(transaction);
-                pageStack.push(page);
+                var pg = addTransactionPageComponent.createObject(null);
+                pg.loadTransaction(transaction);
+                pageStack.push(pg);
             }
         }
     }
@@ -416,9 +526,9 @@ MainView {
 
         AllTransactionsPage {
             onEditTransaction: {
-                var page = addTransactionPageComponent.createObject(pageStack);
-                page.loadTransaction(transaction);
-                pageStack.push(page);
+                var pg = addTransactionPageComponent.createObject(null);
+                pg.loadTransaction(transaction);
+                pageStack.push(pg);
             }
         }
     }
@@ -429,10 +539,7 @@ MainView {
         AddTransactionPage {
             onTransactionSaved: {
                 pageStack.pop();
-                // Refresh dashboard if visible
-                if (currentTab === 0 && dashboardLoader.item) {
-                    dashboardLoader.item.refreshData();
-                }
+                root.transactionDataChanged();
             }
             onCancelled: {
                 pageStack.pop();
