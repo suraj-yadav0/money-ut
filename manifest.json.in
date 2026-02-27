@@ -1,0 +1,15 @@
+{
+    "name": "money-ut.surajyadav",
+    "description": "A Modern Money Manager App for Ubuntu touch.",
+    "architecture": "@CLICK_ARCH@",
+    "title": "Money Manager",
+    "hooks": {
+        "money-ut": {
+            "apparmor": "money-ut.apparmor",
+            "desktop":  "money-ut.desktop"
+        }
+    },
+    "version": "1.0.0",
+    "maintainer": "Suraj Yadav <suraj200701@gmail.com>",
+    "framework" : "@CLICK_FRAMEWORK@"
+}
