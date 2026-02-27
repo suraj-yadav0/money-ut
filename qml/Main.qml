@@ -132,10 +132,10 @@ MainView {
 
                     Repeater {
                         model: [
-                            { emoji: "🏠", label: "Home", tab: 0 },
-                            { emoji: "💰", label: "Budget", tab: 1 },
-                            { emoji: "📊", label: "Worth", tab: 2 },
-                            { emoji: "🎯", label: "Goals", tab: 3 }
+                            { icon: "home", label: "Home", tab: 0 },
+                            { icon: "tag", label: "Budget", tab: 1 },
+                            { icon: "view-grid-symbolic", label: "Worth", tab: 2 },
+                            { icon: "starred", label: "Goals", tab: 3 }
                         ]
 
                         Item {
@@ -146,14 +146,15 @@ MainView {
                                 anchors.centerIn: parent
                                 spacing: 2
 
-                                Text {
-                                    text: modelData.emoji
-                                    font.pixelSize: 24
+                                Icon {
+                                    width: units.gu(3)
+                                    height: units.gu(3)
+                                    name: modelData.icon
                                     anchors.horizontalCenter: parent.horizontalCenter
-                                    opacity: currentTab === modelData.tab ? 1.0 : 0.5
+                                    color: currentTab === modelData.tab ? Theme.primary : Theme.gray500
                                 }
 
-                                Text {
+                                Label {
                                     text: modelData.label
                                     font.pixelSize: Theme.fontSizeXS
                                     color: currentTab === modelData.tab ? Theme.primary : Theme.gray500
@@ -198,7 +199,7 @@ MainView {
                         GradientStop { position: 1.0; color: Theme.primaryDark }
                     }
 
-                    Text {
+                    Label {
                         anchors.centerIn: parent
                         text: "+"
                         font.pixelSize: 28
@@ -280,7 +281,7 @@ MainView {
                     GradientStop { position: 1.0; color: Theme.primaryDark }
                 }
 
-                Text {
+                Label {
                     anchors.centerIn: parent
                     text: "+"
                     font.pixelSize: 32
@@ -337,21 +338,22 @@ MainView {
 
                     // Home tab
                     Item {
-                        Layout.preferredWidth: (parent.width - 60) / 4
+                        Layout.fillWidth: true
                         Layout.fillHeight: true
 
                         ColumnLayout {
                             anchors.centerIn: parent
                             spacing: 4
 
-                            Text {
-                                text: "🏠"
-                                font.pixelSize: 22
+                            Icon {
+                                width: units.gu(3)
+                                height: units.gu(3)
+                                name: "home"
                                 Layout.alignment: Qt.AlignHCenter
-                                opacity: currentTab === 0 ? 1 : 0.5
+                                color: currentTab === 0 ? Theme.primary : Theme.gray500
                             }
 
-                            Text {
+                            Label {
                                 text: "Home"
                                 font.pixelSize: Theme.fontSizeXS
                                 color: currentTab === 0 ? Theme.primary : Theme.gray500
@@ -368,21 +370,22 @@ MainView {
 
                     // Budget tab
                     Item {
-                        Layout.preferredWidth: (parent.width - 60) / 4
+                        Layout.fillWidth: true
                         Layout.fillHeight: true
 
                         ColumnLayout {
                             anchors.centerIn: parent
                             spacing: 4
 
-                            Text {
-                                text: "💰"
-                                font.pixelSize: 22
+                            Icon {
+                                width: units.gu(3)
+                                height: units.gu(3)
+                                name: "tag"
                                 Layout.alignment: Qt.AlignHCenter
-                                opacity: currentTab === 1 ? 1 : 0.5
+                                color: currentTab === 1 ? Theme.primary : Theme.gray500
                             }
 
-                            Text {
+                            Label {
                                 text: "Budget"
                                 font.pixelSize: Theme.fontSizeXS
                                 color: currentTab === 1 ? Theme.primary : Theme.gray500
@@ -399,27 +402,28 @@ MainView {
 
                     // Center spacer for FAB
                     Item {
-                        Layout.preferredWidth: 60
+                        Layout.preferredWidth: units.gu(8)
                         Layout.fillHeight: true
                     }
 
                     // Net Worth tab
                     Item {
-                        Layout.preferredWidth: (parent.width - 60) / 4
+                        Layout.fillWidth: true
                         Layout.fillHeight: true
 
                         ColumnLayout {
                             anchors.centerIn: parent
                             spacing: 4
 
-                            Text {
-                                text: "📊"
-                                font.pixelSize: 22
+                            Icon {
+                                width: units.gu(3)
+                                height: units.gu(3)
+                                name: "view-grid-symbolic"
                                 Layout.alignment: Qt.AlignHCenter
-                                opacity: currentTab === 2 ? 1 : 0.5
+                                color: currentTab === 2 ? Theme.primary : Theme.gray500
                             }
 
-                            Text {
+                            Label {
                                 text: "Worth"
                                 font.pixelSize: Theme.fontSizeXS
                                 color: currentTab === 2 ? Theme.primary : Theme.gray500
@@ -436,21 +440,22 @@ MainView {
 
                     // Goals tab
                     Item {
-                        Layout.preferredWidth: (parent.width - 60) / 4
+                        Layout.fillWidth: true
                         Layout.fillHeight: true
 
                         ColumnLayout {
                             anchors.centerIn: parent
                             spacing: 4
 
-                            Text {
-                                text: "🎯"
-                                font.pixelSize: 22
+                            Icon {
+                                width: units.gu(3)
+                                height: units.gu(3)
+                                name: "starred"
                                 Layout.alignment: Qt.AlignHCenter
-                                opacity: currentTab === 3 ? 1 : 0.5
+                                color: currentTab === 3 ? Theme.primary : Theme.gray500
                             }
 
-                            Text {
+                            Label {
                                 text: "Goals"
                                 font.pixelSize: Theme.fontSizeXS
                                 color: currentTab === 3 ? Theme.primary : Theme.gray500

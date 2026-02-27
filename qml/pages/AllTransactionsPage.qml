@@ -70,7 +70,7 @@ Page {
                     spacing: Theme.spacingSM
 
                     // Date header
-                    Text {
+                    Label {
                         text: Theme.getSmartDateHeader(modelData)
                         font.pixelSize: Theme.fontSizeSM
                         font.weight: Font.DemiBold

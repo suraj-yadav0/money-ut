@@ -1,9 +1,9 @@
 import QtQuick 2.7
 import QtQuick.Layouts 1.3
-import QtGraphicalEffects 1.0
+import Lomiri.Components 1.3
 import ".."
 
-GlassContainer {
+Item {
     id: balanceCard
 
     property real totalIncome: 0
@@ -11,79 +11,70 @@ GlassContainer {
     property real balance: totalIncome - totalExpenses
     property string currencyCode: "INR"
 
-    width: parent.width
-    height: 180
-    glassOpacity: 0.75
+    width: parent ? parent.width : units.gu(40)
+    height: units.gu(22)
+    clip: true
 
-    // Credit card style gradient overlay
-    Rectangle {
-        id: gradientMask
+    // Background shape
+    LomiriShape {
         anchors.fill: parent
-        radius: parent.radius
-        color: "transparent"
-        clip: true
-
-        LinearGradient {
-            anchors.fill: parent
-            start: Qt.point(0, 0)
-            end: Qt.point(parent.width, 0)
-            gradient: Gradient {
-                GradientStop { position: 0.0; color: Qt.rgba(Theme.primary.r, Theme.primary.g, Theme.primary.b, 0.1) }
-                GradientStop { position: 1.0; color: Qt.rgba(Theme.secondary.r, Theme.secondary.g, Theme.secondary.b, 0.1) }
-            }
-        }
+        aspect: LomiriShape.DropShadow
+        backgroundMode: LomiriShape.VerticalGradient
+        backgroundColor: Theme.primary
+        secondaryBackgroundColor: Theme.primaryDark
+        radius: "large"
     }
 
-    // Decorative circles
+    // Decorative circles (clipped by parent Item)
     Rectangle {
-        width: 120
-        height: 120
-        radius: 60
-        color: Qt.rgba(Theme.primary.r, Theme.primary.g, Theme.primary.b, 0.1)
-        x: parent.width - 80
-        y: -40
+        width: units.gu(14)
+        height: units.gu(14)
+        radius: width / 2
+        color: Qt.rgba(1, 1, 1, 0.08)
+        x: parent.width - units.gu(9)
+        y: -units.gu(5)
     }
 
     Rectangle {
-        width: 80
-        height: 80
-        radius: 40
-        color: Qt.rgba(Theme.secondary.r, Theme.secondary.g, Theme.secondary.b, 0.1)
-        x: parent.width - 120
-        y: 20
+        width: units.gu(9)
+        height: units.gu(9)
+        radius: width / 2
+        color: Qt.rgba(1, 1, 1, 0.06)
+        x: parent.width - units.gu(14)
+        y: units.gu(3)
     }
 
+    // Content
     ColumnLayout {
         anchors {
             fill: parent
-            margins: Theme.spacingLG
+            margins: units.gu(2)
         }
-        spacing: Theme.spacingSM
+        spacing: units.gu(0.5)
 
         // Card header with chip
         RowLayout {
             Layout.fillWidth: true
-            spacing: Theme.spacingSM
+            spacing: units.gu(1)
 
-            // Chip icon
+            // Card chip
             Rectangle {
-                width: 40
-                height: 30
-                radius: 4
+                width: units.gu(5)
+                height: units.gu(3.5)
+                radius: units.dp(4)
                 gradient: Gradient {
                     GradientStop { position: 0.0; color: "#D4AF37" }
                     GradientStop { position: 1.0; color: "#AA8C2C" }
                 }
 
-                // Chip lines
                 Column {
                     anchors.centerIn: parent
-                    spacing: 2
+                    spacing: units.dp(2)
                     Repeater {
                         model: 3
                         Rectangle {
-                            width: 30
-                            height: 2
+                            width: units.gu(3.5)
+                            height: units.dp(2)
                             color: Qt.rgba(0, 0, 0, 0.2)
                         }
                     }
@@ -93,29 +84,29 @@ GlassContainer {
             Item { Layout.fillWidth: true }
 
             // Contactless icon
-            Text {
-                text: "◢"
-                color: Theme.gray400
-                font.pixelSize: 16
-                rotation: 45
+            Icon {
+                width: units.gu(2.5)
+                height: units.gu(2.5)
+                name: "transfer-progress"
+                color: Qt.rgba(1, 1, 1, 0.5)
             }
         }
 
         Item { Layout.fillHeight: true }
 
         // Balance
-        Text {
+        Label {
             text: Theme.formatFullCurrency(balanceCard.balance, currencyCode)
-            font.pixelSize: Theme.fontSize4XL
+            font.pixelSize: units.gu(4)
             font.weight: Font.Bold
-            color: balanceCard.balance >= 0 ? Theme.gray900 : Theme.expense
+            color: Theme.white
         }
 
-        // Card number style text
-        Text {
+        // Card number dots
+        Label {
             text: "****  ****  ****  1965"
-            font.pixelSize: Theme.fontSizeSM
-            color: Theme.gray500
+            fontSize: "small"
+            color: Qt.rgba(1, 1, 1, 0.5)
             font.letterSpacing: 2
         }
 
@@ -124,49 +115,47 @@ GlassContainer {
         // Income and Expense row
         RowLayout {
             Layout.fillWidth: true
-            spacing: Theme.spacingXL
+            spacing: units.gu(2.5)
 
-            // Income
             ColumnLayout {
-                spacing: 2
+                spacing: units.dp(2)
 
-                Text {
+                Label {
                     text: "INCOME"
-                    font.pixelSize: Theme.fontSizeXS
+                    fontSize: "x-small"
                     font.weight: Font.Medium
-                    color: Theme.gray500
+                    color: Qt.rgba(1, 1, 1, 0.6)
                 }
 
-                Text {
+                Label {
                     text: Theme.formatCurrency(totalIncome, currencyCode)
-                    font.pixelSize: Theme.fontSizeLG
+                    fontSize: "medium"
                     font.weight: Font.DemiBold
-                    color: Theme.income
+                    color: "#81C784"
                 }
             }
 
             Rectangle {
-                width: 1
-                height: 30
-                color: Theme.gray300
+                width: units.dp(1)
+                height: units.gu(3.5)
+                color: Qt.rgba(1, 1, 1, 0.2)
             }
 
-            // Expenses
             ColumnLayout {
-                spacing: 2
+                spacing: units.dp(2)
 
-                Text {
+                Label {
                     text: "EXPENSES"
-                    font.pixelSize: Theme.fontSizeXS
+                    fontSize: "x-small"
                     font.weight: Font.Medium
-                    color: Theme.gray500
+                    color: Qt.rgba(1, 1, 1, 0.6)
                 }
 
-                Text {
+                Label {
                     text: Theme.formatCurrency(totalExpenses, currencyCode)
-                    font.pixelSize: Theme.fontSizeLG
+                    fontSize: "medium"
                     font.weight: Font.DemiBold
-                    color: Theme.expense
+                    color: "#EF9A9A"
                 }
             }
 

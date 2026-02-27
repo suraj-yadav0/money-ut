@@ -66,13 +66,13 @@ Page {
                         Layout.fillWidth: true
                         spacing: 2
 
-                        Text {
+                        Label {
                             text: "Income"
                             font.pixelSize: Theme.fontSizeXS
                             color: Theme.gray500
                         }
 
-                        Text {
+                        Label {
                             text: Theme.formatCurrency(daySummary.income, currencyCode)
                             font.pixelSize: Theme.fontSizeMD
                             font.weight: Font.DemiBold
@@ -86,13 +86,13 @@ Page {
                         Layout.fillWidth: true
                         spacing: 2
 
-                        Text {
+                        Label {
                             text: "Expenses"
                             font.pixelSize: Theme.fontSizeXS
                             color: Theme.gray500
                         }
 
-                        Text {
+                        Label {
                             text: Theme.formatCurrency(daySummary.expenses, currencyCode)
                             font.pixelSize: Theme.fontSizeMD
                             font.weight: Font.DemiBold
@@ -106,13 +106,13 @@ Page {
                         Layout.fillWidth: true
                         spacing: 2
 
-                        Text {
+                        Label {
                             text: "Net"
                             font.pixelSize: Theme.fontSizeXS
                             color: Theme.gray500
                         }
 
-                        Text {
+                        Label {
                             text: Theme.formatCurrency(daySummary.net, currencyCode)
                             font.pixelSize: Theme.fontSizeMD
                             font.weight: Font.DemiBold

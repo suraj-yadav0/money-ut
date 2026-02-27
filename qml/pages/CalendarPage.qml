@@ -80,13 +80,13 @@ Page {
                         Layout.fillWidth: true
                         spacing: 2
 
-                        Text {
+                        Label {
                             text: "Income"
                             font.pixelSize: Theme.fontSizeXS
                             color: Theme.gray500
                         }
 
-                        Text {
+                        Label {
                             text: Theme.formatCurrency(monthTotals.income, currencyCode)
                             font.pixelSize: Theme.fontSizeMD
                             font.weight: Font.DemiBold
@@ -100,13 +100,13 @@ Page {
                         Layout.fillWidth: true
                         spacing: 2
 
-                        Text {
+                        Label {
                             text: "Expenses"
                             font.pixelSize: Theme.fontSizeXS
                             color: Theme.gray500
                         }
 
-                        Text {
+                        Label {
                             text: Theme.formatCurrency(monthTotals.expenses, currencyCode)
                             font.pixelSize: Theme.fontSizeMD
                             font.weight: Font.DemiBold
@@ -120,13 +120,13 @@ Page {
                         Layout.fillWidth: true
                         spacing: 2
 
-                        Text {
+                        Label {
                             text: "Net"
                             font.pixelSize: Theme.fontSizeXS
                             color: Theme.gray500
                         }
 
-                        Text {
+                        Label {
                             text: Theme.formatCurrency(monthTotals.net, currencyCode)
                             font.pixelSize: Theme.fontSizeMD
                             font.weight: Font.DemiBold
@@ -144,7 +144,7 @@ Page {
                 Repeater {
                     model: ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
 
-                    Text {
+                    Label {
                         width: (parent.width) / 7
                         text: modelData
                         font.pixelSize: Theme.fontSizeSM
@@ -181,7 +181,7 @@ Page {
                             }
                             spacing: 2
 
-                            Text {
+                            Label {
                                 text: modelData.day
                                 font.pixelSize: Theme.fontSizeSM
                                 font.weight: modelData.isToday ? Font.Bold : Font.Normal
@@ -193,7 +193,7 @@ Page {
                             }
 
                             // Income
-                            Text {
+                            Label {
                                 text: modelData.income > 0 ? "+" + Theme.formatCompactCurrency(modelData.income, currencyCode) : ""
                                 font.pixelSize: 9
                                 color: Theme.income
@@ -202,7 +202,7 @@ Page {
                             }
 
                             // Expense
-                            Text {
+                            Label {
                                 text: modelData.expense > 0 ? "-" + Theme.formatCompactCurrency(modelData.expense, currencyCode) : ""
                                 font.pixelSize: 9
                                 color: Theme.expense

@@ -1,6 +1,7 @@
 import QtQuick 2.7
 import QtQuick.Layouts 1.3
 import Lomiri.Components 1.3
+import Lomiri.Components.Popups 1.3
 import ".."
 import "../components"
 
@@ -60,78 +61,83 @@ Page {
             right: parent.right
             bottom: parent.bottom
         }
-        contentHeight: contentColumn.height + Theme.spacing3XL
+        contentHeight: contentColumn.height + units.gu(4)
         clip: true
 
         ColumnLayout {
             id: contentColumn
-            width: parent.width - Theme.spacingLG * 2
+            width: parent.width - units.gu(4)
             anchors.horizontalCenter: parent.horizontalCenter
-            spacing: Theme.spacingLG
+            spacing: units.gu(2)
 
-            Item { Layout.preferredHeight: Theme.spacingSM }
+            Item { Layout.preferredHeight: units.gu(1) }
 
-            // Type toggle
-            Rectangle {
+            // Type toggle using SegmentedButton style
+            LomiriShape {
                 Layout.fillWidth: true
-                height: 56
-                radius: Theme.radiusLG
-                color: transactionType === "expense" ?
-                       Qt.rgba(Theme.expense.r, Theme.expense.g, Theme.expense.b, 0.15) :
-                       Qt.rgba(Theme.income.r, Theme.income.g, Theme.income.b, 0.15)
+                Layout.preferredHeight: units.gu(7)
+                aspect: LomiriShape.Flat
+                radius: "large"
+                backgroundColor: transactionType === "expense" ?
+                    Qt.rgba(Theme.expense.r, Theme.expense.g, Theme.expense.b, 0.15) :
+                    Qt.rgba(Theme.income.r, Theme.income.g, Theme.income.b, 0.15)
 
-                Behavior on color {
-                    ColorAnimation { duration: Theme.animationNormal }
+                Behavior on backgroundColor {
+                    ColorAnimation { duration: 200 }
                 }
 
                 RowLayout {
                     anchors.fill: parent
-                    anchors.margins: 4
-                    spacing: 4
+                    anchors.margins: units.dp(4)
+                    spacing: units.dp(4)
 
-                    Rectangle {
+                    AbstractButton {
                         Layout.fillWidth: true
                         Layout.fillHeight: true
-                        radius: Theme.radiusMD
-                        color: transactionType === "expense" ? Theme.expense : "transparent"
 
-                        Text {
-                            anchors.centerIn: parent
-                            text: "Expense"
-                            font.pixelSize: Theme.fontSizeMD
-                            font.weight: transactionType === "expense" ? Font.DemiBold : Font.Normal
-                            color: transactionType === "expense" ? Theme.white : Theme.gray600
+                        onClicked: {
+                            transactionType = "expense";
+                            selectedCategoryId = -1;
                         }
 
-                        MouseArea {
+                        LomiriShape {
                             anchors.fill: parent
-                            onClicked: {
-                                transactionType = "expense";
-                                selectedCategoryId = -1;
+                            aspect: LomiriShape.Flat
+                            radius: "medium"
+                            backgroundColor: transactionType === "expense" ? Theme.expense : "transparent"
+
+                            Label {
+                                anchors.centerIn: parent
+                                text: "Expense"
+                                fontSize: "medium"
+                                font.weight: transactionType === "expense" ? Font.DemiBold : Font.Normal
+                                color: transactionType === "expense" ? Theme.white : Theme.gray600
                             }
                         }
                     }
 
-                    Rectangle {
+                    AbstractButton {
                         Layout.fillWidth: true
                         Layout.fillHeight: true
-                        radius: Theme.radiusMD
-                        color: transactionType === "income" ? Theme.income : "transparent"
 
-                        Text {
-                            anchors.centerIn: parent
-                            text: "Income"
-                            font.pixelSize: Theme.fontSizeMD
-                            font.weight: transactionType === "income" ? Font.DemiBold : Font.Normal
-                            color: transactionType === "income" ? Theme.white : Theme.gray600
+                        onClicked: {
+                            transactionType = "income";
+                            selectedCategoryId = -1;
+                            selectedGoalId = -1;
                         }
 
-                        MouseArea {
+                        LomiriShape {
                             anchors.fill: parent
-                            onClicked: {
-                                transactionType = "income";
-                                selectedCategoryId = -1;
-                                selectedGoalId = -1;
+                            aspect: LomiriShape.Flat
+                            radius: "medium"
+                            backgroundColor: transactionType === "income" ? Theme.income : "transparent"
+
+                            Label {
+                                anchors.centerIn: parent
+                                text: "Income"
+                                fontSize: "medium"
+                                font.weight: transactionType === "income" ? Font.DemiBold : Font.Normal
+                                color: transactionType === "income" ? Theme.white : Theme.gray600
                             }
                         }
                     }
@@ -144,11 +150,11 @@ Page {
 
                 RowLayout {
                     Layout.fillWidth: true
-                    spacing: Theme.spacingSM
+                    spacing: units.gu(1)
 
-                    Text {
+                    Label {
                         text: Theme.getCurrencySymbol(currencyCode)
-                        font.pixelSize: Theme.fontSize3XL
+                        font.pixelSize: units.gu(3.5)
                         font.weight: Font.Bold
                         color: Theme.gray400
                     }
@@ -156,7 +162,7 @@ Page {
                     TextField {
                         id: amountInput
                         Layout.fillWidth: true
-                        font.pixelSize: Theme.fontSize2XL
+                        font.pixelSize: units.gu(2.5)
                         placeholderText: "0"
                         inputMethodHints: Qt.ImhDigitsOnly
                         text: amount > 0 ? amount.toString() : ""
@@ -185,7 +191,6 @@ Page {
                 }
             }
 
-            // Auto-categorization timer
             Timer {
                 id: autoCategorizationTimer
                 interval: 500
@@ -198,16 +203,16 @@ Page {
             }
 
             // Category selection
-            Text {
+            Label {
                 text: "Category"
-                font.pixelSize: Theme.fontSizeMD
+                fontSize: "medium"
                 font.weight: Font.DemiBold
                 color: Theme.gray700
             }
 
             Flow {
                 Layout.fillWidth: true
-                spacing: Theme.spacingSM
+                spacing: units.gu(1)
 
                 Repeater {
                     model: Database.getCategories(transactionType)
@@ -221,9 +226,9 @@ Page {
             }
 
             // Goal linking (expense only)
-            Text {
+            Label {
                 text: "Link to Goal"
-                font.pixelSize: Theme.fontSizeMD
+                fontSize: "medium"
                 font.weight: Font.DemiBold
                 color: Theme.gray700
                 visible: transactionType === "expense"
@@ -231,66 +236,67 @@ Page {
 
             Column {
                 Layout.fillWidth: true
-                spacing: Theme.spacingSM
+                spacing: units.gu(1)
                 visible: transactionType === "expense"
 
                 Repeater {
                     model: Database.getGoals(true)
 
-                    Rectangle {
+                    AbstractButton {
                         width: parent.width
-                        height: 60
-                        radius: Theme.radiusMD
-                        border.width: selectedGoalId === modelData.id ? 2 : 1
-                        border.color: selectedGoalId === modelData.id ? Theme.primary : Theme.gray200
-                        color: selectedGoalId === modelData.id ?
-                               Qt.rgba(Theme.primary.r, Theme.primary.g, Theme.primary.b, 0.1) : Theme.white
+                        height: units.gu(7)
 
-                        RowLayout {
-                            anchors {
-                                fill: parent
-                                margins: Theme.spacingSM
-                            }
-                            spacing: Theme.spacingSM
-
-                            Text {
-                                text: "🎯"
-                                font.pixelSize: 20
-                            }
-
-                            ColumnLayout {
-                                Layout.fillWidth: true
-                                spacing: 0
-
-                                Text {
-                                    text: modelData.name
-                                    font.pixelSize: Theme.fontSizeMD
-                                    color: Theme.gray900
-                                }
-
-                                ProgressBar {
-                                    Layout.fillWidth: true
-                                    barHeight: 4
-                                    value: modelData.saved_amount
-                                    maxValue: modelData.target_amount
-                                    barColor: Theme.primary
-                                }
-                            }
-
-                            Text {
-                                text: Math.round(modelData.percentComplete) + "%"
-                                font.pixelSize: Theme.fontSizeSM
-                                color: Theme.gray500
+                        onClicked: {
+                            if (selectedGoalId === modelData.id) {
+                                selectedGoalId = -1;
+                            } else {
+                                selectedGoalId = modelData.id;
                             }
                         }
 
-                        MouseArea {
+                        LomiriShape {
                             anchors.fill: parent
-                            onClicked: {
-                                if (selectedGoalId === modelData.id) {
-                                    selectedGoalId = -1;
-                                } else {
-                                    selectedGoalId = modelData.id;
+                            aspect: LomiriShape.Flat
+                            radius: "medium"
+                            backgroundColor: selectedGoalId === modelData.id ?
+                                Qt.rgba(Theme.primary.r, Theme.primary.g, Theme.primary.b, 0.1) : Theme.white
+                            borderSource: selectedGoalId === modelData.id ? "" : "radius_idle.sci"
+
+                            RowLayout {
+                                anchors {
+                                    fill: parent
+                                    margins: units.gu(1)
+                                }
+                                spacing: units.gu(1)
+
+                                Label {
+                                    text: "🎯"
+                                    font.pixelSize: units.gu(2.5)
+                                }
+
+                                ColumnLayout {
+                                    Layout.fillWidth: true
+                                    spacing: 0
+
+                                    Label {
+                                        text: modelData.name
+                                        fontSize: "medium"
+                                        color: Theme.gray900
+                                    }
+
+                                    ProgressBar {
+                                        Layout.fillWidth: true
+                                        barHeight: units.dp(4)
+                                        value: modelData.saved_amount
+                                        maxValue: modelData.target_amount
+                                        barColor: Theme.primary
+                                    }
+                                }
+
+                                Label {
+                                    text: Math.round(modelData.percentComplete) + "%"
+                                    fontSize: "small"
+                                    color: Theme.gray500
                                 }
                             }
                         }
@@ -299,16 +305,16 @@ Page {
             }
 
             // Payment mode
-            Text {
+            Label {
                 text: "Payment Mode"
-                font.pixelSize: Theme.fontSizeMD
+                fontSize: "medium"
                 font.weight: Font.DemiBold
                 color: Theme.gray700
             }
 
             Flow {
                 Layout.fillWidth: true
-                spacing: Theme.spacingSM
+                spacing: units.gu(1)
 
                 Repeater {
                     model: Theme.paymentModes
@@ -328,9 +334,9 @@ Page {
             }
 
             // Date picker
-            Text {
+            Label {
                 text: "Date"
-                font.pixelSize: Theme.fontSizeMD
+                fontSize: "medium"
                 font.weight: Font.DemiBold
                 color: Theme.gray700
             }
@@ -339,187 +345,101 @@ Page {
                 Layout.fillWidth: true
 
                 RowLayout {
-                    spacing: Theme.spacingSM
+                    spacing: units.gu(1)
 
-                    Text {
+                    Label {
                         text: "📅"
-                        font.pixelSize: 20
+                        font.pixelSize: units.gu(2.5)
                     }
 
-                    Text {
+                    Label {
                         text: Qt.formatDate(selectedDate, "dddd, MMMM d, yyyy")
-                        font.pixelSize: Theme.fontSizeMD
+                        fontSize: "medium"
                         color: Theme.gray900
                         Layout.fillWidth: true
                     }
 
-                    Text {
+                    Button {
                         text: "Change"
-                        font.pixelSize: Theme.fontSizeSM
-                        color: Theme.primary
-
-                        MouseArea {
-                            anchors.fill: parent
-                            cursorShape: Qt.PointingHandCursor
-                            onClicked: showDatePicker = true
-                        }
+                        strokeColor: Theme.primary
+                        onClicked: PopupUtils.open(datePickerDialogComponent)
                     }
                 }
             }
 
             // Save button
-            Rectangle {
+            Button {
                 Layout.fillWidth: true
-                Layout.topMargin: Theme.spacingLG
-                height: 56
-                radius: Theme.radiusButton
+                Layout.topMargin: units.gu(2)
+                text: isEditing ? "Update Transaction" : "Add Transaction"
                 color: canSave() ? Theme.primary : Theme.gray300
-
-                Text {
-                    anchors.centerIn: parent
-                    text: isEditing ? "Update Transaction" : "Add Transaction"
-                    font.pixelSize: Theme.fontSizeLG
-                    font.weight: Font.DemiBold
-                    color: canSave() ? Theme.white : Theme.gray500
-                }
-
-                MouseArea {
-                    anchors.fill: parent
-                    cursorShape: canSave() ? Qt.PointingHandCursor : Qt.ArrowCursor
-                    onClicked: {
-                        if (canSave()) {
-                            saveTransaction();
-                        }
-                    }
+                onClicked: {
+                    if (canSave()) saveTransaction();
                 }
             }
 
             // Delete button (edit mode only)
-            Rectangle {
+            Button {
                 Layout.fillWidth: true
-                height: 56
-                radius: Theme.radiusButton
-                color: "transparent"
-                border.width: 1
-                border.color: Theme.expense
                 visible: isEditing
-
-                Text {
-                    anchors.centerIn: parent
-                    text: "Delete Transaction"
-                    font.pixelSize: Theme.fontSizeLG
-                    font.weight: Font.DemiBold
-                    color: Theme.expense
-                }
-
-                MouseArea {
-                    anchors.fill: parent
-                    cursorShape: Qt.PointingHandCursor
-                    onClicked: deleteTransaction()
-                }
+                text: "Delete Transaction"
+                color: Theme.expense
+                onClicked: deleteTransaction()
             }
 
-            Item { Layout.preferredHeight: Theme.spacing3XL }
+            Item { Layout.preferredHeight: units.gu(4) }
         }
     }
 
     // Date picker dialog
-    property bool showDatePicker: false
+    Component {
+        id: datePickerDialogComponent
 
-    Rectangle {
-        id: datePickerOverlay
-        anchors.fill: parent
-        color: Qt.rgba(0, 0, 0, 0.5)
-        visible: showDatePicker
-        opacity: showDatePicker ? 1 : 0
+        Dialog {
+            id: datePickerDialog
+            title: "Select Date"
 
-        Behavior on opacity {
-            NumberAnimation { duration: Theme.animationNormal }
-        }
+            TextField {
+                id: dateInput
+                text: Qt.formatDate(addTransactionPage.selectedDate, "yyyy-MM-dd")
+                placeholderText: "YYYY-MM-DD"
+            }
 
-        MouseArea {
-            anchors.fill: parent
-            onClicked: showDatePicker = false
-        }
+            Flow {
+                width: parent.width
+                spacing: units.gu(1)
 
-        Rectangle {
-            anchors.centerIn: parent
-            width: parent.width * 0.9
-            height: 400
-            radius: Theme.radiusXL
-            color: Theme.white
+                Repeater {
+                    model: [
+                        { label: "Today", offset: 0 },
+                        { label: "Yesterday", offset: -1 },
+                        { label: "2 days ago", offset: -2 },
+                        { label: "1 week ago", offset: -7 }
+                    ]
 
-            ColumnLayout {
-                anchors {
-                    fill: parent
-                    margins: Theme.spacingLG
-                }
-                spacing: Theme.spacingMD
-
-                Text {
-                    text: "Select Date"
-                    font.pixelSize: Theme.fontSizeXL
-                    font.weight: Font.Bold
-                    color: Theme.gray900
-                }
-
-                // Simple date input
-                TextField {
-                    id: dateInput
-                    Layout.fillWidth: true
-                    text: Qt.formatDate(selectedDate, "yyyy-MM-dd")
-                    placeholderText: "YYYY-MM-DD"
-                }
-
-                // Quick date buttons
-                Flow {
-                    Layout.fillWidth: true
-                    spacing: Theme.spacingSM
-
-                    Repeater {
-                        model: [
-                            { label: "Today", offset: 0 },
-                            { label: "Yesterday", offset: -1 },
-                            { label: "2 days ago", offset: -2 },
-                            { label: "1 week ago", offset: -7 }
-                        ]
-
-                        CategoryChip {
-                            text: modelData.label
-                            onClicked: {
-                                var d = new Date();
-                                d.setDate(d.getDate() + modelData.offset);
-                                dateInput.text = Qt.formatDate(d, "yyyy-MM-dd");
-                            }
-                        }
-                    }
-                }
-
-                Item { Layout.fillHeight: true }
-
-                Rectangle {
-                    Layout.fillWidth: true
-                    height: 48
-                    radius: Theme.radiusButton
-                    color: Theme.primary
-
-                    Text {
-                        anchors.centerIn: parent
-                        text: "Confirm"
-                        font.pixelSize: Theme.fontSizeMD
-                        font.weight: Font.DemiBold
-                        color: Theme.white
-                    }
-
-                    MouseArea {
-                        anchors.fill: parent
-                        cursorShape: Qt.PointingHandCursor
+                    CategoryChip {
+                        text: modelData.label
                         onClicked: {
-                            selectedDate = new Date(dateInput.text);
-                            showDatePicker = false;
+                            var d = new Date();
+                            d.setDate(d.getDate() + modelData.offset);
+                            dateInput.text = Qt.formatDate(d, "yyyy-MM-dd");
                         }
                     }
                 }
+            }
+
+            Button {
+                text: "Confirm"
+                color: Theme.primary
+                onClicked: {
+                    addTransactionPage.selectedDate = new Date(dateInput.text);
+                    PopupUtils.close(datePickerDialog);
+                }
+            }
+
+            Button {
+                text: "Cancel"
+                onClicked: PopupUtils.close(datePickerDialog)
             }
         }
     }
@@ -544,7 +464,7 @@ Page {
                 paymentMode,
                 timestamp,
                 goalId,
-                null // receipt path
+                null
             );
         } else {
             Database.addTransaction(
@@ -555,8 +475,8 @@ Page {
                 paymentMode,
                 timestamp,
                 goalId,
-                null, // receipt path
-                false // is recurring
+                null,
+                false
             );
         }
 

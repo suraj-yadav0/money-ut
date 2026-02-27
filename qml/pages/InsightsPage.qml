@@ -79,7 +79,7 @@ Page {
                                     0.15
                                 )
 
-                                Text {
+                                Label {
                                     anchors.centerIn: parent
                                     text: getSeverityIcon(modelData.severity)
                                     font.pixelSize: 20
@@ -90,14 +90,14 @@ Page {
                                 Layout.fillWidth: true
                                 spacing: 2
 
-                                Text {
+                                Label {
                                     text: modelData.title
                                     font.pixelSize: Theme.fontSizeMD
                                     font.weight: Font.DemiBold
                                     color: Theme.gray900
                                 }
 
-                                Text {
+                                Label {
                                     text: modelData.severity.charAt(0).toUpperCase() + modelData.severity.slice(1)
                                     font.pixelSize: Theme.fontSizeXS
                                     color: Theme.getInsightColor(modelData.severity)
@@ -106,7 +106,7 @@ Page {
                             }
                         }
 
-                        Text {
+                        Label {
                             text: modelData.description
                             font.pixelSize: Theme.fontSizeMD
                             color: Theme.gray700
@@ -132,12 +132,12 @@ Page {
                                 }
                                 spacing: Theme.spacingSM
 
-                                Text {
+                                Label {
                                     text: "💡"
                                     font.pixelSize: 16
                                 }
 
-                                Text {
+                                Label {
                                     text: modelData.tip || ""
                                     font.pixelSize: Theme.fontSizeSM
                                     color: Theme.gray700
@@ -148,28 +148,12 @@ Page {
                         }
 
                         // Action button
-                        Rectangle {
+                        Button {
                             visible: modelData.actionText !== undefined
                             Layout.alignment: Qt.AlignRight
-                            width: actionLabel.width + Theme.spacingLG * 2
-                            height: 36
-                            radius: Theme.radiusSM
+                            text: modelData.actionText || ""
                             color: Theme.primary
-
-                            Text {
-                                id: actionLabel
-                                anchors.centerIn: parent
-                                text: modelData.actionText || ""
-                                font.pixelSize: Theme.fontSizeSM
-                                font.weight: Font.DemiBold
-                                color: Theme.white
-                            }
-
-                            MouseArea {
-                                anchors.fill: parent
-                                cursorShape: Qt.PointingHandCursor
-                                onClicked: handleInsightAction(modelData.type)
-                            }
+                            onClicked: handleInsightAction(modelData.type)
                         }
                     }
                 }

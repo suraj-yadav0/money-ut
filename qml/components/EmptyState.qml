@@ -1,5 +1,6 @@
 import QtQuick 2.7
 import QtQuick.Layouts 1.3
+import Lomiri.Components 1.3
 import ".."
 
 Item {
@@ -13,33 +14,33 @@ Item {
 
     signal actionClicked()
 
-    width: parent ? parent.width : 300
+    width: parent ? parent.width : units.gu(30)
     height: column.height
 
     ColumnLayout {
         id: column
         anchors.horizontalCenter: parent.horizontalCenter
-        spacing: Theme.spacingMD
+        spacing: units.gu(1.5)
         width: parent.width * 0.8
 
-        Text {
+        Label {
             text: emptyState.emoji
-            font.pixelSize: 64
+            font.pixelSize: units.gu(6)
             Layout.alignment: Qt.AlignHCenter
         }
 
-        Text {
+        Label {
             text: emptyState.title
-            font.pixelSize: Theme.fontSizeXL
+            fontSize: "large"
             font.weight: Font.DemiBold
             color: Theme.gray700
             Layout.alignment: Qt.AlignHCenter
             horizontalAlignment: Text.AlignHCenter
         }
 
-        Text {
+        Label {
             text: emptyState.subtitle
-            font.pixelSize: Theme.fontSizeMD
+            fontSize: "small"
             color: Theme.gray500
             Layout.alignment: Qt.AlignHCenter
             horizontalAlignment: Text.AlignHCenter
@@ -48,28 +49,12 @@ Item {
             visible: subtitle !== ""
         }
 
-        Rectangle {
+        Button {
             visible: showAction
             Layout.alignment: Qt.AlignHCenter
-            width: actionLabel.implicitWidth + Theme.spacingXL * 2
-            height: 44
-            radius: Theme.radiusButton
+            text: emptyState.actionText
             color: Theme.primary
-
-            Text {
-                id: actionLabel
-                anchors.centerIn: parent
-                text: emptyState.actionText
-                font.pixelSize: Theme.fontSizeMD
-                font.weight: Font.DemiBold
-                color: Theme.white
-            }
-
-            MouseArea {
-                anchors.fill: parent
-                cursorShape: Qt.PointingHandCursor
-                onClicked: emptyState.actionClicked()
-            }
+            onClicked: actionClicked()
         }
     }
 }

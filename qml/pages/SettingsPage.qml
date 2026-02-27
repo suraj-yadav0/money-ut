@@ -1,6 +1,7 @@
 import QtQuick 2.7
 import QtQuick.Layouts 1.3
 import Lomiri.Components 1.3
+import Lomiri.Components.Popups 1.3
 import ".."
 import "../components"
 
@@ -40,21 +41,21 @@ Page {
             right: parent.right
             bottom: parent.bottom
         }
-        contentHeight: contentColumn.height + Theme.spacing2XL
+        contentHeight: contentColumn.height + units.gu(4)
         clip: true
 
         ColumnLayout {
             id: contentColumn
-            width: parent.width - Theme.spacingLG * 2
+            width: parent.width - units.gu(4)
             anchors.horizontalCenter: parent.horizontalCenter
-            spacing: Theme.spacingLG
+            spacing: units.gu(2)
 
-            Item { Layout.preferredHeight: Theme.spacingSM }
+            Item { Layout.preferredHeight: units.gu(1) }
 
             // Income section
-            Text {
+            Label {
                 text: "Income"
-                font.pixelSize: Theme.fontSizeMD
+                fontSize: "medium"
                 font.weight: Font.DemiBold
                 color: Theme.gray500
             }
@@ -63,21 +64,21 @@ Page {
                 Layout.fillWidth: true
 
                 ColumnLayout {
-                    spacing: Theme.spacingMD
+                    spacing: units.gu(1.5)
 
-                    Text {
+                    Label {
                         text: "Monthly Income"
-                        font.pixelSize: Theme.fontSizeMD
+                        fontSize: "medium"
                         color: Theme.gray700
                     }
 
                     RowLayout {
                         Layout.fillWidth: true
-                        spacing: Theme.spacingSM
+                        spacing: units.gu(1)
 
-                        Text {
+                        Label {
                             text: Theme.getCurrencySymbol(currencyCode)
-                            font.pixelSize: Theme.fontSizeLG
+                            fontSize: "large"
                             color: Theme.gray500
                         }
 
@@ -88,7 +89,12 @@ Page {
                             placeholderText: "Enter monthly income"
                             inputMethodHints: Qt.ImhDigitsOnly
 
-                            onAccepted: {
+                            onAccepted: saveIncome()
+                            onFocusChanged: {
+                                if (!focus && text !== "") saveIncome();
+                            }
+
+                            function saveIncome() {
                                 var newIncome = parseFloat(text) || 0;
                                 if (newIncome !== monthlyIncome) {
                                     monthlyIncome = newIncome;
@@ -98,15 +104,71 @@ Page {
                                     }
                                 }
                             }
+                        }
+                    }
+                }
+            }
 
-                            onFocusChanged: {
-                                if (!focus && text !== "") {
-                                    var newIncome = parseFloat(text) || 0;
-                                    if (newIncome !== monthlyIncome) {
-                                        monthlyIncome = newIncome;
-                                        Database.updateUserSettings(monthlyIncome, currencyCode);
-                                        if (monthlyIncome > 0) {
-                                            Database.createSalaryTransaction(monthlyIncome);
+            // Preferences section
+            Label {
+                text: "Preferences"
+                fontSize: "medium"
+                font.weight: Font.DemiBold
+                color: Theme.gray500
+            }
+
+            GlassCard {
+                Layout.fillWidth: true
+
+                ColumnLayout {
+                    spacing: units.gu(1.5)
+
+                    Label {
+                        text: "Currency"
+                        fontSize: "medium"
+                        color: Theme.gray700
+                    }
+
+                    Flow {
+                        Layout.fillWidth: true
+                        spacing: units.gu(1)
+
+                        Repeater {
+                            model: Theme.currencies
+
+                            AbstractButton {
+                                width: units.gu(10)
+                                height: units.gu(5.5)
+
+                                onClicked: {
+                                    currencyCode = modelData.code;
+                                    Database.updateUserSettings(monthlyIncome, currencyCode);
+                                }
+
+                                LomiriShape {
+                                    anchors.fill: parent
+                                    aspect: LomiriShape.Flat
+                                    radius: "medium"
+                                    backgroundColor: currencyCode === modelData.code ? Theme.primary : Theme.white
+                                    borderSource: currencyCode === modelData.code ? "" : "radius_idle.sci"
+
+                                    Column {
+                                        anchors.centerIn: parent
+                                        spacing: 2
+
+                                        Label {
+                                            text: modelData.symbol
+                                            fontSize: "large"
+                                            font.weight: Font.Bold
+                                            color: currencyCode === modelData.code ? Theme.white : Theme.gray700
+                                            anchors.horizontalCenter: parent.horizontalCenter
+                                        }
+
+                                        Label {
+                                            text: modelData.code
+                                            fontSize: "x-small"
+                                            color: currencyCode === modelData.code ? Theme.white : Theme.gray500
+                                            anchors.horizontalCenter: parent.horizontalCenter
                                         }
                                     }
                                 }
@@ -116,79 +178,10 @@ Page {
                 }
             }
 
-            // Preferences section
-            Text {
-                text: "Preferences"
-                font.pixelSize: Theme.fontSizeMD
-                font.weight: Font.DemiBold
-                color: Theme.gray500
-            }
-
-            GlassCard {
-                Layout.fillWidth: true
-
-                ColumnLayout {
-                    spacing: Theme.spacingMD
-
-                    Text {
-                        text: "Currency"
-                        font.pixelSize: Theme.fontSizeMD
-                        color: Theme.gray700
-                    }
-
-                    Flow {
-                        Layout.fillWidth: true
-                        spacing: Theme.spacingSM
-
-                        Repeater {
-                            model: Theme.currencies
-
-                            Rectangle {
-                                width: 80
-                                height: 44
-                                radius: Theme.radiusSM
-                                color: currencyCode === modelData.code ? Theme.primary : Theme.white
-                                border.width: currencyCode === modelData.code ? 0 : 1
-                                border.color: Theme.gray300
-
-                                Column {
-                                    anchors.centerIn: parent
-                                    spacing: 2
-
-                                    Text {
-                                        text: modelData.symbol
-                                        font.pixelSize: Theme.fontSizeLG
-                                        font.weight: Font.Bold
-                                        color: currencyCode === modelData.code ? Theme.white : Theme.gray700
-                                        anchors.horizontalCenter: parent.horizontalCenter
-                                    }
-
-                                    Text {
-                                        text: modelData.code
-                                        font.pixelSize: Theme.fontSizeXS
-                                        color: currencyCode === modelData.code ? Theme.white : Theme.gray500
-                                        anchors.horizontalCenter: parent.horizontalCenter
-                                    }
-                                }
-
-                                MouseArea {
-                                    anchors.fill: parent
-                                    cursorShape: Qt.PointingHandCursor
-                                    onClicked: {
-                                        currencyCode = modelData.code;
-                                        Database.updateUserSettings(monthlyIncome, currencyCode);
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-
             // About section
-            Text {
+            Label {
                 text: "About"
-                font.pixelSize: Theme.fontSizeMD
+                fontSize: "medium"
                 font.weight: Font.DemiBold
                 color: Theme.gray500
             }
@@ -197,46 +190,46 @@ Page {
                 Layout.fillWidth: true
 
                 ColumnLayout {
-                    spacing: Theme.spacingMD
+                    spacing: units.gu(1.5)
 
                     RowLayout {
                         Layout.fillWidth: true
 
-                        Rectangle {
-                            width: 56
-                            height: 56
-                            radius: 14
-                            gradient: Gradient {
-                                GradientStop { position: 0.0; color: Theme.primary }
-                                GradientStop { position: 1.0; color: Theme.primaryDark }
-                            }
+                        LomiriShape {
+                            width: units.gu(7)
+                            height: units.gu(7)
+                            aspect: LomiriShape.DropShadow
+                            radius: "medium"
+                            backgroundMode: LomiriShape.VerticalGradient
+                            backgroundColor: Theme.primary
+                            secondaryBackgroundColor: Theme.primaryDark
 
-                            Text {
+                            Label {
                                 anchors.centerIn: parent
                                 text: "👛"
-                                font.pixelSize: 28
+                                font.pixelSize: units.gu(3.5)
                             }
                         }
 
                         ColumnLayout {
                             spacing: 2
 
-                            Text {
+                            Label {
                                 text: "Quantro"
-                                font.pixelSize: Theme.fontSizeLG
+                                fontSize: "large"
                                 font.weight: Font.Bold
                                 color: Theme.gray900
                             }
 
-                            Text {
+                            Label {
                                 text: "Smart Finance Manager"
-                                font.pixelSize: Theme.fontSizeSM
+                                fontSize: "small"
                                 color: Theme.gray500
                             }
 
-                            Text {
+                            Label {
                                 text: "Version 1.0.0"
-                                font.pixelSize: Theme.fontSizeXS
+                                fontSize: "x-small"
                                 color: Theme.gray400
                             }
                         }
@@ -245,9 +238,9 @@ Page {
             }
 
             // Data section
-            Text {
+            Label {
                 text: "Data"
-                font.pixelSize: Theme.fontSizeMD
+                fontSize: "medium"
                 font.weight: Font.DemiBold
                 color: Theme.gray500
             }
@@ -256,194 +249,106 @@ Page {
                 Layout.fillWidth: true
 
                 ColumnLayout {
-                    spacing: Theme.spacingMD
+                    spacing: units.gu(1.5)
 
                     // Export data
-                    Rectangle {
+                    ListItem {
                         Layout.fillWidth: true
-                        height: 50
-                        color: "transparent"
+                        height: units.gu(6)
+                        divider.visible: true
 
                         RowLayout {
-                            anchors.fill: parent
-                            spacing: Theme.spacingSM
+                            anchors {
+                                fill: parent
+                                leftMargin: units.gu(1)
+                                rightMargin: units.gu(1)
+                            }
+                            spacing: units.gu(1)
 
-                            Text {
+                            Label {
                                 text: "📤"
-                                font.pixelSize: 20
+                                font.pixelSize: units.gu(2.5)
                             }
 
-                            Text {
+                            Label {
                                 text: "Export Data"
-                                font.pixelSize: Theme.fontSizeMD
+                                fontSize: "medium"
                                 color: Theme.gray900
                                 Layout.fillWidth: true
                             }
 
-                            Text {
+                            Label {
                                 text: "Coming Soon"
-                                font.pixelSize: Theme.fontSizeSM
+                                fontSize: "small"
                                 color: Theme.gray400
                             }
                         }
                     }
 
-                    Rectangle {
-                        Layout.fillWidth: true
-                        height: 1
-                        color: Theme.gray200
-                    }
-
                     // Clear data
-                    Rectangle {
+                    ListItem {
                         Layout.fillWidth: true
-                        height: 50
-                        color: "transparent"
+                        height: units.gu(6)
+
+                        onClicked: PopupUtils.open(clearDialogComponent)
 
                         RowLayout {
-                            anchors.fill: parent
-                            spacing: Theme.spacingSM
+                            anchors {
+                                fill: parent
+                                leftMargin: units.gu(1)
+                                rightMargin: units.gu(1)
+                            }
+                            spacing: units.gu(1)
 
-                            Text {
+                            Label {
                                 text: "🗑️"
-                                font.pixelSize: 20
+                                font.pixelSize: units.gu(2.5)
                             }
 
-                            Text {
+                            Label {
                                 text: "Clear All Data"
-                                font.pixelSize: Theme.fontSizeMD
+                                fontSize: "medium"
                                 color: Theme.expense
                                 Layout.fillWidth: true
                             }
 
-                            Text {
-                                text: "→"
-                                font.pixelSize: Theme.fontSizeMD
+                            Icon {
+                                width: units.gu(2)
+                                height: units.gu(2)
+                                name: "go-next"
                                 color: Theme.gray400
                             }
-                        }
-
-                        MouseArea {
-                            anchors.fill: parent
-                            cursorShape: Qt.PointingHandCursor
-                            onClicked: showClearConfirmation = true
                         }
                     }
                 }
             }
 
-            Item { Layout.preferredHeight: Theme.spacing3XL }
+            Item { Layout.preferredHeight: units.gu(4) }
         }
     }
 
     // Clear data confirmation dialog
-    property bool showClearConfirmation: false
+    Component {
+        id: clearDialogComponent
 
-    Rectangle {
-        id: clearOverlay
-        anchors.fill: parent
-        color: Qt.rgba(0, 0, 0, 0.5)
-        visible: showClearConfirmation
-        opacity: showClearConfirmation ? 1 : 0
+        Dialog {
+            id: clearDialog
+            title: "⚠️ Clear All Data?"
+            text: "This will delete all transactions, goals, assets, and settings. This action cannot be undone."
 
-        Behavior on opacity {
-            NumberAnimation { duration: Theme.animationNormal }
-        }
-
-        MouseArea {
-            anchors.fill: parent
-            onClicked: showClearConfirmation = false
-        }
-
-        Rectangle {
-            anchors.centerIn: parent
-            width: parent.width * 0.85
-            height: 220
-            radius: Theme.radiusXL
-            color: Theme.white
-
-            ColumnLayout {
-                anchors {
-                    fill: parent
-                    margins: Theme.spacingLG
+            Button {
+                text: "Clear"
+                color: Theme.expense
+                onClicked: {
+                    Database.clearAllData();
+                    PopupUtils.close(clearDialog);
+                    settingsPage.refreshData();
                 }
-                spacing: Theme.spacingMD
+            }
 
-                Text {
-                    text: "⚠️"
-                    font.pixelSize: 40
-                    Layout.alignment: Qt.AlignHCenter
-                }
-
-                Text {
-                    text: "Clear All Data?"
-                    font.pixelSize: Theme.fontSizeXL
-                    font.weight: Font.Bold
-                    color: Theme.gray900
-                    Layout.alignment: Qt.AlignHCenter
-                }
-
-                Text {
-                    text: "This will delete all transactions, goals, assets, and settings. This action cannot be undone."
-                    font.pixelSize: Theme.fontSizeSM
-                    color: Theme.gray600
-                    wrapMode: Text.WordWrap
-                    horizontalAlignment: Text.AlignHCenter
-                    Layout.fillWidth: true
-                }
-
-                Item { Layout.fillHeight: true }
-
-                RowLayout {
-                    Layout.fillWidth: true
-                    spacing: Theme.spacingSM
-
-                    Rectangle {
-                        Layout.fillWidth: true
-                        height: 44
-                        radius: Theme.radiusButton
-                        color: "transparent"
-                        border.width: 1
-                        border.color: Theme.gray300
-
-                        Text {
-                            anchors.centerIn: parent
-                            text: "Cancel"
-                            font.pixelSize: Theme.fontSizeMD
-                            color: Theme.gray700
-                        }
-
-                        MouseArea {
-                            anchors.fill: parent
-                            onClicked: showClearConfirmation = false
-                        }
-                    }
-
-                    Rectangle {
-                        Layout.fillWidth: true
-                        height: 44
-                        radius: Theme.radiusButton
-                        color: Theme.expense
-
-                        Text {
-                            anchors.centerIn: parent
-                            text: "Clear"
-                            font.pixelSize: Theme.fontSizeMD
-                            font.weight: Font.DemiBold
-                            color: Theme.white
-                        }
-
-                        MouseArea {
-                            anchors.fill: parent
-                            cursorShape: Qt.PointingHandCursor
-                            onClicked: {
-                                Database.clearAllData();
-                                showClearConfirmation = false;
-                                refreshData();
-                            }
-                        }
-                    }
-                }
+            Button {
+                text: "Cancel"
+                onClicked: PopupUtils.close(clearDialog)
             }
         }
     }

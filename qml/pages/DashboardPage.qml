@@ -195,7 +195,7 @@ Page {
             RowLayout {
                 Layout.fillWidth: true
 
-                Text {
+                Label {
                     text: "Recent Transactions"
                     font.pixelSize: Theme.fontSizeLG
                     font.weight: Font.DemiBold
@@ -204,15 +204,16 @@ Page {
 
                 Item { Layout.fillWidth: true }
 
-                Text {
-                    text: "See All →"
-                    font.pixelSize: Theme.fontSizeMD
-                    color: Theme.primary
+                AbstractButton {
+                    width: seeAllLabel.width
+                    height: seeAllLabel.height
+                    onClicked: openAllTransactions()
 
-                    MouseArea {
-                        anchors.fill: parent
-                        cursorShape: Qt.PointingHandCursor
-                        onClicked: openAllTransactions()
+                    Label {
+                        id: seeAllLabel
+                        text: "See All →"
+                        font.pixelSize: Theme.fontSizeMD
+                        color: Theme.primary
                     }
                 }
             }

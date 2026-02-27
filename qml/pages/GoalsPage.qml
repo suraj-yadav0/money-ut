@@ -1,6 +1,7 @@
 import QtQuick 2.7
 import QtQuick.Layouts 1.3
 import Lomiri.Components 1.3
+import Lomiri.Components.Popups 1.3
 import ".."
 import "../components"
 
@@ -15,6 +16,14 @@ Page {
     header: PageHeader {
         id: header
         title: "Savings Goals"
+
+        trailingActionBar.actions: [
+            Action {
+                iconName: "add"
+                text: "New Goal"
+                onTriggered: openCreateGoal()
+            }
+        ]
     }
 
     // Background
@@ -34,18 +43,17 @@ Page {
             right: parent.right
             bottom: parent.bottom
         }
-        contentHeight: contentColumn.height + Theme.spacing2XL
+        contentHeight: contentColumn.height + units.gu(3)
         clip: true
 
         ColumnLayout {
             id: contentColumn
-            width: parent.width - Theme.spacingLG * 2
+            width: parent.width - units.gu(4)
             anchors.horizontalCenter: parent.horizontalCenter
-            spacing: Theme.spacingLG
+            spacing: units.gu(2)
 
-            Item { Layout.preferredHeight: Theme.spacingSM }
+            Item { Layout.preferredHeight: units.gu(1) }
 
-            // Goals list
             Repeater {
                 model: goals
 
@@ -53,44 +61,43 @@ Page {
                     Layout.fillWidth: true
 
                     ColumnLayout {
-                        spacing: Theme.spacingMD
+                        spacing: units.gu(1.5)
 
                         // Header row
                         RowLayout {
                             Layout.fillWidth: true
 
-                            Text {
+                            Label {
                                 text: "🎯"
-                                font.pixelSize: 24
+                                font.pixelSize: units.gu(3)
                             }
 
                             ColumnLayout {
                                 Layout.fillWidth: true
                                 spacing: 0
 
-                                Text {
+                                Label {
                                     text: modelData.name
-                                    font.pixelSize: Theme.fontSizeLG
+                                    fontSize: "large"
                                     font.weight: Font.DemiBold
                                     color: Theme.gray900
                                 }
 
-                                Text {
+                                Label {
                                     text: getGoalStatus(modelData)
-                                    font.pixelSize: Theme.fontSizeSM
+                                    fontSize: "small"
                                     color: getGoalStatusColor(modelData)
                                 }
                             }
 
-                            // Menu button
-                            Text {
-                                text: "⋮"
-                                font.pixelSize: 20
+                            Icon {
+                                width: units.gu(2.5)
+                                height: units.gu(2.5)
+                                name: "navigation-menu"
                                 color: Theme.gray500
 
                                 MouseArea {
                                     anchors.fill: parent
-                                    cursorShape: Qt.PointingHandCursor
                                     onClicked: openGoalMenu(modelData)
                                 }
                             }
@@ -99,85 +106,73 @@ Page {
                         // Amount row
                         RowLayout {
                             Layout.fillWidth: true
-                            spacing: Theme.spacingSM
+                            spacing: units.gu(1)
 
-                            Text {
+                            Label {
                                 text: Theme.formatCurrency(modelData.saved_amount, currencyCode)
-                                font.pixelSize: Theme.fontSize2XL
+                                fontSize: "x-large"
                                 font.weight: Font.Bold
                                 color: Theme.gray900
                             }
 
-                            Text {
+                            Label {
                                 text: "/ " + Theme.formatCurrency(modelData.target_amount, currencyCode)
-                                font.pixelSize: Theme.fontSizeMD
+                                fontSize: "medium"
                                 color: Theme.gray500
                             }
 
                             Item { Layout.fillWidth: true }
 
-                            Text {
+                            Label {
                                 text: Math.round(modelData.percentComplete) + "%"
-                                font.pixelSize: Theme.fontSizeLG
+                                fontSize: "large"
                                 font.weight: Font.Bold
                                 color: Theme.primary
                             }
                         }
 
-                        // Progress bar with milestones
+                        // Progress bar
                         ProgressBar {
                             Layout.fillWidth: true
-                            barHeight: 12
+                            barHeight: units.gu(1.5)
                             value: modelData.saved_amount
                             maxValue: modelData.target_amount
                             barColor: modelData.is_completed ? Theme.income : Theme.primary
                             showMilestones: true
                         }
 
-                        // Add money button
-                        Rectangle {
+                        // Action button
+                        Button {
                             Layout.fillWidth: true
-                            height: 44
-                            radius: Theme.radiusButton
+                            text: "Add Money"
                             color: Theme.primary
                             visible: !modelData.is_completed
-
-                            Text {
-                                anchors.centerIn: parent
-                                text: "Add Money"
-                                font.pixelSize: Theme.fontSizeMD
-                                font.weight: Font.DemiBold
-                                color: Theme.white
-                            }
-
-                            MouseArea {
-                                anchors.fill: parent
-                                cursorShape: Qt.PointingHandCursor
-                                onClicked: openAddContribution(modelData)
-                            }
+                            onClicked: openAddContribution(modelData)
                         }
 
                         // Completed badge
-                        Rectangle {
+                        LomiriShape {
                             Layout.fillWidth: true
-                            height: 44
-                            radius: Theme.radiusButton
-                            color: Qt.rgba(Theme.income.r, Theme.income.g, Theme.income.b, 0.15)
+                            Layout.preferredHeight: units.gu(5)
+                            aspect: LomiriShape.Flat
+                            backgroundColor: Qt.rgba(Theme.income.r, Theme.income.g, Theme.income.b, 0.15)
+                            radius: "medium"
                             visible: modelData.is_completed
 
                             Row {
                                 anchors.centerIn: parent
-                                spacing: Theme.spacingSM
+                                spacing: units.gu(1)
 
-                                Text {
-                                    text: "✓"
-                                    font.pixelSize: 18
+                                Icon {
+                                    width: units.gu(2)
+                                    height: units.gu(2)
+                                    name: "tick"
                                     color: Theme.income
                                 }
 
-                                Text {
+                                Label {
                                     text: "Goal Completed!"
-                                    font.pixelSize: Theme.fontSizeMD
+                                    fontSize: "medium"
                                     font.weight: Font.DemiBold
                                     color: Theme.income
                                 }
@@ -193,10 +188,9 @@ Page {
                 }
             }
 
-            // Empty state
             EmptyState {
                 Layout.fillWidth: true
-                Layout.topMargin: Theme.spacing3XL
+                Layout.topMargin: units.gu(4)
                 visible: goals.length === 0
                 emoji: "🎯"
                 title: "No Goals Yet"
@@ -205,435 +199,164 @@ Page {
                 onActionClicked: openCreateGoal()
             }
 
-            Item { Layout.preferredHeight: 80 }
+            Item { Layout.preferredHeight: units.gu(10) }
         }
     }
 
-    // FAB
-    Rectangle {
-        anchors {
-            right: parent.right
-            bottom: parent.bottom
-            rightMargin: Theme.spacingLG
-            bottomMargin: Theme.spacingLG
-        }
-        width: 56
-        height: 56
-        radius: 28
-        color: Theme.primary
-
-        Text {
-            anchors.centerIn: parent
-            text: "+"
-            font.pixelSize: 28
-            font.weight: Font.Bold
-            color: Theme.white
-        }
-
-        MouseArea {
-            anchors.fill: parent
-            cursorShape: Qt.PointingHandCursor
-            onClicked: openCreateGoal()
-        }
-    }
+    // ---- Lomiri Dialogs ----
+    property var editingGoal: null
+    property var selectedGoal: null
 
     // Create/Edit Goal Dialog
-    property bool showGoalDialog: false
-    property var editingGoal: null
+    Component {
+        id: goalDialogComponent
 
-    Rectangle {
-        id: goalDialogOverlay
-        anchors.fill: parent
-        color: Qt.rgba(0, 0, 0, 0.5)
-        visible: showGoalDialog
-        opacity: showGoalDialog ? 1 : 0
+        Dialog {
+            id: goalDialog
+            title: goalsPage.editingGoal ? "Edit Goal" : "Create Goal"
 
-        Behavior on opacity {
-            NumberAnimation { duration: Theme.animationNormal }
-        }
-
-        MouseArea {
-            anchors.fill: parent
-            onClicked: showGoalDialog = false
-        }
-
-        Rectangle {
-            anchors {
-                left: parent.left
-                right: parent.right
-                bottom: parent.bottom
+            TextField {
+                id: goalNameInput
+                placeholderText: "Goal name (e.g., Emergency Fund)"
+                text: goalsPage.editingGoal ? goalsPage.editingGoal.name : ""
             }
-            height: 380
-            radius: Theme.radiusXL
-            color: Theme.white
 
-            ColumnLayout {
-                anchors {
-                    fill: parent
-                    margins: Theme.spacingLG
-                }
-                spacing: Theme.spacingMD
+            TextField {
+                id: goalTargetInput
+                placeholderText: "Target amount"
+                inputMethodHints: Qt.ImhDigitsOnly
+                text: goalsPage.editingGoal ? goalsPage.editingGoal.target_amount.toString() : ""
+            }
 
-                Text {
-                    text: editingGoal ? "Edit Goal" : "Create Goal"
-                    font.pixelSize: Theme.fontSizeXL
-                    font.weight: Font.Bold
-                    color: Theme.gray900
-                }
+            TextField {
+                id: goalDeadlineInput
+                placeholderText: "Deadline (YYYY-MM-DD)"
+                text: goalsPage.editingGoal ?
+                    Qt.formatDate(new Date(goalsPage.editingGoal.deadline), "yyyy-MM-dd") :
+                    Qt.formatDate(new Date(Date.now() + 90 * 24 * 60 * 60 * 1000), "yyyy-MM-dd")
+                inputMethodHints: Qt.ImhDate
+            }
 
-                // Name
-                TextField {
-                    id: goalNameInput
-                    Layout.fillWidth: true
-                    placeholderText: "Goal name (e.g., Emergency Fund)"
-                }
+            Button {
+                text: goalsPage.editingGoal ? "Update" : "Create Goal"
+                color: Theme.primary
+                onClicked: {
+                    var name = goalNameInput.text.trim();
+                    var target = parseFloat(goalTargetInput.text) || 0;
+                    var deadline = goalDeadlineInput.text;
+                    if (name === "" || target <= 0) return;
 
-                // Target amount
-                RowLayout {
-                    Layout.fillWidth: true
-                    spacing: Theme.spacingSM
-
-                    Text {
-                        text: Theme.getCurrencySymbol(currencyCode)
-                        font.pixelSize: Theme.fontSizeLG
-                        color: Theme.gray500
+                    if (goalsPage.editingGoal) {
+                        Database.updateGoal(goalsPage.editingGoal.id, name, target, deadline);
+                    } else {
+                        Database.addGoal(name, target, deadline);
                     }
-
-                    TextField {
-                        id: goalTargetInput
-                        Layout.fillWidth: true
-                        placeholderText: "Target amount"
-                        inputMethodHints: Qt.ImhDigitsOnly
-                    }
+                    PopupUtils.close(goalDialog);
+                    goalsPage.refreshData();
                 }
+            }
 
-                // Deadline
-                RowLayout {
-                    Layout.fillWidth: true
-                    spacing: Theme.spacingSM
-
-                    Text {
-                        text: "Deadline:"
-                        font.pixelSize: Theme.fontSizeMD
-                        color: Theme.gray700
+            Button {
+                text: "Delete"
+                color: Theme.expense
+                visible: goalsPage.editingGoal !== null
+                onClicked: {
+                    if (goalsPage.editingGoal) {
+                        Database.deleteGoal(goalsPage.editingGoal.id);
                     }
-
-                    TextField {
-                        id: goalDeadlineInput
-                        Layout.fillWidth: true
-                        text: Qt.formatDate(new Date(Date.now() + 90 * 24 * 60 * 60 * 1000), "yyyy-MM-dd")
-                        inputMethodHints: Qt.ImhDate
-                    }
+                    PopupUtils.close(goalDialog);
+                    goalsPage.refreshData();
                 }
+            }
 
-                Item { Layout.fillHeight: true }
-
-                // Buttons
-                RowLayout {
-                    Layout.fillWidth: true
-                    spacing: Theme.spacingSM
-
-                    Rectangle {
-                        visible: editingGoal !== null
-                        Layout.fillWidth: true
-                        height: 48
-                        radius: Theme.radiusButton
-                        color: Theme.expense
-
-                        Text {
-                            anchors.centerIn: parent
-                            text: "Delete"
-                            font.pixelSize: Theme.fontSizeMD
-                            font.weight: Font.DemiBold
-                            color: Theme.white
-                        }
-
-                        MouseArea {
-                            anchors.fill: parent
-                            cursorShape: Qt.PointingHandCursor
-                            onClicked: deleteGoal()
-                        }
-                    }
-
-                    Rectangle {
-                        Layout.fillWidth: true
-                        height: 48
-                        radius: Theme.radiusButton
-                        color: Theme.primary
-
-                        Text {
-                            anchors.centerIn: parent
-                            text: editingGoal ? "Update" : "Create Goal"
-                            font.pixelSize: Theme.fontSizeMD
-                            font.weight: Font.DemiBold
-                            color: Theme.white
-                        }
-
-                        MouseArea {
-                            anchors.fill: parent
-                            cursorShape: Qt.PointingHandCursor
-                            onClicked: saveGoal()
-                        }
-                    }
-                }
+            Button {
+                text: "Cancel"
+                onClicked: PopupUtils.close(goalDialog)
             }
         }
     }
 
     // Add Contribution Dialog
-    property bool showContributionDialog: false
-    property var selectedGoal: null
+    Component {
+        id: contributionDialogComponent
 
-    Rectangle {
-        id: contributionDialogOverlay
-        anchors.fill: parent
-        color: Qt.rgba(0, 0, 0, 0.5)
-        visible: showContributionDialog
-        opacity: showContributionDialog ? 1 : 0
+        Dialog {
+            id: contribDialog
+            title: "Add Money to " + (goalsPage.selectedGoal ? goalsPage.selectedGoal.name : "")
 
-        Behavior on opacity {
-            NumberAnimation { duration: Theme.animationNormal }
-        }
-
-        MouseArea {
-            anchors.fill: parent
-            onClicked: showContributionDialog = false
-        }
-
-        Rectangle {
-            anchors {
-                left: parent.left
-                right: parent.right
-                bottom: parent.bottom
+            TextField {
+                id: contribAmountInput
+                placeholderText: "Amount"
+                inputMethodHints: Qt.ImhDigitsOnly
             }
-            height: 300
-            radius: Theme.radiusXL
-            color: Theme.white
 
-            ColumnLayout {
-                anchors {
-                    fill: parent
-                    margins: Theme.spacingLG
-                }
-                spacing: Theme.spacingMD
+            TextField {
+                id: contribNoteInput
+                placeholderText: "Note (optional)"
+            }
 
-                Text {
-                    text: "Add Money to " + (selectedGoal ? selectedGoal.name : "")
-                    font.pixelSize: Theme.fontSizeXL
-                    font.weight: Font.Bold
-                    color: Theme.gray900
-                }
+            Button {
+                text: "Add"
+                color: Theme.primary
+                onClicked: {
+                    if (!goalsPage.selectedGoal) return;
+                    var amount = parseFloat(contribAmountInput.text) || 0;
+                    var note = contribNoteInput.text.trim();
+                    if (amount <= 0) return;
 
-                // Amount
-                RowLayout {
-                    Layout.fillWidth: true
-                    spacing: Theme.spacingSM
+                    var wasCompleted = goalsPage.selectedGoal.is_completed;
+                    Database.addContribution(goalsPage.selectedGoal.id, amount, note);
+                    PopupUtils.close(contribDialog);
+                    goalsPage.refreshData();
 
-                    Text {
-                        text: Theme.getCurrencySymbol(currencyCode)
-                        font.pixelSize: Theme.fontSize2XL
-                        color: Theme.gray500
-                    }
-
-                    TextField {
-                        id: contributionAmountInput
-                        Layout.fillWidth: true
-                        placeholderText: "Amount"
-                        inputMethodHints: Qt.ImhDigitsOnly
-                        font.pixelSize: Theme.fontSize2XL
+                    var updatedGoal = Database.getGoalById(goalsPage.selectedGoal.id);
+                    if (updatedGoal && updatedGoal.is_completed && !wasCompleted) {
+                        PopupUtils.open(celebrationDialogComponent);
                     }
                 }
+            }
 
-                // Note
-                TextField {
-                    id: contributionNoteInput
-                    Layout.fillWidth: true
-                    placeholderText: "Note (optional)"
-                }
-
-                Item { Layout.fillHeight: true }
-
-                Rectangle {
-                    Layout.fillWidth: true
-                    height: 48
-                    radius: Theme.radiusButton
-                    color: Theme.primary
-
-                    Text {
-                        anchors.centerIn: parent
-                        text: "Add"
-                        font.pixelSize: Theme.fontSizeMD
-                        font.weight: Font.DemiBold
-                        color: Theme.white
-                    }
-
-                    MouseArea {
-                        anchors.fill: parent
-                        cursorShape: Qt.PointingHandCursor
-                        onClicked: saveContribution()
-                    }
-                }
+            Button {
+                text: "Cancel"
+                onClicked: PopupUtils.close(contribDialog)
             }
         }
     }
 
-    // Goal Completion Celebration Dialog
-    property bool showCelebration: false
-    property var completedGoal: null
+    // Celebration Dialog
+    Component {
+        id: celebrationDialogComponent
 
-    Rectangle {
-        id: celebrationOverlay
-        anchors.fill: parent
-        color: Qt.rgba(0, 0, 0, 0.7)
-        visible: showCelebration
-        opacity: showCelebration ? 1 : 0
+        Dialog {
+            id: celebDialog
+            title: "🎉 Congratulations!"
+            text: "You've completed your savings goal!"
 
-        Behavior on opacity {
-            NumberAnimation { duration: Theme.animationNormal }
-        }
-
-        MouseArea {
-            anchors.fill: parent
-            onClicked: showCelebration = false
-        }
-
-        ColumnLayout {
-            anchors.centerIn: parent
-            spacing: Theme.spacingXL
-
-            Text {
-                text: "🎉"
-                font.pixelSize: 80
-                Layout.alignment: Qt.AlignHCenter
-            }
-
-            Text {
-                text: "Congratulations!"
-                font.pixelSize: Theme.fontSize3XL
-                font.weight: Font.Bold
-                color: Theme.white
-                Layout.alignment: Qt.AlignHCenter
-            }
-
-            Text {
-                text: "You've completed your goal:\n" + (completedGoal ? completedGoal.name : "")
-                font.pixelSize: Theme.fontSizeLG
-                color: Theme.gray200
-                Layout.alignment: Qt.AlignHCenter
-                horizontalAlignment: Text.AlignHCenter
-            }
-
-            Rectangle {
-                Layout.alignment: Qt.AlignHCenter
-                width: 120
-                height: 48
-                radius: Theme.radiusButton
+            Button {
+                text: "Awesome!"
                 color: Theme.income
-
-                Row {
-                    anchors.centerIn: parent
-                    spacing: Theme.spacingSM
-
-                    Text {
-                        text: "✓"
-                        font.pixelSize: 20
-                        color: Theme.white
-                    }
-
-                    Text {
-                        text: "Done"
-                        font.pixelSize: Theme.fontSizeMD
-                        font.weight: Font.DemiBold
-                        color: Theme.white
-                    }
-                }
-
-                MouseArea {
-                    anchors.fill: parent
-                    onClicked: showCelebration = false
-                }
+                onClicked: PopupUtils.close(celebDialog)
             }
         }
     }
 
     function openCreateGoal() {
         editingGoal = null;
-        goalNameInput.text = "";
-        goalTargetInput.text = "";
-        goalDeadlineInput.text = Qt.formatDate(new Date(Date.now() + 90 * 24 * 60 * 60 * 1000), "yyyy-MM-dd");
-        showGoalDialog = true;
+        PopupUtils.open(goalDialogComponent);
     }
 
     function openEditGoal(goal) {
         editingGoal = goal;
-        goalNameInput.text = goal.name;
-        goalTargetInput.text = goal.target_amount.toString();
-        goalDeadlineInput.text = Qt.formatDate(new Date(goal.deadline), "yyyy-MM-dd");
-        showGoalDialog = true;
-    }
-
-    function saveGoal() {
-        var name = goalNameInput.text.trim();
-        var target = parseFloat(goalTargetInput.text) || 0;
-        var deadline = goalDeadlineInput.text;
-
-        if (name === "" || target <= 0) return;
-
-        if (editingGoal) {
-            Database.updateGoal(editingGoal.id, name, target, deadline);
-        } else {
-            Database.addGoal(name, target, deadline);
-        }
-
-        showGoalDialog = false;
-        refreshData();
-    }
-
-    function deleteGoal() {
-        if (editingGoal) {
-            Database.deleteGoal(editingGoal.id);
-            showGoalDialog = false;
-            refreshData();
-        }
+        PopupUtils.open(goalDialogComponent);
     }
 
     function openAddContribution(goal) {
         selectedGoal = goal;
-        contributionAmountInput.text = "";
-        contributionNoteInput.text = "";
-        showContributionDialog = true;
+        PopupUtils.open(contributionDialogComponent);
     }
 
-    function saveContribution() {
-        if (!selectedGoal) return;
-
-        var amount = parseFloat(contributionAmountInput.text) || 0;
-        var note = contributionNoteInput.text.trim();
-
-        if (amount <= 0) return;
-
-        var wasCompleted = selectedGoal.is_completed;
-        Database.addContribution(selectedGoal.id, amount, note);
-
-        showContributionDialog = false;
-        refreshData();
-
-        // Check if goal just got completed
-        var updatedGoal = Database.getGoalById(selectedGoal.id);
-        if (updatedGoal && updatedGoal.is_completed && !wasCompleted) {
-            completedGoal = updatedGoal;
-            showCelebration = true;
-        }
-    }
-
-    function openGoalDetails(goal) {
-        // Could navigate to details page or show a sheet
-        openEditGoal(goal);
-    }
-
-    function openGoalMenu(goal) {
-        openEditGoal(goal);
-    }
+    function openGoalDetails(goal) { openEditGoal(goal); }
+    function openGoalMenu(goal) { openEditGoal(goal); }
 
     function getGoalStatus(goal) {
         if (goal.is_completed) return "✓ Completed";
@@ -651,13 +374,9 @@ Page {
 
     function refreshData() {
         var settings = Database.getUserSettings();
-        if (settings) {
-            currencyCode = settings.currency || "INR";
-        }
+        if (settings) { currencyCode = settings.currency || "INR"; }
         goals = Database.getGoals(false);
     }
 
-    Component.onCompleted: {
-        refreshData();
-    }
+    Component.onCompleted: { refreshData(); }
 }

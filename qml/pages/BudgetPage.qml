@@ -1,6 +1,7 @@
 import QtQuick 2.7
 import QtQuick.Layouts 1.3
 import Lomiri.Components 1.3
+import Lomiri.Components.Popups 1.3
 import ".."
 import "../components"
 
@@ -15,6 +16,14 @@ Page {
     header: PageHeader {
         id: header
         title: "Budget"
+
+        trailingActionBar.actions: [
+            Action {
+                iconName: "settings"
+                text: "Budget Settings"
+                onTriggered: openBudgetSettings()
+            }
+        ]
     }
 
     // Background
@@ -34,16 +43,16 @@ Page {
             right: parent.right
             bottom: parent.bottom
         }
-        contentHeight: contentColumn.height + Theme.spacing2XL
+        contentHeight: contentColumn.height + units.gu(4)
         clip: true
 
         ColumnLayout {
             id: contentColumn
-            width: parent.width - Theme.spacingLG * 2
+            width: parent.width - units.gu(4)
             anchors.horizontalCenter: parent.horizontalCenter
-            spacing: Theme.spacingLG
+            spacing: units.gu(2)
 
-            Item { Layout.preferredHeight: Theme.spacingSM }
+            Item { Layout.preferredHeight: units.gu(1) }
 
             // Budget summary card
             GlassCard {
@@ -51,22 +60,22 @@ Page {
                 visible: budgetStats && budgetStats.totalBudget > 0
 
                 ColumnLayout {
-                    spacing: Theme.spacingMD
+                    spacing: units.gu(1.5)
 
                     RowLayout {
                         Layout.fillWidth: true
 
-                        // Status icon
-                        Rectangle {
-                            width: 44
-                            height: 44
-                            radius: 22
-                            color: Qt.rgba(getBudgetStatusColor().r, getBudgetStatusColor().g, getBudgetStatusColor().b, 0.15)
+                        LomiriShape {
+                            width: units.gu(5)
+                            height: units.gu(5)
+                            aspect: LomiriShape.Flat
+                            radius: "large"
+                            backgroundColor: Qt.rgba(getBudgetStatusColor().r, getBudgetStatusColor().g, getBudgetStatusColor().b, 0.15)
 
-                            Text {
+                            Label {
                                 anchors.centerIn: parent
                                 text: getBudgetStatusIcon()
-                                font.pixelSize: 20
+                                font.pixelSize: units.gu(2.5)
                             }
                         }
 
@@ -74,25 +83,24 @@ Page {
                             Layout.fillWidth: true
                             spacing: 2
 
-                            Text {
+                            Label {
                                 text: Theme.formatCurrency(budgetStats ? budgetStats.totalSpent : 0, currencyCode) + " spent"
-                                font.pixelSize: Theme.fontSizeLG
+                                fontSize: "large"
                                 font.weight: Font.DemiBold
                                 color: Theme.gray900
                             }
 
-                            Text {
+                            Label {
                                 text: "of " + Theme.formatCurrency(budgetStats ? budgetStats.totalBudget : 0, currencyCode) + " budget"
-                                font.pixelSize: Theme.fontSizeSM
+                                fontSize: "small"
                                 color: Theme.gray500
                             }
                         }
                     }
 
-                    // Progress bar
                     ProgressBar {
                         Layout.fillWidth: true
-                        barHeight: 12
+                        barHeight: units.gu(1.5)
                         value: budgetStats ? budgetStats.percentUsed : 0
                         barColor: getBudgetStatusColor()
                     }
@@ -100,65 +108,62 @@ Page {
                     // Stats row
                     RowLayout {
                         Layout.fillWidth: true
-                        spacing: Theme.spacingMD
+                        spacing: units.gu(1.5)
 
-                        // Remaining
                         ColumnLayout {
                             Layout.fillWidth: true
                             spacing: 2
 
-                            Text {
+                            Label {
                                 text: "Remaining"
-                                font.pixelSize: Theme.fontSizeXS
+                                fontSize: "x-small"
                                 color: Theme.gray500
                             }
 
-                            Text {
+                            Label {
                                 text: Theme.formatCurrency(budgetStats ? budgetStats.totalRemaining : 0, currencyCode)
-                                font.pixelSize: Theme.fontSizeMD
+                                fontSize: "medium"
                                 font.weight: Font.DemiBold
                                 color: (budgetStats && budgetStats.totalRemaining >= 0) ? Theme.income : Theme.expense
                             }
                         }
 
-                        Rectangle { width: 1; height: 30; color: Theme.gray200 }
+                        Rectangle { width: 1; height: units.gu(3); color: Theme.gray200 }
 
-                        // Daily limit
                         ColumnLayout {
                             Layout.fillWidth: true
                             spacing: 2
 
-                            Text {
+                            Label {
                                 text: "Daily Limit"
-                                font.pixelSize: Theme.fontSizeXS
+                                fontSize: "x-small"
                                 color: Theme.gray500
                             }
 
-                            Text {
+                            Label {
                                 property int daysLeft: getDaysLeftInMonth()
                                 text: Theme.formatCurrency(budgetStats && daysLeft > 0 ? budgetStats.totalRemaining / daysLeft : 0, currencyCode)
-                                font.pixelSize: Theme.fontSizeMD
+                                fontSize: "medium"
                                 font.weight: Font.DemiBold
                                 color: Theme.gray900
                             }
                         }
 
-                        Rectangle { width: 1; height: 30; color: Theme.gray200 }
+                        Rectangle { width: 1; height: units.gu(3); color: Theme.gray200 }
 
-                        // Days left
                         ColumnLayout {
                             Layout.fillWidth: true
                             spacing: 2
 
-                            Text {
+                            Label {
                                 text: "Days Left"
-                                font.pixelSize: Theme.fontSizeXS
+                                fontSize: "x-small"
                                 color: Theme.gray500
                             }
 
-                            Text {
+                            Label {
                                 text: getDaysLeftInMonth()
-                                font.pixelSize: Theme.fontSizeMD
+                                fontSize: "medium"
                                 font.weight: Font.DemiBold
                                 color: Theme.gray900
                             }
@@ -168,9 +173,9 @@ Page {
             }
 
             // Category budgets header
-            Text {
+            Label {
                 text: "Category Budgets"
-                font.pixelSize: Theme.fontSizeLG
+                fontSize: "large"
                 font.weight: Font.DemiBold
                 color: Theme.gray900
                 visible: budgetStats && budgetStats.categories.length > 0
@@ -184,22 +189,22 @@ Page {
                     Layout.fillWidth: true
 
                     ColumnLayout {
-                        spacing: Theme.spacingSM
+                        spacing: units.gu(1)
 
                         RowLayout {
                             Layout.fillWidth: true
 
-                            // Category icon
-                            Rectangle {
-                                width: 36
-                                height: 36
-                                radius: 18
-                                color: Qt.rgba(Theme.primary.r, Theme.primary.g, Theme.primary.b, 0.15)
+                            LomiriShape {
+                                width: units.gu(4)
+                                height: units.gu(4)
+                                aspect: LomiriShape.Flat
+                                radius: "large"
+                                backgroundColor: Qt.rgba(Theme.primary.r, Theme.primary.g, Theme.primary.b, 0.15)
 
-                                Text {
+                                Label {
                                     anchors.centerIn: parent
                                     text: getCategoryEmoji(modelData.categoryIcon)
-                                    font.pixelSize: 16
+                                    font.pixelSize: units.gu(2)
                                 }
                             }
 
@@ -207,23 +212,23 @@ Page {
                                 Layout.fillWidth: true
                                 spacing: 0
 
-                                Text {
+                                Label {
                                     text: modelData.categoryName
-                                    font.pixelSize: Theme.fontSizeMD
+                                    fontSize: "medium"
                                     font.weight: Font.DemiBold
                                     color: Theme.gray900
                                 }
 
-                                Text {
+                                Label {
                                     text: Theme.formatCurrency(modelData.spent, currencyCode) + " / " + Theme.formatCurrency(modelData.budget, currencyCode)
-                                    font.pixelSize: Theme.fontSizeSM
+                                    fontSize: "small"
                                     color: Theme.gray500
                                 }
                             }
 
-                            Text {
+                            Label {
                                 text: Math.round(modelData.percentUsed * 100) + "%"
-                                font.pixelSize: Theme.fontSizeMD
+                                fontSize: "medium"
                                 font.weight: Font.Bold
                                 color: Theme.getBudgetColor(modelData.percentUsed)
                             }
@@ -231,7 +236,7 @@ Page {
 
                         ProgressBar {
                             Layout.fillWidth: true
-                            barHeight: 6
+                            barHeight: units.gu(0.75)
                             value: modelData.percentUsed
                             barColor: Theme.getBudgetColor(modelData.percentUsed)
                         }
@@ -242,7 +247,7 @@ Page {
             // Empty state
             EmptyState {
                 Layout.fillWidth: true
-                Layout.topMargin: Theme.spacing3XL
+                Layout.topMargin: units.gu(4)
                 visible: !budgetStats || budgetStats.categories.length === 0
                 emoji: "💰"
                 title: "No Budgets Set"
@@ -251,166 +256,74 @@ Page {
                 onActionClicked: openBudgetSettings()
             }
 
-            Item { Layout.preferredHeight: 80 }
+            Item { Layout.preferredHeight: units.gu(10) }
         }
     }
 
-    // FAB
-    Rectangle {
-        anchors {
-            right: parent.right
-            bottom: parent.bottom
-            rightMargin: Theme.spacingLG
-            bottomMargin: Theme.spacingLG
-        }
-        width: 56
-        height: 56
-        radius: 28
-        color: Theme.primary
+    // Budget settings dialog (bottom sheet style via Lomiri Dialog)
+    Component {
+        id: budgetSettingsDialogComponent
 
-        Text {
-            anchors.centerIn: parent
-            text: "⚙️"
-            font.pixelSize: 24
-        }
+        Dialog {
+            id: budgetSettingsDialog
+            title: "Set Budgets"
 
-        MouseArea {
-            anchors.fill: parent
-            cursorShape: Qt.PointingHandCursor
-            onClicked: openBudgetSettings()
-        }
-    }
+            Flickable {
+                width: parent.width
+                height: units.gu(40)
+                contentHeight: categoriesList.height
+                clip: true
 
-    // Budget settings dialog
-    property bool showBudgetSettings: false
+                Column {
+                    id: categoriesList
+                    width: parent.width
+                    spacing: units.gu(1)
 
-    Rectangle {
-        id: budgetSettingsOverlay
-        anchors.fill: parent
-        color: Qt.rgba(0, 0, 0, 0.5)
-        visible: showBudgetSettings
-        opacity: showBudgetSettings ? 1 : 0
+                    Repeater {
+                        model: Database.getCategories("expense")
 
-        Behavior on opacity {
-            NumberAnimation { duration: Theme.animationNormal }
-        }
+                        RowLayout {
+                            width: parent.width
+                            spacing: units.gu(1)
 
-        MouseArea {
-            anchors.fill: parent
-            onClicked: showBudgetSettings = false
-        }
+                            Label {
+                                text: getCategoryEmoji(modelData.icon)
+                                font.pixelSize: units.gu(2.5)
+                            }
 
-        Rectangle {
-            anchors {
-                left: parent.left
-                right: parent.right
-                bottom: parent.bottom
-            }
-            height: parent.height * 0.7
-            radius: Theme.radiusXL
-            color: Theme.white
+                            Label {
+                                text: modelData.name
+                                fontSize: "medium"
+                                color: Theme.gray900
+                                Layout.fillWidth: true
+                            }
 
-            ColumnLayout {
-                anchors {
-                    fill: parent
-                    margins: Theme.spacingLG
-                }
-                spacing: Theme.spacingMD
+                            TextField {
+                                id: budgetInput
+                                Layout.preferredWidth: units.gu(12)
+                                placeholderText: modelData.monthly_budget ? modelData.monthly_budget.toString() : "No budget"
+                                text: modelData.monthly_budget ? modelData.monthly_budget.toString() : ""
+                                inputMethodHints: Qt.ImhDigitsOnly
 
-                // Header
-                RowLayout {
-                    Layout.fillWidth: true
-
-                    Text {
-                        text: "Set Budgets"
-                        font.pixelSize: Theme.fontSizeXL
-                        font.weight: Font.Bold
-                        color: Theme.gray900
-                    }
-
-                    Item { Layout.fillWidth: true }
-
-                    Text {
-                        text: "✕"
-                        font.pixelSize: 20
-                        color: Theme.gray500
-
-                        MouseArea {
-                            anchors.fill: parent
-                            cursorShape: Qt.PointingHandCursor
-                            onClicked: showBudgetSettings = false
-                        }
-                    }
-                }
-
-                // Categories list
-                Flickable {
-                    Layout.fillWidth: true
-                    Layout.fillHeight: true
-                    contentHeight: categoriesList.height
-                    clip: true
-
-                    Column {
-                        id: categoriesList
-                        width: parent.width
-                        spacing: Theme.spacingSM
-
-                        Repeater {
-                            model: Database.getCategories("expense")
-
-                            Rectangle {
-                                width: parent.width
-                                height: 60
-                                radius: Theme.radiusMD
-                                color: budgetInput.activeFocus ? Theme.gray50 : "transparent"
-
-                                RowLayout {
-                                    anchors {
-                                        fill: parent
-                                        margins: Theme.spacingSM
+                                onAccepted: {
+                                    var value = parseFloat(text);
+                                    if (value > 0) {
+                                        Database.updateCategoryBudget(modelData.id, value);
+                                    } else {
+                                        Database.clearCategoryBudget(modelData.id);
                                     }
-                                    spacing: Theme.spacingSM
+                                    budgetPage.refreshData();
+                                }
 
-                                    Text {
-                                        text: getCategoryEmoji(modelData.icon)
-                                        font.pixelSize: 20
-                                    }
-
-                                    Text {
-                                        text: modelData.name
-                                        font.pixelSize: Theme.fontSizeMD
-                                        color: Theme.gray900
-                                        Layout.fillWidth: true
-                                    }
-
-                                    TextField {
-                                        id: budgetInput
-                                        Layout.preferredWidth: 100
-                                        placeholderText: modelData.monthly_budget ? modelData.monthly_budget.toString() : "No budget"
-                                        text: modelData.monthly_budget ? modelData.monthly_budget.toString() : ""
-                                        inputMethodHints: Qt.ImhDigitsOnly
-
-                                        onAccepted: {
-                                            var value = parseFloat(text);
-                                            if (value > 0) {
-                                                Database.updateCategoryBudget(modelData.id, value);
-                                            } else {
-                                                Database.clearCategoryBudget(modelData.id);
-                                            }
-                                            refreshData();
+                                onFocusChanged: {
+                                    if (!focus && text !== "") {
+                                        var value = parseFloat(text);
+                                        if (value > 0) {
+                                            Database.updateCategoryBudget(modelData.id, value);
+                                        } else {
+                                            Database.clearCategoryBudget(modelData.id);
                                         }
-
-                                        onFocusChanged: {
-                                            if (!focus && text !== "") {
-                                                var value = parseFloat(text);
-                                                if (value > 0) {
-                                                    Database.updateCategoryBudget(modelData.id, value);
-                                                } else {
-                                                    Database.clearCategoryBudget(modelData.id);
-                                                }
-                                                refreshData();
-                                            }
-                                        }
+                                        budgetPage.refreshData();
                                     }
                                 }
                             }
@@ -418,11 +331,17 @@ Page {
                     }
                 }
             }
+
+            Button {
+                text: "Done"
+                color: Theme.primary
+                onClicked: PopupUtils.close(budgetSettingsDialog)
+            }
         }
     }
 
     function openBudgetSettings() {
-        showBudgetSettings = true;
+        PopupUtils.open(budgetSettingsDialogComponent);
     }
 
     function refreshData() {
