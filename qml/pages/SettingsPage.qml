@@ -62,7 +62,7 @@ Page {
             GlassCard {
                 Layout.fillWidth: true
 
-                contentItem: ColumnLayout {
+                ColumnLayout {
                     spacing: Theme.spacingMD
 
                     Text {
@@ -127,7 +127,7 @@ Page {
             GlassCard {
                 Layout.fillWidth: true
 
-                contentItem: ColumnLayout {
+                ColumnLayout {
                     spacing: Theme.spacingMD
 
                     Text {
@@ -196,7 +196,7 @@ Page {
             GlassCard {
                 Layout.fillWidth: true
 
-                contentItem: ColumnLayout {
+                ColumnLayout {
                     spacing: Theme.spacingMD
 
                     RowLayout {
@@ -255,7 +255,7 @@ Page {
             GlassCard {
                 Layout.fillWidth: true
 
-                contentItem: ColumnLayout {
+                ColumnLayout {
                     spacing: Theme.spacingMD
 
                     // Export data

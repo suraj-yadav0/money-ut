@@ -83,7 +83,7 @@ Page {
                         Layout.fillWidth: true
                         implicitHeight: dateTransactions.height + Theme.spacingLG * 2
 
-                        contentItem: Column {
+                        Column {
                             id: dateTransactions
                             width: parent.width
                             spacing: 1

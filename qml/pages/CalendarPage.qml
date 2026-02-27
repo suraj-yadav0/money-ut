@@ -73,7 +73,7 @@ Page {
             GlassCard {
                 Layout.fillWidth: true
 
-                contentItem: RowLayout {
+                RowLayout {
                     spacing: Theme.spacingMD
 
                     ColumnLayout {

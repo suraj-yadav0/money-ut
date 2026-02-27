@@ -5,16 +5,19 @@ import ".."
 GlassContainer {
     id: card
 
-    property alias contentItem: contentArea.data
+    default property alias contentChildren: contentColumn.data
 
     width: parent ? parent.width : 300
-    implicitHeight: contentArea.implicitHeight + Theme.spacingLG * 2
+    implicitHeight: contentColumn.implicitHeight + Theme.spacingLG * 2
 
-    Item {
-        id: contentArea
+    ColumnLayout {
+        id: contentColumn
         anchors {
-            fill: parent
+            left: parent.left
+            right: parent.right
+            top: parent.top
             margins: Theme.spacingLG
         }
+        spacing: Theme.spacingSM
     }
 }

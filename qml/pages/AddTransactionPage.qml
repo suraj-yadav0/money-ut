@@ -142,12 +142,13 @@ Page {
             GlassCard {
                 Layout.fillWidth: true
 
-                contentItem: RowLayout {
+                RowLayout {
+                    Layout.fillWidth: true
                     spacing: Theme.spacingSM
 
                     Text {
                         text: Theme.getCurrencySymbol(currencyCode)
-                        font.pixelSize: Theme.fontSize4XL
+                        font.pixelSize: Theme.fontSize3XL
                         font.weight: Font.Bold
                         color: Theme.gray400
                     }
@@ -155,7 +156,7 @@ Page {
                     TextField {
                         id: amountInput
                         Layout.fillWidth: true
-                        font.pixelSize: Theme.fontSize4XL
+                        font.pixelSize: Theme.fontSize2XL
                         placeholderText: "0"
                         inputMethodHints: Qt.ImhDigitsOnly
                         text: amount > 0 ? amount.toString() : ""
@@ -171,7 +172,7 @@ Page {
             GlassCard {
                 Layout.fillWidth: true
 
-                contentItem: TextField {
+                TextField {
                     id: noteInput
                     Layout.fillWidth: true
                     placeholderText: "Add a note..."
@@ -337,7 +338,7 @@ Page {
             GlassCard {
                 Layout.fillWidth: true
 
-                contentItem: RowLayout {
+                RowLayout {
                     spacing: Theme.spacingSM
 
                     Text {

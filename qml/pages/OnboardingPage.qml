@@ -324,7 +324,7 @@ Page {
                 GlassCard {
                     Layout.fillWidth: true
 
-                    contentItem: ColumnLayout {
+                    ColumnLayout {
                         spacing: Theme.spacingLG
 
                         RowLayout {

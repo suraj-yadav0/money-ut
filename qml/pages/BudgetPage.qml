@@ -50,7 +50,7 @@ Page {
                 Layout.fillWidth: true
                 visible: budgetStats && budgetStats.totalBudget > 0
 
-                contentItem: ColumnLayout {
+                ColumnLayout {
                     spacing: Theme.spacingMD
 
                     RowLayout {
@@ -183,7 +183,7 @@ Page {
                 GlassCard {
                     Layout.fillWidth: true
 
-                    contentItem: ColumnLayout {
+                    ColumnLayout {
                         spacing: Theme.spacingSM
 
                         RowLayout {

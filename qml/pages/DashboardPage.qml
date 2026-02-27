@@ -138,7 +138,7 @@ Page {
                 Layout.fillWidth: true
                 implicitHeight: 280
 
-                contentItem: Item {
+                Item {
                     anchors.fill: parent
 
                     // Pie chart
@@ -224,7 +224,7 @@ Page {
                 implicitHeight: recentList.height + Theme.spacingLG * 2
                 visible: recentTransactions.length > 0
 
-                contentItem: Column {
+                Column {
                     id: recentList
                     width: parent.width
                     spacing: 1

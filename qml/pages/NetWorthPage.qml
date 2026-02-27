@@ -91,7 +91,7 @@ Page {
                     Layout.fillWidth: true
                     implicitHeight: 70
 
-                    contentItem: ColumnLayout {
+                    ColumnLayout {
                         spacing: 2
 
                         Text {
@@ -114,7 +114,7 @@ Page {
                     Layout.fillWidth: true
                     implicitHeight: 70
 
-                    contentItem: ColumnLayout {
+                    ColumnLayout {
                         spacing: 2
 
                         Text {
@@ -137,7 +137,7 @@ Page {
                     Layout.fillWidth: true
                     implicitHeight: 70
 
-                    contentItem: ColumnLayout {
+                    ColumnLayout {
                         spacing: 2
 
                         Text {
@@ -212,7 +212,7 @@ Page {
                 GlassCard {
                     Layout.fillWidth: true
 
-                    contentItem: RowLayout {
+                    RowLayout {
                         spacing: Theme.spacingMD
 
                         // Type emoji
@@ -301,7 +301,7 @@ Page {
                 implicitHeight: 250
                 visible: monthlyData.length > 1
 
-                contentItem: ColumnLayout {
+                ColumnLayout {
                     spacing: Theme.spacingSM
 
                     Text {

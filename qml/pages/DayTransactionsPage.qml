@@ -59,7 +59,7 @@ Page {
             GlassCard {
                 Layout.fillWidth: true
 
-                contentItem: RowLayout {
+                RowLayout {
                     spacing: Theme.spacingMD
 
                     ColumnLayout {
@@ -128,7 +128,7 @@ Page {
                 visible: transactions.length > 0
                 implicitHeight: transactionsList.height + Theme.spacingLG * 2
 
-                contentItem: Column {
+                Column {
                     id: transactionsList
                     width: parent.width
                     spacing: 1
