@@ -57,8 +57,10 @@ Item {
     Connections {
         target: pieChart
         onDataChanged: chartCanvas.requestPaint()
+        onWidthChanged: chartCanvas.requestPaint()
     }
 
+    onWidthChanged: chartCanvas.requestPaint()
     Component.onCompleted: chartCanvas.requestPaint()
 
     // Legend

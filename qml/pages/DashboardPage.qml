@@ -137,7 +137,7 @@ Page {
             Rectangle {
                 Layout.fillWidth: true
                 Layout.preferredHeight: 260
-                color: Qt.rgba(255, 255, 255, 0.7)
+                color: Qt.rgba(1, 1, 1, 0.7)
                 radius: Theme.radiusLG
 
                 // Pie chart

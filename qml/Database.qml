@@ -26,85 +26,25 @@ QtObject {
     function createTables() {
         db.transaction(function(tx) {
             // User Settings table
-            tx.executeSql('CREATE TABLE IF NOT EXISTS user_settings (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                monthly_income REAL DEFAULT 0,
-                currency TEXT DEFAULT "INR",
-                is_onboarded INTEGER DEFAULT 0,
-                biometric_enabled INTEGER DEFAULT 0,
-                show_income_chart INTEGER DEFAULT 0,
-                created_at TEXT DEFAULT CURRENT_TIMESTAMP
-            )');
+            tx.executeSql('CREATE TABLE IF NOT EXISTS user_settings (id INTEGER PRIMARY KEY AUTOINCREMENT, monthly_income REAL DEFAULT 0, currency TEXT DEFAULT "INR", is_onboarded INTEGER DEFAULT 0, biometric_enabled INTEGER DEFAULT 0, show_income_chart INTEGER DEFAULT 0, created_at TEXT DEFAULT CURRENT_TIMESTAMP)');
 
             // Categories table
-            tx.executeSql('CREATE TABLE IF NOT EXISTS categories (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                name TEXT UNIQUE NOT NULL,
-                icon TEXT NOT NULL,
-                monthly_budget REAL,
-                type TEXT DEFAULT "expense",
-                is_default INTEGER DEFAULT 1
-            )');
+            tx.executeSql('CREATE TABLE IF NOT EXISTS categories (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT UNIQUE NOT NULL, icon TEXT NOT NULL, monthly_budget REAL, type TEXT DEFAULT "expense", is_default INTEGER DEFAULT 1)');
 
             // Transactions table
-            tx.executeSql('CREATE TABLE IF NOT EXISTS transactions (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                amount REAL NOT NULL,
-                type TEXT NOT NULL,
-                category_id INTEGER NOT NULL,
-                goal_id INTEGER,
-                timestamp TEXT NOT NULL,
-                note TEXT,
-                payment_mode TEXT,
-                receipt_image_path TEXT,
-                is_recurring INTEGER DEFAULT 0,
-                created_at TEXT DEFAULT CURRENT_TIMESTAMP,
-                FOREIGN KEY (category_id) REFERENCES categories(id),
-                FOREIGN KEY (goal_id) REFERENCES goals(id)
-            )');
+            tx.executeSql('CREATE TABLE IF NOT EXISTS transactions (id INTEGER PRIMARY KEY AUTOINCREMENT, amount REAL NOT NULL, type TEXT NOT NULL, category_id INTEGER NOT NULL, goal_id INTEGER, timestamp TEXT NOT NULL, note TEXT, payment_mode TEXT, receipt_image_path TEXT, is_recurring INTEGER DEFAULT 0, created_at TEXT DEFAULT CURRENT_TIMESTAMP, FOREIGN KEY (category_id) REFERENCES categories(id), FOREIGN KEY (goal_id) REFERENCES goals(id))');
 
             // Goals table
-            tx.executeSql('CREATE TABLE IF NOT EXISTS goals (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                name TEXT NOT NULL,
-                target_amount REAL NOT NULL,
-                deadline TEXT NOT NULL,
-                saved_amount REAL DEFAULT 0,
-                is_active INTEGER DEFAULT 1,
-                is_completed INTEGER DEFAULT 0,
-                created_at TEXT DEFAULT CURRENT_TIMESTAMP
-            )');
+            tx.executeSql('CREATE TABLE IF NOT EXISTS goals (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT NOT NULL, target_amount REAL NOT NULL, deadline TEXT NOT NULL, saved_amount REAL DEFAULT 0, is_active INTEGER DEFAULT 1, is_completed INTEGER DEFAULT 0, created_at TEXT DEFAULT CURRENT_TIMESTAMP)');
 
             // Goal contributions table
-            tx.executeSql('CREATE TABLE IF NOT EXISTS goal_contributions (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                goal_id INTEGER NOT NULL,
-                amount REAL NOT NULL,
-                note TEXT,
-                created_at TEXT DEFAULT CURRENT_TIMESTAMP,
-                FOREIGN KEY (goal_id) REFERENCES goals(id)
-            )');
+            tx.executeSql('CREATE TABLE IF NOT EXISTS goal_contributions (id INTEGER PRIMARY KEY AUTOINCREMENT, goal_id INTEGER NOT NULL, amount REAL NOT NULL, note TEXT, created_at TEXT DEFAULT CURRENT_TIMESTAMP, FOREIGN KEY (goal_id) REFERENCES goals(id))');
 
             // Assets table
-            tx.executeSql('CREATE TABLE IF NOT EXISTS assets (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                name TEXT NOT NULL,
-                type TEXT NOT NULL,
-                value REAL NOT NULL,
-                is_liability INTEGER DEFAULT 0,
-                note TEXT,
-                created_at TEXT DEFAULT CURRENT_TIMESTAMP,
-                updated_at TEXT DEFAULT CURRENT_TIMESTAMP
-            )');
+            tx.executeSql('CREATE TABLE IF NOT EXISTS assets (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT NOT NULL, type TEXT NOT NULL, value REAL NOT NULL, is_liability INTEGER DEFAULT 0, note TEXT, created_at TEXT DEFAULT CURRENT_TIMESTAMP, updated_at TEXT DEFAULT CURRENT_TIMESTAMP)');
 
             // Categorization rules table
-            tx.executeSql('CREATE TABLE IF NOT EXISTS categorization_rules (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                keyword TEXT NOT NULL,
-                category_id INTEGER NOT NULL,
-                weight INTEGER DEFAULT 1,
-                FOREIGN KEY (category_id) REFERENCES categories(id)
-            )');
+            tx.executeSql('CREATE TABLE IF NOT EXISTS categorization_rules (id INTEGER PRIMARY KEY AUTOINCREMENT, keyword TEXT NOT NULL, category_id INTEGER NOT NULL, weight INTEGER DEFAULT 1, FOREIGN KEY (category_id) REFERENCES categories(id))');
         });
     }
 

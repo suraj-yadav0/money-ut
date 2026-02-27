@@ -20,21 +20,20 @@ MainView {
 
     // Check onboarding status on start
     Component.onCompleted: {
+        Database.ensureInitialized();
         isOnboarded = Database.isOnboarded();
         Database.processRecurringTransactions();
+
+        if (isOnboarded) {
+            pageStack.push(appShell);
+        } else {
+            pageStack.push(onboardingPage);
+        }
     }
 
     PageStack {
         id: pageStack
         anchors.fill: parent
-
-        Component.onCompleted: {
-            if (isOnboarded) {
-                push(appShell);
-            } else {
-                push(onboardingPage);
-            }
-        }
     }
 
     // Onboarding page component
