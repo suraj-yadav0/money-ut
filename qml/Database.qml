@@ -45,6 +45,18 @@ QtObject {
 
             // Categorization rules table
             tx.executeSql('CREATE TABLE IF NOT EXISTS categorization_rules (id INTEGER PRIMARY KEY AUTOINCREMENT, keyword TEXT NOT NULL, category_id INTEGER NOT NULL, weight INTEGER DEFAULT 1, FOREIGN KEY (category_id) REFERENCES categories(id))');
+
+            // Split groups table
+            tx.executeSql('CREATE TABLE IF NOT EXISTS split_groups (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT NOT NULL, description TEXT, created_at TEXT DEFAULT CURRENT_TIMESTAMP)');
+
+            // Split members table
+            tx.executeSql('CREATE TABLE IF NOT EXISTS split_members (id INTEGER PRIMARY KEY AUTOINCREMENT, group_id INTEGER NOT NULL, name TEXT NOT NULL, created_at TEXT DEFAULT CURRENT_TIMESTAMP, FOREIGN KEY (group_id) REFERENCES split_groups(id))');
+
+            // Split expenses table
+            tx.executeSql('CREATE TABLE IF NOT EXISTS split_expenses (id INTEGER PRIMARY KEY AUTOINCREMENT, group_id INTEGER NOT NULL, description TEXT NOT NULL, amount REAL NOT NULL, paid_by_member_id INTEGER NOT NULL, date TEXT NOT NULL, created_at TEXT DEFAULT CURRENT_TIMESTAMP, FOREIGN KEY (group_id) REFERENCES split_groups(id), FOREIGN KEY (paid_by_member_id) REFERENCES split_members(id))');
+
+            // Split shares table
+            tx.executeSql('CREATE TABLE IF NOT EXISTS split_shares (id INTEGER PRIMARY KEY AUTOINCREMENT, expense_id INTEGER NOT NULL, member_id INTEGER NOT NULL, share_amount REAL NOT NULL, is_settled INTEGER DEFAULT 0, settled_at TEXT, FOREIGN KEY (expense_id) REFERENCES split_expenses(id), FOREIGN KEY (member_id) REFERENCES split_members(id))');
         });
     }
 
@@ -1056,6 +1068,210 @@ QtObject {
         });
 
         return insights;
+    }
+
+    // ===== SPLIT FEATURE =====
+
+    function createSplitGroup(name, description, memberNames) {
+        ensureInitialized();
+        var groupId = -1;
+        db.transaction(function(tx) {
+            tx.executeSql('INSERT INTO split_groups (name, description) VALUES (?, ?)',
+                [name, description || ""]);
+            var res = tx.executeSql('SELECT last_insert_rowid() as id');
+            groupId = res.rows.item(0).id;
+            for (var i = 0; i < memberNames.length; i++) {
+                if (memberNames[i].trim() !== "") {
+                    tx.executeSql('INSERT INTO split_members (group_id, name) VALUES (?, ?)',
+                        [groupId, memberNames[i].trim()]);
+                }
+            }
+        });
+        return groupId;
+    }
+
+    function getSplitGroups() {
+        ensureInitialized();
+        var groups = [];
+        db.transaction(function(tx) {
+            var result = tx.executeSql('SELECT g.*, (SELECT COUNT(*) FROM split_members WHERE group_id = g.id) as member_count, (SELECT COUNT(*) FROM split_expenses WHERE group_id = g.id) as expense_count FROM split_groups g ORDER BY g.created_at DESC');
+            for (var i = 0; i < result.rows.length; i++) {
+                groups.push(result.rows.item(i));
+            }
+        });
+        return groups;
+    }
+
+    function getSplitGroupById(groupId) {
+        ensureInitialized();
+        var group = null;
+        db.transaction(function(tx) {
+            var result = tx.executeSql('SELECT * FROM split_groups WHERE id = ?', [groupId]);
+            if (result.rows.length > 0) {
+                group = result.rows.item(0);
+            }
+        });
+        return group;
+    }
+
+    function getSplitMembers(groupId) {
+        ensureInitialized();
+        var members = [];
+        db.transaction(function(tx) {
+            var result = tx.executeSql('SELECT * FROM split_members WHERE group_id = ? ORDER BY name', [groupId]);
+            for (var i = 0; i < result.rows.length; i++) {
+                members.push(result.rows.item(i));
+            }
+        });
+        return members;
+    }
+
+    function addSplitExpense(groupId, description, amount, paidByMemberId, date, shares) {
+        // shares: array of { memberId, shareAmount }
+        ensureInitialized();
+        var expenseId = -1;
+        db.transaction(function(tx) {
+            tx.executeSql('INSERT INTO split_expenses (group_id, description, amount, paid_by_member_id, date) VALUES (?, ?, ?, ?, ?)',
+                [groupId, description, amount, paidByMemberId, date]);
+            var res = tx.executeSql('SELECT last_insert_rowid() as id');
+            expenseId = res.rows.item(0).id;
+            for (var i = 0; i < shares.length; i++) {
+                tx.executeSql('INSERT INTO split_shares (expense_id, member_id, share_amount) VALUES (?, ?, ?)',
+                    [expenseId, shares[i].memberId, shares[i].shareAmount]);
+            }
+        });
+        return expenseId;
+    }
+
+    function getSplitExpenses(groupId) {
+        ensureInitialized();
+        var expenses = [];
+        db.transaction(function(tx) {
+            var result = tx.executeSql(
+                'SELECT e.*, m.name as paid_by_name FROM split_expenses e JOIN split_members m ON e.paid_by_member_id = m.id WHERE e.group_id = ? ORDER BY e.date DESC, e.created_at DESC',
+                [groupId]);
+            for (var i = 0; i < result.rows.length; i++) {
+                expenses.push(result.rows.item(i));
+            }
+        });
+        return expenses;
+    }
+
+    function getSplitShares(expenseId) {
+        ensureInitialized();
+        var shares = [];
+        db.transaction(function(tx) {
+            var result = tx.executeSql(
+                'SELECT s.*, m.name as member_name FROM split_shares s JOIN split_members m ON s.member_id = m.id WHERE s.expense_id = ? ORDER BY m.name',
+                [expenseId]);
+            for (var i = 0; i < result.rows.length; i++) {
+                shares.push(result.rows.item(i));
+            }
+        });
+        return shares;
+    }
+
+    // Returns balances: array of { fromMemberId, fromName, toMemberId, toName, amount }
+    function getSplitGroupBalances(groupId) {
+        ensureInitialized();
+        var members = getSplitMembers(groupId);
+        // Build net balance map: how much each member owes/is owed
+        var balance = {};
+        for (var i = 0; i < members.length; i++) {
+            balance[members[i].id] = 0;
+        }
+
+        db.transaction(function(tx) {
+            // For each expense, payer is owed back shares from others
+            var expenses = tx.executeSql(
+                'SELECT e.paid_by_member_id, s.member_id, s.share_amount, s.is_settled FROM split_expenses e JOIN split_shares s ON s.expense_id = e.id WHERE e.group_id = ? AND s.is_settled = 0',
+                [groupId]);
+            for (var j = 0; j < expenses.rows.length; j++) {
+                var row = expenses.rows.item(j);
+                var payer = row.paid_by_member_id;
+                var debtor = row.member_id;
+                if (payer !== debtor) {
+                    // debtor owes payer share_amount
+                    if (balance[debtor] !== undefined) balance[debtor] -= row.share_amount;
+                    if (balance[payer] !== undefined) balance[payer] += row.share_amount;
+                }
+            }
+        });
+
+        // Simplify debts: generate minimal transactions
+        var BALANCE_EPSILON = 0.005;
+        var creditors = [];
+        var debtors = [];
+        for (var mid in balance) {
+            if (balance[mid] > BALANCE_EPSILON) {
+                creditors.push({ id: parseInt(mid), amount: balance[mid] });
+            } else if (balance[mid] < -BALANCE_EPSILON) {
+                debtors.push({ id: parseInt(mid), amount: -balance[mid] });
+            }
+        }
+
+        // Build member name map
+        var nameMap = {};
+        for (var k = 0; k < members.length; k++) {
+            nameMap[members[k].id] = members[k].name;
+        }
+
+        var settlements = [];
+        var ci = 0;
+        var di = 0;
+        while (ci < creditors.length && di < debtors.length) {
+            var credit = creditors[ci];
+            var debt = debtors[di];
+            var settled = Math.min(credit.amount, debt.amount);
+            settlements.push({
+                fromMemberId: debt.id,
+                fromName: nameMap[debt.id] || "?",
+                toMemberId: credit.id,
+                toName: nameMap[credit.id] || "?",
+                amount: settled
+            });
+            credit.amount -= settled;
+            debt.amount -= settled;
+            if (credit.amount < BALANCE_EPSILON) ci++;
+            if (debt.amount < BALANCE_EPSILON) di++;
+        }
+        return settlements;
+    }
+
+    function settleExpenseShare(shareId) {
+        ensureInitialized();
+        db.transaction(function(tx) {
+            tx.executeSql('UPDATE split_shares SET is_settled = 1, settled_at = CURRENT_TIMESTAMP WHERE id = ?', [shareId]);
+        });
+    }
+
+    // Settle all unsettled shares between two members in a group
+    function settleBetweenMembers(groupId, fromMemberId, toMemberId) {
+        ensureInitialized();
+        db.transaction(function(tx) {
+            // from owes to: shares where payer=to and member=from
+            tx.executeSql(
+                'UPDATE split_shares SET is_settled = 1, settled_at = CURRENT_TIMESTAMP WHERE is_settled = 0 AND member_id = ? AND expense_id IN (SELECT id FROM split_expenses WHERE group_id = ? AND paid_by_member_id = ?)',
+                [fromMemberId, groupId, toMemberId]);
+        });
+    }
+
+    function deleteSplitExpense(expenseId) {
+        ensureInitialized();
+        db.transaction(function(tx) {
+            tx.executeSql('DELETE FROM split_shares WHERE expense_id = ?', [expenseId]);
+            tx.executeSql('DELETE FROM split_expenses WHERE id = ?', [expenseId]);
+        });
+    }
+
+    function deleteSplitGroup(groupId) {
+        ensureInitialized();
+        db.transaction(function(tx) {
+            tx.executeSql('DELETE FROM split_shares WHERE expense_id IN (SELECT id FROM split_expenses WHERE group_id = ?)', [groupId]);
+            tx.executeSql('DELETE FROM split_expenses WHERE group_id = ?', [groupId]);
+            tx.executeSql('DELETE FROM split_members WHERE group_id = ?', [groupId]);
+            tx.executeSql('DELETE FROM split_groups WHERE id = ?', [groupId]);
+        });
     }
 
     // ===== DATA MANAGEMENT =====
