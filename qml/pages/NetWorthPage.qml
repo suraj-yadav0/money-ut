@@ -292,7 +292,6 @@ Page {
                     MouseArea {
                         anchors.fill: parent
                         onClicked: openEditAsset(modelData)
-                        z: -1
                     }
                 }
             }

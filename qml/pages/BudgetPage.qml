@@ -207,7 +207,7 @@ Page {
                                     anchors.centerIn: parent
                                     width: units.gu(2)
                                     height: units.gu(2)
-                                    name: getCategoryIcon(modelData.categoryIcon)
+                                    name: Theme.getCategoryIcon(modelData.categoryIcon)
                                     color: Theme.primary
                                 }
                             }
@@ -293,7 +293,7 @@ Page {
                             Icon {
                                 width: units.gu(2.5)
                                 height: units.gu(2.5)
-                                name: getCategoryIcon(modelData.icon)
+                                name: Theme.getCategoryIcon(modelData.icon)
                                 color: Theme.primary
                             }
 
@@ -374,26 +374,6 @@ Page {
         if (budgetStats.percentUsed >= 1) return "dialog-warning-symbolic";
         if (budgetStats.percentUsed >= 0.8) return "dialog-warning-symbolic";
         return "ok";
-    }
-
-    function getCategoryIcon(icon) {
-        var iconMap = {
-            "restaurant": "like",
-            "directions_car": "stock_transport-car",
-            "shopping_bag": "stock_store",
-            "movie": "stock_music",
-            "receipt_long": "stock_document",
-            "local_hospital": "stock_health",
-            "school": "stock_note",
-            "spa": "like",
-            "local_grocery_store": "stock_store",
-            "card_giftcard": "stock_event",
-            "savings": "save",
-            "show_chart": "stock_website",
-            "family_restroom": "contact-group",
-            "more_horiz": "other-actions"
-        };
-        return iconMap[icon] || "stock_note";
     }
 
     Component.onCompleted: {

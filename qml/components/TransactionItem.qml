@@ -61,7 +61,7 @@ ListItem {
                 anchors.centerIn: parent
                 width: units.gu(2.5)
                 height: units.gu(2.5)
-                name: getCategoryIcon(transaction ? transaction.category_icon : "")
+                name: Theme.getCategoryIcon(transaction ? transaction.category_icon : "")
                 color: transaction && transaction.type === "income" ? Theme.income : Theme.expense
             }
         }
@@ -130,29 +130,5 @@ ListItem {
                 Layout.alignment: Qt.AlignRight
             }
         }
-    }
-
-    function getCategoryIcon(icon) {
-        var iconMap = {
-            "restaurant": "like",
-            "directions_car": "stock_transport-car",
-            "shopping_bag": "stock_store",
-            "movie": "stock_music",
-            "receipt_long": "stock_document",
-            "local_hospital": "stock_health",
-            "school": "stock_note",
-            "spa": "like",
-            "local_grocery_store": "stock_store",
-            "card_giftcard": "stock_event",
-            "savings": "save",
-            "show_chart": "stock_website",
-            "family_restroom": "contact-group",
-            "more_horiz": "other-actions",
-            "work": "stock_application",
-            "laptop": "computer-symbolic",
-            "trending_up": "stock_website",
-            "attach_money": "save"
-        };
-        return iconMap[icon] || "stock_note";
     }
 }

@@ -84,7 +84,7 @@ Page {
 
                         Column {
                             id: dateTransactions
-                            Layout.fillWidth: true
+                            width: parent.width
 
                             Repeater {
                                 model: groupedTransactions[modelData] || []

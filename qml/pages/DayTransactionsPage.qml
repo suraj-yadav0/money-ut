@@ -130,7 +130,7 @@ Page {
 
                 Column {
                     id: transactionsList
-                    Layout.fillWidth: true
+                    width: parent.width
 
                     Repeater {
                         model: transactions
