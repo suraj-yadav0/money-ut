@@ -43,23 +43,22 @@ Page {
             right: parent.right
             bottom: parent.bottom
         }
-        contentHeight: contentColumn.height + Theme.spacing2XL
+        contentHeight: contentColumn.height + units.gu(3)
         clip: true
 
-        // Pull to refresh
         onContentYChanged: {
-            if (contentY < -80 && !dragging) {
+            if (contentY < -units.gu(10) && !dragging) {
                 refreshData();
             }
         }
 
         ColumnLayout {
             id: contentColumn
-            width: parent.width - Theme.spacingLG * 2
+            width: parent.width - units.gu(4)
             anchors.horizontalCenter: parent.horizontalCenter
-            spacing: Theme.spacingMD
+            spacing: units.gu(1.5)
 
-            Item { Layout.preferredHeight: Theme.spacingSM }
+            Item { Layout.preferredHeight: units.gu(1) }
 
             // Grouped transactions
             Repeater {
@@ -67,32 +66,31 @@ Page {
 
                 ColumnLayout {
                     Layout.fillWidth: true
-                    spacing: Theme.spacingSM
+                    spacing: units.gu(1)
 
                     // Date header
-                    Text {
+                    Label {
                         text: Theme.getSmartDateHeader(modelData)
-                        font.pixelSize: Theme.fontSizeSM
+                        fontSize: "small"
                         font.weight: Font.DemiBold
                         color: Theme.gray500
-                        Layout.topMargin: index > 0 ? Theme.spacingMD : 0
+                        Layout.topMargin: index > 0 ? units.gu(1.5) : 0
                     }
 
                     // Transactions for this date
                     GlassCard {
                         Layout.fillWidth: true
-                        implicitHeight: dateTransactions.height + Theme.spacingLG * 2
+                        implicitHeight: dateTransactions.height + units.gu(4)
 
                         Column {
                             id: dateTransactions
                             width: parent.width
-                            spacing: 1
 
                             Repeater {
                                 model: groupedTransactions[modelData] || []
 
                                 TransactionItem {
-                                    width: parent.width
+                                    width: dateTransactions.width
                                     transaction: modelData
                                     currencyCode: allTransactionsPage.currencyCode
 
@@ -111,14 +109,14 @@ Page {
             // Empty state
             EmptyState {
                 Layout.fillWidth: true
-                Layout.topMargin: Theme.spacing3XL
+                Layout.topMargin: units.gu(4)
                 visible: sortedDates.length === 0
-                emoji: "📝"
+                iconName: "stock_note"
                 title: "No Transactions"
                 subtitle: "Your transaction history will appear here"
             }
 
-            Item { Layout.preferredHeight: Theme.spacing2XL }
+            Item { Layout.preferredHeight: units.gu(3) }
         }
     }
 
@@ -130,7 +128,6 @@ Page {
 
         groupedTransactions = Database.getTransactionsGroupedByDate(null, null);
 
-        // Sort dates descending
         sortedDates = Object.keys(groupedTransactions).sort(function(a, b) {
             return b.localeCompare(a);
         });

@@ -1,5 +1,6 @@
 import QtQuick 2.7
 import QtQuick.Layouts 1.3
+import Lomiri.Components 1.3
 import ".."
 
 ListView {
@@ -18,47 +19,38 @@ ListView {
     signal filterChanged(string filterKey)
 
     orientation: ListView.Horizontal
-    height: 44
-    spacing: Theme.spacingSM
+    height: units.gu(4.5)
+    spacing: units.gu(1)
     clip: true
 
     model: filters
 
-    delegate: Rectangle {
-        width: filterLabel.implicitWidth + Theme.spacingLG * 2
-        height: 36
-        radius: Theme.radiusButton
+    delegate: AbstractButton {
+        id: filterDelegate
+        width: filterLabel.implicitWidth + units.gu(3)
+        height: units.gu(4)
 
-        color: dateFilterBar.selectedFilter === modelData.key ? Theme.primary :
-               mouseArea.containsMouse ? Qt.rgba(Theme.primary.r, Theme.primary.g, Theme.primary.b, 0.1) :
-               "transparent"
-
-        border.width: dateFilterBar.selectedFilter === modelData.key ? 0 : 1
-        border.color: Theme.gray300
-
-        Text {
-            id: filterLabel
-            anchors.centerIn: parent
-            text: modelData.label
-            font.pixelSize: Theme.fontSizeSM
-            font.weight: dateFilterBar.selectedFilter === modelData.key ? Font.DemiBold : Font.Normal
-            color: dateFilterBar.selectedFilter === modelData.key ? Theme.white : Theme.gray700
-        }
-
-        MouseArea {
-            id: mouseArea
+        LomiriShape {
             anchors.fill: parent
-            hoverEnabled: true
-            cursorShape: Qt.PointingHandCursor
+            aspect: LomiriShape.Flat
+            backgroundColor: dateFilterBar.selectedFilter === modelData.key ?
+                Theme.primary : "transparent"
+            radius: "large"
+            relativeRadius: 0.5
 
-            onClicked: {
-                dateFilterBar.selectedFilter = modelData.key;
-                dateFilterBar.filterChanged(modelData.key);
+            Label {
+                id: filterLabel
+                anchors.centerIn: parent
+                text: modelData.label
+                fontSize: "small"
+                font.weight: dateFilterBar.selectedFilter === modelData.key ? Font.DemiBold : Font.Normal
+                color: dateFilterBar.selectedFilter === modelData.key ? Theme.white : Theme.gray700
             }
         }
 
-        Behavior on color {
-            ColorAnimation { duration: Theme.animationFast }
+        onClicked: {
+            dateFilterBar.selectedFilter = modelData.key;
+            dateFilterBar.filterChanged(modelData.key);
         }
     }
 
@@ -74,7 +66,6 @@ ListView {
                 endDate = new Date(startDate);
                 endDate.setDate(startDate.getDate() + 6);
                 break;
-
             case "lastWeek":
                 var lastWeekDay = now.getDay();
                 endDate = new Date(now);
@@ -82,22 +73,18 @@ ListView {
                 startDate = new Date(endDate);
                 startDate.setDate(endDate.getDate() - 6);
                 break;
-
             case "thisMonth":
                 startDate = new Date(now.getFullYear(), now.getMonth(), 1);
                 endDate = new Date(now.getFullYear(), now.getMonth() + 1, 0);
                 break;
-
             case "lastMonth":
                 startDate = new Date(now.getFullYear(), now.getMonth() - 1, 1);
                 endDate = new Date(now.getFullYear(), now.getMonth(), 0);
                 break;
-
             case "thisYear":
                 startDate = new Date(now.getFullYear(), 0, 1);
                 endDate = new Date(now.getFullYear(), 11, 31);
                 break;
-
             case "allTime":
             default:
                 return { startDate: null, endDate: null };

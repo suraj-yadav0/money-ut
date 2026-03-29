@@ -1,6 +1,7 @@
 import QtQuick 2.7
 import QtQuick.Layouts 1.3
 import Lomiri.Components 1.3
+import Lomiri.Components.Popups 1.3
 import ".."
 import "../components"
 
@@ -12,10 +13,19 @@ Page {
     property var monthlyData: []
     property var assets: []
     property string assetFilter: "all"
+    property var editingAsset: null
 
     header: PageHeader {
         id: header
         title: "Net Worth"
+
+        trailingActionBar.actions: [
+            Action {
+                iconName: "add"
+                text: "Add Asset"
+                onTriggered: openAddAsset()
+            }
+        ]
     }
 
     // Background
@@ -35,46 +45,43 @@ Page {
             right: parent.right
             bottom: parent.bottom
         }
-        contentHeight: contentColumn.height + Theme.spacing2XL
+        contentHeight: contentColumn.height + units.gu(4)
         clip: true
 
         ColumnLayout {
             id: contentColumn
-            width: parent.width - Theme.spacingLG * 2
+            width: parent.width - units.gu(4)
             anchors.horizontalCenter: parent.horizontalCenter
-            spacing: Theme.spacingLG
+            spacing: units.gu(2)
 
-            Item { Layout.preferredHeight: Theme.spacingSM }
+            Item { Layout.preferredHeight: units.gu(1) }
 
             // Net Worth Card
             GlassContainer {
                 Layout.fillWidth: true
-                height: 120
+                height: units.gu(15)
                 glassOpacity: 0.8
-
-                gradient: Gradient {
-                    GradientStop { position: 0.0; color: netWorthData && netWorthData.netWorth >= 0 ?
-                        Qt.rgba(Theme.income.r, Theme.income.g, Theme.income.b, 0.15) :
-                        Qt.rgba(Theme.expense.r, Theme.expense.g, Theme.expense.b, 0.15) }
-                    GradientStop { position: 1.0; color: Qt.rgba(1, 1, 1, 0.8) }
-                }
+                backgroundColor: netWorthData && netWorthData.netWorth >= 0 ?
+                    Qt.rgba(Theme.income.r, Theme.income.g, Theme.income.b, 0.15) :
+                    Qt.rgba(Theme.expense.r, Theme.expense.g, Theme.expense.b, 0.15)
+                secondaryBackgroundColor: Qt.rgba(1, 1, 1, 0.8)
 
                 ColumnLayout {
                     anchors {
                         fill: parent
-                        margins: Theme.spacingLG
+                        margins: units.gu(2)
                     }
-                    spacing: Theme.spacingXS
+                    spacing: units.gu(0.5)
 
-                    Text {
+                    Label {
                         text: "Total Net Worth"
-                        font.pixelSize: Theme.fontSizeMD
+                        fontSize: "medium"
                         color: Theme.gray500
                     }
 
-                    Text {
+                    Label {
                         text: Theme.formatFullCurrency(netWorthData ? netWorthData.netWorth : 0, currencyCode)
-                        font.pixelSize: Theme.fontSize4XL
+                        font.pixelSize: units.gu(4)
                         font.weight: Font.Bold
                         color: netWorthData && netWorthData.netWorth >= 0 ? Theme.income : Theme.expense
                     }
@@ -84,71 +91,68 @@ Page {
             // Breakdown row
             RowLayout {
                 Layout.fillWidth: true
-                spacing: Theme.spacingSM
+                spacing: units.gu(1)
 
-                // Assets
                 GlassCard {
                     Layout.fillWidth: true
-                    implicitHeight: 70
+                    implicitHeight: units.gu(8)
 
                     ColumnLayout {
                         spacing: 2
 
-                        Text {
+                        Label {
                             text: "Assets"
-                            font.pixelSize: Theme.fontSizeXS
+                            fontSize: "x-small"
                             color: Theme.gray500
                         }
 
-                        Text {
+                        Label {
                             text: Theme.formatCompactCurrency(netWorthData ? netWorthData.totalAssets : 0, currencyCode)
-                            font.pixelSize: Theme.fontSizeMD
+                            fontSize: "medium"
                             font.weight: Font.DemiBold
                             color: Theme.income
                         }
                     }
                 }
 
-                // Liabilities
                 GlassCard {
                     Layout.fillWidth: true
-                    implicitHeight: 70
+                    implicitHeight: units.gu(8)
 
                     ColumnLayout {
                         spacing: 2
 
-                        Text {
+                        Label {
                             text: "Liabilities"
-                            font.pixelSize: Theme.fontSizeXS
+                            fontSize: "x-small"
                             color: Theme.gray500
                         }
 
-                        Text {
+                        Label {
                             text: Theme.formatCompactCurrency(netWorthData ? netWorthData.totalLiabilities : 0, currencyCode)
-                            font.pixelSize: Theme.fontSizeMD
+                            fontSize: "medium"
                             font.weight: Font.DemiBold
                             color: Theme.expense
                         }
                     }
                 }
 
-                // Goals
                 GlassCard {
                     Layout.fillWidth: true
-                    implicitHeight: 70
+                    implicitHeight: units.gu(8)
 
                     ColumnLayout {
                         spacing: 2
 
-                        Text {
+                        Label {
                             text: "Goals"
-                            font.pixelSize: Theme.fontSizeXS
+                            fontSize: "x-small"
                             color: Theme.gray500
                         }
 
-                        Text {
+                        Label {
                             text: Theme.formatCompactCurrency(netWorthData ? netWorthData.goalSavings : 0, currencyCode)
-                            font.pixelSize: Theme.fontSizeMD
+                            fontSize: "medium"
                             font.weight: Font.DemiBold
                             color: Theme.primary
                         }
@@ -157,29 +161,36 @@ Page {
             }
 
             // Asset type filter
-            ListView {
+            Flickable {
                 Layout.fillWidth: true
-                height: 44
-                orientation: ListView.Horizontal
-                spacing: Theme.spacingSM
+                height: units.gu(5)
+                contentWidth: filterRow.width
                 clip: true
+                flickableDirection: Flickable.HorizontalFlick
 
-                model: [
-                    { key: "all", label: "All", emoji: "" },
-                    { key: "savings", label: "Savings", emoji: "💰" },
-                    { key: "investment", label: "Investment", emoji: "📈" },
-                    { key: "property", label: "Property", emoji: "🏠" },
-                    { key: "gold", label: "Gold", emoji: "🥇" },
-                    { key: "loan", label: "Loan", emoji: "🏦" },
-                    { key: "other", label: "Other", emoji: "📦" }
-                ]
+                Row {
+                    id: filterRow
+                    spacing: units.gu(1)
 
-                delegate: CategoryChip {
-                    text: modelData.emoji + " " + modelData.label
-                    selected: assetFilter === modelData.key
-                    onClicked: {
-                        assetFilter = modelData.key;
-                        loadAssets();
+                    Repeater {
+                        model: [
+                            { key: "all", label: "All" },
+                            { key: "savings", label: "Savings" },
+                            { key: "investment", label: "Investment" },
+                            { key: "property", label: "Property" },
+                            { key: "gold", label: "Gold" },
+                            { key: "loan", label: "Loan" },
+                            { key: "other", label: "Other" }
+                        ]
+
+                        delegate: CategoryChip {
+                            text: modelData.label
+                            selected: assetFilter === modelData.key
+                            onClicked: {
+                                assetFilter = modelData.key;
+                                loadAssets();
+                            }
+                        }
                     }
                 }
             }
@@ -189,18 +200,18 @@ Page {
                 Layout.fillWidth: true
                 visible: assets.length > 0
 
-                Text {
+                Label {
                     text: "Your Assets"
-                    font.pixelSize: Theme.fontSizeLG
+                    fontSize: "large"
                     font.weight: Font.DemiBold
                     color: Theme.gray900
                 }
 
                 Item { Layout.fillWidth: true }
 
-                Text {
+                Label {
                     text: assets.length + " items"
-                    font.pixelSize: Theme.fontSizeSM
+                    fontSize: "small"
                     color: Theme.gray500
                 }
             }
@@ -213,19 +224,21 @@ Page {
                     Layout.fillWidth: true
 
                     RowLayout {
-                        spacing: Theme.spacingMD
+                        spacing: units.gu(1.5)
 
-                        // Type emoji
-                        Rectangle {
-                            width: 44
-                            height: 44
-                            radius: 22
-                            color: Qt.rgba(Theme.primary.r, Theme.primary.g, Theme.primary.b, 0.15)
+                        LomiriShape {
+                            width: units.gu(5)
+                            height: units.gu(5)
+                            aspect: LomiriShape.Flat
+                            radius: "large"
+                            backgroundColor: Qt.rgba(Theme.primary.r, Theme.primary.g, Theme.primary.b, 0.15)
 
-                            Text {
+                            Icon {
                                 anchors.centerIn: parent
-                                text: getAssetEmoji(modelData.type)
-                                font.pixelSize: 20
+                                width: units.gu(2.5)
+                                height: units.gu(2.5)
+                                name: getAssetIcon(modelData.type)
+                                color: Theme.primary
                             }
                         }
 
@@ -233,43 +246,44 @@ Page {
                             Layout.fillWidth: true
                             spacing: 2
 
-                            Text {
+                            Label {
                                 text: modelData.name
-                                font.pixelSize: Theme.fontSizeMD
+                                fontSize: "medium"
                                 font.weight: Font.DemiBold
                                 color: Theme.gray900
                             }
 
                             Row {
-                                spacing: Theme.spacingSM
+                                spacing: units.gu(1)
 
-                                Text {
+                                Label {
                                     text: getAssetTypeName(modelData.type)
-                                    font.pixelSize: Theme.fontSizeSM
+                                    fontSize: "small"
                                     color: Theme.gray500
                                 }
 
-                                Rectangle {
+                                LomiriShape {
                                     visible: modelData.is_liability === 1
-                                    width: liabilityLabel.width + 8
-                                    height: liabilityLabel.height + 4
-                                    radius: 4
-                                    color: Qt.rgba(Theme.expense.r, Theme.expense.g, Theme.expense.b, 0.15)
+                                    width: liabilityLabel.width + units.gu(1)
+                                    height: liabilityLabel.height + units.dp(4)
+                                    aspect: LomiriShape.Flat
+                                    radius: "small"
+                                    backgroundColor: Qt.rgba(Theme.expense.r, Theme.expense.g, Theme.expense.b, 0.15)
 
-                                    Text {
+                                    Label {
                                         id: liabilityLabel
                                         anchors.centerIn: parent
                                         text: "Liability"
-                                        font.pixelSize: Theme.fontSizeXS
+                                        fontSize: "x-small"
                                         color: Theme.expense
                                     }
                                 }
                             }
                         }
 
-                        Text {
+                        Label {
                             text: (modelData.is_liability === 1 ? "-" : "+") + Theme.formatCurrency(modelData.value, currencyCode)
-                            font.pixelSize: Theme.fontSizeMD
+                            fontSize: "medium"
                             font.weight: Font.DemiBold
                             color: modelData.is_liability === 1 ? Theme.expense : Theme.income
                         }
@@ -285,9 +299,9 @@ Page {
             // Empty state
             EmptyState {
                 Layout.fillWidth: true
-                Layout.topMargin: Theme.spacing2XL
+                Layout.topMargin: units.gu(3)
                 visible: assets.length === 0
-                emoji: "🏦"
+                iconName: "stock_store"
                 title: "No Assets Yet"
                 subtitle: "Add your assets and liabilities to track net worth"
                 actionText: "Add Asset"
@@ -297,16 +311,16 @@ Page {
             // Net Worth Chart
             GlassCard {
                 Layout.fillWidth: true
-                Layout.topMargin: Theme.spacingLG
-                implicitHeight: 250
+                Layout.topMargin: units.gu(2)
+                implicitHeight: units.gu(30)
                 visible: monthlyData.length > 1
 
                 ColumnLayout {
-                    spacing: Theme.spacingSM
+                    spacing: units.gu(1)
 
-                    Text {
+                    Label {
                         text: "Net Worth Trend"
-                        font.pixelSize: Theme.fontSizeMD
+                        fontSize: "medium"
                         font.weight: Font.DemiBold
                         color: Theme.gray900
                     }
@@ -333,284 +347,149 @@ Page {
                 }
             }
 
-            Item { Layout.preferredHeight: 80 }
-        }
-    }
-
-    // FAB
-    Rectangle {
-        anchors {
-            right: parent.right
-            bottom: parent.bottom
-            rightMargin: Theme.spacingLG
-            bottomMargin: Theme.spacingLG
-        }
-        width: 56
-        height: 56
-        radius: 28
-        color: Theme.primary
-
-        Text {
-            anchors.centerIn: parent
-            text: "+"
-            font.pixelSize: 28
-            font.weight: Font.Bold
-            color: Theme.white
-        }
-
-        MouseArea {
-            anchors.fill: parent
-            cursorShape: Qt.PointingHandCursor
-            onClicked: openAddAsset()
+            Item { Layout.preferredHeight: units.gu(10) }
         }
     }
 
     // Add/Edit Asset Dialog
-    property bool showAssetDialog: false
-    property var editingAsset: null
+    Component {
+        id: assetDialogComponent
 
-    Rectangle {
-        id: assetDialogOverlay
-        anchors.fill: parent
-        color: Qt.rgba(0, 0, 0, 0.5)
-        visible: showAssetDialog
-        opacity: showAssetDialog ? 1 : 0
+        Dialog {
+            id: assetDialog
+            title: netWorthPage.editingAsset ? "Edit Asset" : "Add Asset"
 
-        Behavior on opacity {
-            NumberAnimation { duration: Theme.animationNormal }
-        }
-
-        MouseArea {
-            anchors.fill: parent
-            onClicked: showAssetDialog = false
-        }
-
-        Rectangle {
-            anchors {
-                left: parent.left
-                right: parent.right
-                bottom: parent.bottom
+            TextField {
+                id: assetNameInput
+                placeholderText: "Asset name"
+                text: netWorthPage.editingAsset ? netWorthPage.editingAsset.name : ""
             }
-            height: parent.height * 0.75
-            radius: Theme.radiusXL
-            color: Theme.white
 
-            ColumnLayout {
-                anchors {
-                    fill: parent
-                    margins: Theme.spacingLG
-                }
-                spacing: Theme.spacingMD
+            Label {
+                text: "Type"
+                fontSize: "small"
+                color: Theme.gray500
+            }
 
-                // Header
-                RowLayout {
-                    Layout.fillWidth: true
+            Flow {
+                width: parent.width
+                spacing: units.gu(1)
 
-                    Text {
-                        text: editingAsset ? "Edit Asset" : "Add Asset"
-                        font.pixelSize: Theme.fontSizeXL
-                        font.weight: Font.Bold
-                        color: Theme.gray900
-                    }
+                Repeater {
+                    model: Theme.assetTypes
 
-                    Item { Layout.fillWidth: true }
-
-                    Text {
-                        text: "✕"
-                        font.pixelSize: 20
-                        color: Theme.gray500
-
-                        MouseArea {
-                            anchors.fill: parent
-                            cursorShape: Qt.PointingHandCursor
-                            onClicked: showAssetDialog = false
-                        }
-                    }
-                }
-
-                // Name
-                TextField {
-                    id: assetNameInput
-                    Layout.fillWidth: true
-                    placeholderText: "Asset name"
-                }
-
-                // Type selector
-                Text {
-                    text: "Type"
-                    font.pixelSize: Theme.fontSizeSM
-                    color: Theme.gray500
-                }
-
-                Flow {
-                    Layout.fillWidth: true
-                    spacing: Theme.spacingSM
-
-                    Repeater {
-                        model: Theme.assetTypes
-
-                        CategoryChip {
-                            text: modelData.emoji + " " + modelData.name
-                            selected: assetTypeInput.text === modelData.type
-                            onClicked: {
-                                assetTypeInput.text = modelData.type;
-                                if (modelData.type === "loan") {
-                                    isLiabilitySwitch.checked = true;
-                                }
+                    CategoryChip {
+                        text: modelData.name
+                        selected: assetTypeTracker.text === modelData.type
+                        onClicked: {
+                            assetTypeTracker.text = modelData.type;
+                            if (modelData.type === "loan") {
+                                isLiabilitySwitch.checked = true;
                             }
                         }
                     }
                 }
+            }
 
-                // Hidden type tracker
+            // Hidden type tracker
+            TextField {
+                id: assetTypeTracker
+                visible: false
+                text: netWorthPage.editingAsset ? netWorthPage.editingAsset.type : "savings"
+            }
+
+            RowLayout {
+                width: parent.width
+                spacing: units.gu(1)
+
+                Label {
+                    text: Theme.getCurrencySymbol(netWorthPage.currencyCode)
+                    fontSize: "large"
+                    color: Theme.gray500
+                }
+
                 TextField {
-                    id: assetTypeInput
-                    visible: false
-                    text: "savings"
-                }
-
-                // Value
-                RowLayout {
+                    id: assetValueInput
                     Layout.fillWidth: true
-                    spacing: Theme.spacingSM
+                    placeholderText: "Value"
+                    inputMethodHints: Qt.ImhDigitsOnly
+                    text: netWorthPage.editingAsset ? netWorthPage.editingAsset.value.toString() : ""
+                }
+            }
 
-                    Text {
-                        text: Theme.getCurrencySymbol(currencyCode)
-                        font.pixelSize: Theme.fontSizeLG
-                        color: Theme.gray500
-                    }
+            RowLayout {
+                width: parent.width
 
-                    TextField {
-                        id: assetValueInput
-                        Layout.fillWidth: true
-                        placeholderText: "Value"
-                        inputMethodHints: Qt.ImhDigitsOnly
-                    }
+                Label {
+                    text: "Is this a liability?"
+                    fontSize: "medium"
+                    color: Theme.gray700
                 }
 
-                // Liability switch
-                RowLayout {
-                    Layout.fillWidth: true
+                Item { Layout.fillWidth: true }
 
-                    Text {
-                        text: "Is this a liability?"
-                        font.pixelSize: Theme.fontSizeMD
-                        color: Theme.gray700
-                    }
-
-                    Item { Layout.fillWidth: true }
-
-                    Switch {
-                        id: isLiabilitySwitch
-                    }
+                Switch {
+                    id: isLiabilitySwitch
+                    checked: netWorthPage.editingAsset ? netWorthPage.editingAsset.is_liability === 1 : false
                 }
+            }
 
-                // Note
-                TextField {
-                    id: assetNoteInput
-                    Layout.fillWidth: true
-                    placeholderText: "Note (optional)"
-                }
+            TextField {
+                id: assetNoteInput
+                placeholderText: "Note (optional)"
+                text: netWorthPage.editingAsset ? (netWorthPage.editingAsset.note || "") : ""
+            }
 
-                Item { Layout.fillHeight: true }
+            Button {
+                text: netWorthPage.editingAsset ? "Update" : "Add Asset"
+                color: Theme.primary
+                onClicked: {
+                    var name = assetNameInput.text.trim();
+                    var type = assetTypeTracker.text;
+                    var value = parseFloat(assetValueInput.text) || 0;
+                    var isLiability = isLiabilitySwitch.checked;
+                    var note = assetNoteInput.text.trim();
 
-                // Buttons
-                RowLayout {
-                    Layout.fillWidth: true
-                    spacing: Theme.spacingSM
+                    if (name === "" || value <= 0) return;
 
-                    Rectangle {
-                        visible: editingAsset !== null
-                        Layout.fillWidth: true
-                        height: 48
-                        radius: Theme.radiusButton
-                        color: Theme.expense
-
-                        Text {
-                            anchors.centerIn: parent
-                            text: "Delete"
-                            font.pixelSize: Theme.fontSizeMD
-                            font.weight: Font.DemiBold
-                            color: Theme.white
-                        }
-
-                        MouseArea {
-                            anchors.fill: parent
-                            cursorShape: Qt.PointingHandCursor
-                            onClicked: deleteAsset()
-                        }
+                    if (netWorthPage.editingAsset) {
+                        Database.updateAsset(netWorthPage.editingAsset.id, name, type, value, isLiability, note);
+                    } else {
+                        Database.addAsset(name, type, value, isLiability, note);
                     }
-
-                    Rectangle {
-                        Layout.fillWidth: true
-                        height: 48
-                        radius: Theme.radiusButton
-                        color: Theme.primary
-
-                        Text {
-                            anchors.centerIn: parent
-                            text: editingAsset ? "Update" : "Add Asset"
-                            font.pixelSize: Theme.fontSizeMD
-                            font.weight: Font.DemiBold
-                            color: Theme.white
-                        }
-
-                        MouseArea {
-                            anchors.fill: parent
-                            cursorShape: Qt.PointingHandCursor
-                            onClicked: saveAsset()
-                        }
-                    }
+                    PopupUtils.close(assetDialog);
+                    netWorthPage.refreshData();
                 }
+            }
+
+            Button {
+                text: "Delete"
+                color: Theme.expense
+                visible: netWorthPage.editingAsset !== null
+                onClicked: {
+                    if (netWorthPage.editingAsset) {
+                        Database.deleteAsset(netWorthPage.editingAsset.id);
+                    }
+                    PopupUtils.close(assetDialog);
+                    netWorthPage.refreshData();
+                }
+            }
+
+            Button {
+                text: "Cancel"
+                onClicked: PopupUtils.close(assetDialog)
             }
         }
     }
 
     function openAddAsset() {
         editingAsset = null;
-        assetNameInput.text = "";
-        assetTypeInput.text = "savings";
-        assetValueInput.text = "";
-        isLiabilitySwitch.checked = false;
-        assetNoteInput.text = "";
-        showAssetDialog = true;
+        PopupUtils.open(assetDialogComponent);
     }
 
     function openEditAsset(asset) {
         editingAsset = asset;
-        assetNameInput.text = asset.name;
-        assetTypeInput.text = asset.type;
-        assetValueInput.text = asset.value.toString();
-        isLiabilitySwitch.checked = asset.is_liability === 1;
-        assetNoteInput.text = asset.note || "";
-        showAssetDialog = true;
-    }
-
-    function saveAsset() {
-        var name = assetNameInput.text.trim();
-        var type = assetTypeInput.text;
-        var value = parseFloat(assetValueInput.text) || 0;
-        var isLiability = isLiabilitySwitch.checked;
-        var note = assetNoteInput.text.trim();
-
-        if (name === "" || value <= 0) return;
-
-        if (editingAsset) {
-            Database.updateAsset(editingAsset.id, name, type, value, isLiability, note);
-        } else {
-            Database.addAsset(name, type, value, isLiability, note);
-        }
-
-        showAssetDialog = false;
-        refreshData();
-    }
-
-    function deleteAsset() {
-        if (editingAsset) {
-            Database.deleteAsset(editingAsset.id);
-            showAssetDialog = false;
-            refreshData();
-        }
+        PopupUtils.open(assetDialogComponent);
     }
 
     function loadAssets() {
@@ -632,13 +511,13 @@ Page {
         loadAssets();
     }
 
-    function getAssetEmoji(type) {
+    function getAssetIcon(type) {
         for (var i = 0; i < Theme.assetTypes.length; i++) {
             if (Theme.assetTypes[i].type === type) {
-                return Theme.assetTypes[i].emoji;
+                return Theme.assetTypes[i].icon;
             }
         }
-        return "📦";
+        return "other-actions";
     }
 
     function getAssetTypeName(type) {

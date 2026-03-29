@@ -1,4 +1,5 @@
 import QtQuick 2.7
+import Lomiri.Components 1.3
 import ".."
 
 Canvas {
@@ -12,8 +13,8 @@ Canvas {
     property bool showGradient: true
     property bool showDots: true
 
-    width: Math.max(data.length * 50, 300)
-    height: 200
+    width: Math.max(data.length * units.gu(6), units.gu(38))
+    height: units.gu(25)
 
     property real maxValue: {
         var max = 0;
@@ -24,7 +25,7 @@ Canvas {
     }
 
     property real minValue: 0
-    property int chartPadding: 30
+    property int chartPadding: units.gu(4)
 
     onDataChanged: requestPaint()
     onWidthChanged: requestPaint()
@@ -86,12 +87,12 @@ Canvas {
         if (showDots) {
             for (var m = 0; m < points.length; m++) {
                 ctx.beginPath();
-                ctx.arc(points[m].x, points[m].y, 4, 0, Math.PI * 2);
+                ctx.arc(points[m].x, points[m].y, units.dp(4), 0, Math.PI * 2);
                 ctx.fillStyle = lineColor;
                 ctx.fill();
 
                 ctx.beginPath();
-                ctx.arc(points[m].x, points[m].y, 2, 0, Math.PI * 2);
+                ctx.arc(points[m].x, points[m].y, units.dp(2), 0, Math.PI * 2);
                 ctx.fillStyle = Theme.white;
                 ctx.fill();
             }
@@ -100,12 +101,12 @@ Canvas {
         // X-axis labels
         var step = Math.ceil(data.length / 7);
         ctx.fillStyle = Theme.gray500;
-        ctx.font = Theme.fontSizeXS + "px sans-serif";
+        ctx.font = units.dp(10) + "px sans-serif";
         ctx.textAlign = "center";
         for (var n = 0; n < data.length; n += step) {
             var lx = chartPadding + (n / (data.length - 1)) * chartWidth;
             var label = data[n].label || data[n].date || "";
-            ctx.fillText(label, lx, height - 5);
+            ctx.fillText(label, lx, height - units.dp(5));
         }
     }
 }

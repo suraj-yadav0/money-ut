@@ -1,4 +1,5 @@
 import QtQuick 2.7
+import Lomiri.Components 1.3
 import ".."
 
 Item {
@@ -8,13 +9,13 @@ Item {
     property int donutRadius: 35
     property bool showLegend: true
 
-    implicitWidth: 200
-    implicitHeight: chartCanvas.height + (showLegend && data.length > 0 ? legendColumn.height + Theme.spacingSM : 0)
+    implicitWidth: units.gu(25)
+    implicitHeight: chartCanvas.height + (showLegend && data.length > 0 ? legendColumn.height + units.gu(1) : 0)
 
     Canvas {
         id: chartCanvas
         width: pieChart.width
-        height: Math.min(pieChart.width - 20, 160)
+        height: Math.min(pieChart.width - units.gu(2.5), units.gu(20))
 
         onPaint: {
             var ctx = getContext("2d");
@@ -24,7 +25,7 @@ Item {
 
             var centerX = width / 2;
             var centerY = height / 2;
-            var radius = Math.min(centerX, centerY) - 5;
+            var radius = Math.min(centerX, centerY) - units.dp(5);
             var innerRadius = radius * (pieChart.donutRadius / 100);
 
             var total = 0;
@@ -59,38 +60,38 @@ Item {
 
     Column {
         id: legendColumn
-        y: chartCanvas.height + Theme.spacingSM
+        y: chartCanvas.height + units.gu(1)
         width: pieChart.width
         visible: showLegend && pieChart.data.length > 0
-        spacing: Theme.spacingXS
+        spacing: units.gu(0.5)
 
         Grid {
             columns: 2
-            columnSpacing: Theme.spacingMD
-            rowSpacing: Theme.spacingXS
+            columnSpacing: units.gu(1.5)
+            rowSpacing: units.gu(0.5)
             anchors.horizontalCenter: parent.horizontalCenter
 
             Repeater {
                 model: pieChart.data
 
                 Row {
-                    spacing: Theme.spacingXS
-                    width: 110
+                    spacing: units.gu(0.5)
+                    width: units.gu(14)
 
                     Rectangle {
-                        width: 10
-                        height: 10
-                        radius: 5
+                        width: units.gu(1.2)
+                        height: units.gu(1.2)
+                        radius: width / 2
                         color: modelData.color || Theme.chartColors[index % Theme.chartColors.length]
                         anchors.verticalCenter: parent.verticalCenter
                     }
 
-                    Text {
+                    Label {
                         text: modelData.label + " (" + (modelData.percentage ? modelData.percentage.toFixed(0) : 0) + "%)"
-                        font.pixelSize: Theme.fontSizeXS
+                        fontSize: "x-small"
                         color: Theme.gray600
                         elide: Text.ElideRight
-                        width: 90
+                        width: units.gu(11)
                         anchors.verticalCenter: parent.verticalCenter
                     }
                 }

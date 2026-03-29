@@ -37,23 +37,21 @@ Page {
             topMargin: units.gu(4)
             horizontalCenter: parent.horizontalCenter
         }
-        spacing: Theme.spacingSM
+        spacing: units.gu(1)
         visible: currentStep > 0
 
         Repeater {
             model: 3
 
-            Rectangle {
-                width: currentStep === index ? 24 : 8
-                height: 8
-                radius: 4
-                color: currentStep >= index ? Theme.primary : Theme.gray300
+            LomiriShape {
+                width: currentStep === index ? units.gu(3) : units.gu(1)
+                height: units.gu(1)
+                aspect: LomiriShape.Flat
+                radius: "small"
+                backgroundColor: currentStep >= index ? Theme.primary : Theme.gray300
 
                 Behavior on width {
-                    NumberAnimation { duration: Theme.animationNormal }
-                }
-                Behavior on color {
-                    ColorAnimation { duration: Theme.animationNormal }
+                    LomiriNumberAnimation {}
                 }
             }
         }
@@ -66,8 +64,8 @@ Page {
             fill: parent
             topMargin: units.gu(8)
             bottomMargin: units.gu(2)
-            leftMargin: Theme.spacingXL
-            rightMargin: Theme.spacingXL
+            leftMargin: units.gu(3)
+            rightMargin: units.gu(3)
         }
         currentIndex: currentStep
 
@@ -75,48 +73,47 @@ Page {
         Item {
             ColumnLayout {
                 anchors.centerIn: parent
-                spacing: Theme.spacing2XL
+                spacing: units.gu(3)
                 width: parent.width
 
                 // Logo container
-                Rectangle {
+                LomiriShape {
                     Layout.alignment: Qt.AlignHCenter
-                    width: 120
-                    height: 120
-                    radius: 30
-                    gradient: Gradient {
-                        GradientStop { position: 0.0; color: Theme.primary }
-                        GradientStop { position: 1.0; color: Theme.primaryDark }
-                    }
+                    width: units.gu(15)
+                    height: units.gu(15)
+                    aspect: LomiriShape.DropShadow
+                    radius: "large"
+                    backgroundMode: LomiriShape.VerticalGradient
+                    backgroundColor: Theme.primary
+                    secondaryBackgroundColor: Theme.primaryDark
 
-                    Text {
+                    Label {
                         anchors.centerIn: parent
                         text: "👛"
-                        font.pixelSize: 56
+                        font.pixelSize: units.gu(7)
                     }
                 }
 
-                // App name
-                Text {
+                Label {
                     text: "Quantro"
-                    font.pixelSize: Theme.fontSize5XL
+                    font.pixelSize: units.gu(5)
                     font.weight: Font.Bold
                     color: Theme.gray900
                     Layout.alignment: Qt.AlignHCenter
                 }
 
-                Text {
+                Label {
                     text: "Smart Finance Manager"
-                    font.pixelSize: Theme.fontSizeXL
+                    fontSize: "x-large"
                     color: Theme.gray500
                     Layout.alignment: Qt.AlignHCenter
                 }
 
-                Item { Layout.preferredHeight: Theme.spacing3XL }
+                Item { Layout.preferredHeight: units.gu(4) }
 
-                Text {
+                Label {
                     text: "Take control of your finances"
-                    font.pixelSize: Theme.fontSizeLG
+                    fontSize: "large"
                     color: Theme.gray600
                     Layout.alignment: Qt.AlignHCenter
                     horizontalAlignment: Text.AlignHCenter
@@ -126,42 +123,18 @@ Page {
 
                 Item { Layout.fillHeight: true }
 
-                // Get Started button
-                Rectangle {
+                Button {
                     Layout.fillWidth: true
-                    Layout.preferredHeight: 56
-                    radius: Theme.radiusButton
+                    text: "Get Started"
                     color: Theme.primary
-
-                    Text {
-                        anchors.centerIn: parent
-                        text: "Get Started"
-                        font.pixelSize: Theme.fontSizeLG
-                        font.weight: Font.DemiBold
-                        color: Theme.white
-                    }
-
-                    MouseArea {
-                        anchors.fill: parent
-                        cursorShape: Qt.PointingHandCursor
-                        onClicked: currentStep = 1
-                    }
+                    onClicked: currentStep = 1
                 }
 
-                // Continue as Guest
-                Text {
+                Button {
+                    Layout.fillWidth: true
                     text: "Continue as Guest"
-                    font.pixelSize: Theme.fontSizeMD
-                    color: Theme.gray500
-                    Layout.alignment: Qt.AlignHCenter
-
-                    MouseArea {
-                        anchors.fill: parent
-                        cursorShape: Qt.PointingHandCursor
-                        onClicked: {
-                            completeOnboarding(0);
-                        }
-                    }
+                    strokeColor: Theme.gray400
+                    onClicked: completeOnboarding(0)
                 }
             }
         }
@@ -170,12 +143,12 @@ Page {
         Item {
             ColumnLayout {
                 anchors.centerIn: parent
-                spacing: Theme.spacing2XL
+                spacing: units.gu(3)
                 width: parent.width
 
-                Text {
+                Label {
                     text: "What's your monthly income?"
-                    font.pixelSize: Theme.fontSize2XL
+                    font.pixelSize: units.gu(3)
                     font.weight: Font.Bold
                     color: Theme.gray900
                     Layout.alignment: Qt.AlignHCenter
@@ -184,9 +157,9 @@ Page {
                     Layout.fillWidth: true
                 }
 
-                Text {
+                Label {
                     text: "This helps us provide better insights and budget suggestions"
-                    font.pixelSize: Theme.fontSizeMD
+                    fontSize: "medium"
                     color: Theme.gray500
                     Layout.alignment: Qt.AlignHCenter
                     horizontalAlignment: Text.AlignHCenter
@@ -194,16 +167,15 @@ Page {
                     Layout.fillWidth: true
                 }
 
-                Item { Layout.preferredHeight: Theme.spacingXL }
+                Item { Layout.preferredHeight: units.gu(3) }
 
-                // Currency prefix + Amount input
                 Row {
                     Layout.alignment: Qt.AlignHCenter
-                    spacing: Theme.spacingSM
+                    spacing: units.gu(1)
 
-                    Text {
+                    Label {
                         text: Theme.getCurrencySymbol(currency)
-                        font.pixelSize: Theme.fontSize4XL
+                        font.pixelSize: units.gu(4)
                         font.weight: Font.Bold
                         color: Theme.gray400
                         anchors.verticalCenter: parent.verticalCenter
@@ -211,8 +183,8 @@ Page {
 
                     TextField {
                         id: incomeInput
-                        width: 200
-                        font.pixelSize: Theme.fontSize4XL
+                        width: units.gu(25)
+                        font.pixelSize: units.gu(4)
                         placeholderText: "0"
                         inputMethodHints: Qt.ImhDigitsOnly
                         horizontalAlignment: Text.AlignLeft
@@ -226,30 +198,30 @@ Page {
                 // Currency selector
                 Row {
                     Layout.alignment: Qt.AlignHCenter
-                    spacing: Theme.spacingSM
+                    spacing: units.gu(1)
 
                     Repeater {
                         model: Theme.currencies
 
-                        Rectangle {
-                            width: 50
-                            height: 36
-                            radius: Theme.radiusSM
-                            color: currency === modelData.code ? Theme.primary : "transparent"
-                            border.width: currency === modelData.code ? 0 : 1
-                            border.color: Theme.gray300
+                        AbstractButton {
+                            width: units.gu(6)
+                            height: units.gu(4.5)
 
-                            Text {
-                                anchors.centerIn: parent
-                                text: modelData.symbol
-                                font.pixelSize: Theme.fontSizeMD
-                                color: currency === modelData.code ? Theme.white : Theme.gray700
-                            }
+                            onClicked: currency = modelData.code
 
-                            MouseArea {
+                            LomiriShape {
                                 anchors.fill: parent
-                                cursorShape: Qt.PointingHandCursor
-                                onClicked: currency = modelData.code
+                                aspect: LomiriShape.Flat
+                                radius: "small"
+                                backgroundColor: currency === modelData.code ? Theme.primary : "transparent"
+                                borderSource: currency === modelData.code ? "" : "radius_idle.sci"
+
+                                Label {
+                                    anchors.centerIn: parent
+                                    text: modelData.symbol
+                                    fontSize: "medium"
+                                    color: currency === modelData.code ? Theme.white : Theme.gray700
+                                }
                             }
                         }
                     }
@@ -257,44 +229,20 @@ Page {
 
                 Item { Layout.fillHeight: true }
 
-                // Continue button
-                Rectangle {
+                Button {
                     Layout.fillWidth: true
-                    Layout.preferredHeight: 56
-                    radius: Theme.radiusButton
+                    text: "Continue"
                     color: monthlyIncome > 0 ? Theme.primary : Theme.gray300
-
-                    Text {
-                        anchors.centerIn: parent
-                        text: "Continue"
-                        font.pixelSize: Theme.fontSizeLG
-                        font.weight: Font.DemiBold
-                        color: monthlyIncome > 0 ? Theme.white : Theme.gray500
-                    }
-
-                    MouseArea {
-                        anchors.fill: parent
-                        cursorShape: monthlyIncome > 0 ? Qt.PointingHandCursor : Qt.ArrowCursor
-                        onClicked: {
-                            if (monthlyIncome > 0) {
-                                currentStep = 2;
-                            }
-                        }
+                    onClicked: {
+                        if (monthlyIncome > 0) currentStep = 2;
                     }
                 }
 
-                // Back button
-                Text {
+                Button {
+                    Layout.fillWidth: true
                     text: "← Back"
-                    font.pixelSize: Theme.fontSizeMD
-                    color: Theme.gray500
-                    Layout.alignment: Qt.AlignHCenter
-
-                    MouseArea {
-                        anchors.fill: parent
-                        cursorShape: Qt.PointingHandCursor
-                        onClicked: currentStep = 0
-                    }
+                    strokeColor: Theme.gray400
+                    onClicked: currentStep = 0
                 }
             }
         }
@@ -303,18 +251,18 @@ Page {
         Item {
             ColumnLayout {
                 anchors.centerIn: parent
-                spacing: Theme.spacing2XL
+                spacing: units.gu(3)
                 width: parent.width
 
-                Text {
+                Label {
                     text: "🎉"
-                    font.pixelSize: 64
+                    font.pixelSize: units.gu(8)
                     Layout.alignment: Qt.AlignHCenter
                 }
 
-                Text {
+                Label {
                     text: "Perfect! You're all set"
-                    font.pixelSize: Theme.fontSize2XL
+                    font.pixelSize: units.gu(3)
                     font.weight: Font.Bold
                     color: Theme.gray900
                     Layout.alignment: Qt.AlignHCenter
@@ -325,22 +273,22 @@ Page {
                     Layout.fillWidth: true
 
                     ColumnLayout {
-                        spacing: Theme.spacingLG
+                        spacing: units.gu(2)
 
                         RowLayout {
                             Layout.fillWidth: true
 
-                            Text {
+                            Label {
                                 text: "Monthly Income"
-                                font.pixelSize: Theme.fontSizeMD
+                                fontSize: "medium"
                                 color: Theme.gray600
                             }
 
                             Item { Layout.fillWidth: true }
 
-                            Text {
+                            Label {
                                 text: Theme.formatFullCurrency(monthlyIncome, currency)
-                                font.pixelSize: Theme.fontSizeLG
+                                fontSize: "large"
                                 font.weight: Font.DemiBold
                                 color: Theme.income
                             }
@@ -355,18 +303,18 @@ Page {
                         RowLayout {
                             Layout.fillWidth: true
 
-                            Text {
+                            Label {
                                 text: "Daily Budget"
-                                font.pixelSize: Theme.fontSizeMD
+                                fontSize: "medium"
                                 color: Theme.gray600
                             }
 
                             Item { Layout.fillWidth: true }
 
-                            Text {
+                            Label {
                                 property int daysInMonth: new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0).getDate()
                                 text: Theme.formatCurrency(monthlyIncome / daysInMonth, currency) + "/day"
-                                font.pixelSize: Theme.fontSizeLG
+                                fontSize: "large"
                                 font.weight: Font.DemiBold
                                 color: Theme.primary
                             }
@@ -376,40 +324,18 @@ Page {
 
                 Item { Layout.fillHeight: true }
 
-                // Start button
-                Rectangle {
+                Button {
                     Layout.fillWidth: true
-                    Layout.preferredHeight: 56
-                    radius: Theme.radiusButton
+                    text: "Start Tracking"
                     color: Theme.primary
-
-                    Text {
-                        anchors.centerIn: parent
-                        text: "Start Tracking"
-                        font.pixelSize: Theme.fontSizeLG
-                        font.weight: Font.DemiBold
-                        color: Theme.white
-                    }
-
-                    MouseArea {
-                        anchors.fill: parent
-                        cursorShape: Qt.PointingHandCursor
-                        onClicked: completeOnboarding(monthlyIncome)
-                    }
+                    onClicked: completeOnboarding(monthlyIncome)
                 }
 
-                // Back button
-                Text {
+                Button {
+                    Layout.fillWidth: true
                     text: "← Back"
-                    font.pixelSize: Theme.fontSizeMD
-                    color: Theme.gray500
-                    Layout.alignment: Qt.AlignHCenter
-
-                    MouseArea {
-                        anchors.fill: parent
-                        cursorShape: Qt.PointingHandCursor
-                        onClicked: currentStep = 1
-                    }
+                    strokeColor: Theme.gray400
+                    onClicked: currentStep = 1
                 }
             }
         }

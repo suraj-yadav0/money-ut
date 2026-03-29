@@ -1,41 +1,46 @@
 import QtQuick 2.7
+import Lomiri.Components 1.3
 import ".."
 
 Item {
     id: progressBar
 
-    property real value: 0  // 0.0 to 1.0
+    property real value: 0
     property real maxValue: 1.0
     property color barColor: Theme.primary
     property color backgroundColor: Theme.gray200
-    property int barHeight: 8
+    property int barHeight: units.gu(1)
     property bool showMilestones: false
     property bool animated: true
 
-    width: parent ? parent.width : 200
+    width: parent ? parent.width : units.gu(20)
     height: barHeight
 
     // Background track
-    Rectangle {
+    LomiriShape {
         anchors.fill: parent
-        radius: height / 2
-        color: backgroundColor
+        aspect: LomiriShape.Flat
+        backgroundColor: progressBar.backgroundColor
+        radius: "large"
+        relativeRadius: 0.5
     }
 
     // Progress fill
-    Rectangle {
+    LomiriShape {
         width: Math.min(parent.width * (value / maxValue), parent.width)
         height: parent.height
-        radius: height / 2
-        color: barColor
+        aspect: LomiriShape.Flat
+        backgroundColor: barColor
+        radius: "large"
+        relativeRadius: 0.5
 
         Behavior on width {
             enabled: animated
-            NumberAnimation { duration: Theme.animationNormal; easing.type: Easing.OutCubic }
+            LomiriNumberAnimation {}
         }
     }
 
-    // Milestone markers (for goals: 25%, 50%, 75%)
+    // Milestone markers
     Row {
         anchors.fill: parent
         visible: showMilestones
@@ -47,29 +52,25 @@ Item {
                 width: progressBar.width * modelData
                 height: parent.height
 
-                Rectangle {
+                LomiriShape {
                     anchors {
                         right: parent.right
                         verticalCenter: parent.verticalCenter
                     }
-                    width: 16
-                    height: 16
-                    radius: 8
-                    color: (progressBar.value / progressBar.maxValue) >= modelData ? Theme.income : Theme.gray300
-                    border.width: 2
-                    border.color: Theme.white
+                    width: units.gu(2)
+                    height: units.gu(2)
+                    aspect: LomiriShape.Flat
+                    backgroundColor: (progressBar.value / progressBar.maxValue) >= modelData ?
+                        Theme.income : Theme.gray300
+                    radius: "large"
+                    relativeRadius: 0.5
 
-                    Text {
+                    Label {
                         anchors.centerIn: parent
                         text: (progressBar.value / progressBar.maxValue) >= modelData ? "✓" : ""
-                        font.pixelSize: 10
+                        fontSize: "xx-small"
                         font.weight: Font.Bold
                         color: Theme.white
-                    }
-
-                    Behavior on color {
-                        enabled: animated
-                        ColorAnimation { duration: Theme.animationNormal }
                     }
                 }
             }

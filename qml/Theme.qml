@@ -63,34 +63,6 @@ QtObject {
         "#7C3AED", "#EC4899", "#DC2626", "#4F46E5", "#059669"
     ]
 
-    // ===== SPACING & SIZING =====
-    readonly property int spacingXS: 4
-    readonly property int spacingSM: 8
-    readonly property int spacingMD: 12
-    readonly property int spacingLG: 16
-    readonly property int spacingXL: 20
-    readonly property int spacing2XL: 24
-    readonly property int spacing3XL: 32
-
-    // Border radius
-    readonly property int radiusSM: 8
-    readonly property int radiusMD: 12
-    readonly property int radiusLG: 16
-    readonly property int radiusXL: 20
-    readonly property int radiusCard: 20
-    readonly property int radiusButton: 16
-
-    // ===== TYPOGRAPHY =====
-    readonly property int fontSizeXS: 10
-    readonly property int fontSizeSM: 12
-    readonly property int fontSizeMD: 14
-    readonly property int fontSizeLG: 16
-    readonly property int fontSizeXL: 18
-    readonly property int fontSize2XL: 20
-    readonly property int fontSize3XL: 24
-    readonly property int fontSize4XL: 32
-    readonly property int fontSize5XL: 40
-
     // Font weights
     readonly property int fontWeightLight: Font.Light
     readonly property int fontWeightNormal: Font.Normal
@@ -129,12 +101,12 @@ QtObject {
 
     // ===== ASSET TYPES =====
     readonly property var assetTypes: [
-        { type: "savings", emoji: "💰", name: "Savings" },
-        { type: "investment", emoji: "📈", name: "Investment" },
-        { type: "property", emoji: "🏠", name: "Property" },
-        { type: "gold", emoji: "🥇", name: "Gold" },
-        { type: "loan", emoji: "🏦", name: "Loan" },
-        { type: "other", emoji: "📦", name: "Other" }
+        { type: "savings", icon: "save", name: "Savings" },
+        { type: "investment", icon: "stock_website", name: "Investment" },
+        { type: "property", icon: "home", name: "Property" },
+        { type: "gold", icon: "starred", name: "Gold" },
+        { type: "loan", icon: "stock_store", name: "Loan" },
+        { type: "other", icon: "other-actions", name: "Other" }
     ]
 
     // ===== HELPER FUNCTIONS =====
@@ -196,7 +168,6 @@ QtObject {
         var symbol = getCurrencySymbol(currencyCode || "INR");
         var absAmount = Math.abs(amount);
 
-        // Format with Indian/standard separators
         var formatted = absAmount.toLocaleString('en-IN', { maximumFractionDigits: 2 });
 
         return (amount < 0 ? "-" : "") + symbol + formatted;
@@ -248,5 +219,29 @@ QtObject {
 
     function formatMonthYear(date) {
         return Qt.formatDate(new Date(date), "MMMM yyyy");
+    }
+
+    function getCategoryIcon(icon) {
+        var iconMap = {
+            "restaurant": "like",
+            "directions_car": "stock_transport-car",
+            "shopping_bag": "stock_store",
+            "movie": "stock_music",
+            "receipt_long": "stock_document",
+            "local_hospital": "stock_health",
+            "school": "stock_note",
+            "spa": "like",
+            "local_grocery_store": "stock_store",
+            "card_giftcard": "stock_event",
+            "savings": "save",
+            "show_chart": "stock_website",
+            "family_restroom": "contact-group",
+            "more_horiz": "other-actions",
+            "work": "stock_application",
+            "laptop": "computer-symbolic",
+            "trending_up": "stock_website",
+            "attach_money": "save"
+        };
+        return iconMap[icon] || "stock_note";
     }
 }

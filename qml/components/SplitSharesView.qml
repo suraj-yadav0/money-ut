@@ -1,5 +1,6 @@
 import QtQuick 2.7
 import QtQuick.Layouts 1.3
+import Lomiri.Components 1.3
 import ".."
 
 Item {
@@ -41,23 +42,25 @@ Item {
                     color: modelData.is_settled ? Theme.income : Theme.warning
                 }
 
-                Text {
+                Label {
                     text: modelData.member_name
-                    font.pixelSize: Theme.fontSizeXS
+                    fontSize: "x-small"
                     color: Theme.gray600
                     Layout.fillWidth: true
                 }
 
-                Text {
+                Label {
                     text: Theme.formatFullCurrency(modelData.share_amount, currencyCode)
-                    font.pixelSize: Theme.fontSizeXS
+                    fontSize: "x-small"
                     color: modelData.is_settled ? Theme.income : Theme.gray700
                     font.weight: Font.DemiBold
                 }
 
-                Text {
-                    text: modelData.is_settled ? "✓" : ""
-                    font.pixelSize: Theme.fontSizeXS
+                Icon {
+                    visible: modelData.is_settled
+                    name: "tick"
+                    width: units.gu(1.5)
+                    height: units.gu(1.5)
                     color: Theme.income
                 }
             }

@@ -58,77 +58,77 @@ Page {
             right: parent.right
             bottom: parent.bottom
         }
-        contentHeight: contentColumn.height + Theme.spacing2XL
+        contentHeight: contentColumn.height + units.gu(3)
         clip: true
 
         ColumnLayout {
             id: contentColumn
-            width: parent.width - Theme.spacingLG * 2
+            width: parent.width - units.gu(4)
             anchors.horizontalCenter: parent.horizontalCenter
-            spacing: Theme.spacingLG
+            spacing: units.gu(2)
 
-            Item { Layout.preferredHeight: Theme.spacingSM }
+            Item { Layout.preferredHeight: units.gu(1) }
 
             // Month totals card
             GlassCard {
                 Layout.fillWidth: true
 
                 RowLayout {
-                    spacing: Theme.spacingMD
+                    spacing: units.gu(1.5)
 
                     ColumnLayout {
                         Layout.fillWidth: true
-                        spacing: 2
+                        spacing: units.dp(2)
 
-                        Text {
+                        Label {
                             text: "Income"
-                            font.pixelSize: Theme.fontSizeXS
+                            fontSize: "x-small"
                             color: Theme.gray500
                         }
 
-                        Text {
+                        Label {
                             text: Theme.formatCurrency(monthTotals.income, currencyCode)
-                            font.pixelSize: Theme.fontSizeMD
+                            fontSize: "medium"
                             font.weight: Font.DemiBold
                             color: Theme.income
                         }
                     }
 
-                    Rectangle { width: 1; height: 35; color: Theme.gray200 }
+                    Rectangle { width: units.dp(1); height: units.gu(4); color: Theme.gray200 }
 
                     ColumnLayout {
                         Layout.fillWidth: true
-                        spacing: 2
+                        spacing: units.dp(2)
 
-                        Text {
+                        Label {
                             text: "Expenses"
-                            font.pixelSize: Theme.fontSizeXS
+                            fontSize: "x-small"
                             color: Theme.gray500
                         }
 
-                        Text {
+                        Label {
                             text: Theme.formatCurrency(monthTotals.expenses, currencyCode)
-                            font.pixelSize: Theme.fontSizeMD
+                            fontSize: "medium"
                             font.weight: Font.DemiBold
                             color: Theme.expense
                         }
                     }
 
-                    Rectangle { width: 1; height: 35; color: Theme.gray200 }
+                    Rectangle { width: units.dp(1); height: units.gu(4); color: Theme.gray200 }
 
                     ColumnLayout {
                         Layout.fillWidth: true
-                        spacing: 2
+                        spacing: units.dp(2)
 
-                        Text {
+                        Label {
                             text: "Net"
-                            font.pixelSize: Theme.fontSizeXS
+                            fontSize: "x-small"
                             color: Theme.gray500
                         }
 
-                        Text {
+                        Label {
                             text: Theme.formatCurrency(monthTotals.net, currencyCode)
-                            font.pixelSize: Theme.fontSizeMD
+                            fontSize: "medium"
                             font.weight: Font.DemiBold
                             color: monthTotals.net >= 0 ? Theme.income : Theme.expense
                         }
@@ -144,10 +144,10 @@ Page {
                 Repeater {
                     model: ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
 
-                    Text {
+                    Label {
                         width: (parent.width) / 7
                         text: modelData
-                        font.pixelSize: Theme.fontSizeSM
+                        fontSize: "small"
                         font.weight: Font.DemiBold
                         color: index === 0 ? Theme.expense : (index === 6 ? Theme.income : Theme.gray600)
                         horizontalAlignment: Text.AlignHCenter
@@ -159,31 +159,31 @@ Page {
             Grid {
                 Layout.fillWidth: true
                 columns: 7
-                spacing: 2
+                spacing: units.dp(2)
 
                 Repeater {
                     model: getCalendarDays()
 
                     Rectangle {
-                        width: (parent.width - 12) / 7
-                        height: 70
-                        radius: Theme.radiusSM
+                        width: (parent.width - units.dp(12)) / 7
+                        height: units.gu(8)
+                        radius: units.gu(1)
                         color: modelData.isToday ? Qt.rgba(Theme.primary.r, Theme.primary.g, Theme.primary.b, 0.15) :
                                modelData.isCurrentMonth ? Theme.white : Theme.gray50
 
-                        border.width: modelData.isToday ? 2 : 0
+                        border.width: modelData.isToday ? units.dp(2) : 0
                         border.color: Theme.primary
 
                         ColumnLayout {
                             anchors {
                                 fill: parent
-                                margins: 4
+                                margins: units.dp(4)
                             }
-                            spacing: 2
+                            spacing: units.dp(2)
 
-                            Text {
+                            Label {
                                 text: modelData.day
-                                font.pixelSize: Theme.fontSizeSM
+                                fontSize: "small"
                                 font.weight: modelData.isToday ? Font.Bold : Font.Normal
                                 color: !modelData.isCurrentMonth ? Theme.gray400 :
                                        modelData.dayOfWeek === 0 ? Theme.expense :
@@ -193,18 +193,18 @@ Page {
                             }
 
                             // Income
-                            Text {
+                            Label {
                                 text: modelData.income > 0 ? "+" + Theme.formatCompactCurrency(modelData.income, currencyCode) : ""
-                                font.pixelSize: 9
+                                fontSize: "xx-small"
                                 color: Theme.income
                                 Layout.alignment: Qt.AlignHCenter
                                 visible: modelData.income > 0
                             }
 
                             // Expense
-                            Text {
+                            Label {
                                 text: modelData.expense > 0 ? "-" + Theme.formatCompactCurrency(modelData.expense, currencyCode) : ""
-                                font.pixelSize: 9
+                                fontSize: "xx-small"
                                 color: Theme.expense
                                 Layout.alignment: Qt.AlignHCenter
                                 visible: modelData.expense > 0
@@ -226,7 +226,7 @@ Page {
                 }
             }
 
-            Item { Layout.preferredHeight: Theme.spacing2XL }
+            Item { Layout.preferredHeight: units.gu(3) }
         }
     }
 
