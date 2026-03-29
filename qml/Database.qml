@@ -17,8 +17,9 @@ QtObject {
 
     function init() {
         if (initialized && db !== null) return;
-        db = LocalStorage.openDatabaseSync("QuantroDB", "1.0", "Quantro Money Manager Database", 1000000);
+        db = LocalStorage.openDatabaseSync("QuantroDB", "1.0", "Quantro Money Manager Database", 10000000);
         createTables();
+        migrate();
         seedDefaultData();
         initialized = true;
     }
@@ -31,8 +32,8 @@ QtObject {
             // Categories table
             tx.executeSql('CREATE TABLE IF NOT EXISTS categories (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT UNIQUE NOT NULL, icon TEXT NOT NULL, monthly_budget REAL, type TEXT DEFAULT "expense", is_default INTEGER DEFAULT 1)');
 
-            // Transactions table
-            tx.executeSql('CREATE TABLE IF NOT EXISTS transactions (id INTEGER PRIMARY KEY AUTOINCREMENT, amount REAL NOT NULL, type TEXT NOT NULL, category_id INTEGER NOT NULL, goal_id INTEGER, timestamp TEXT NOT NULL, note TEXT, payment_mode TEXT, receipt_image_path TEXT, is_recurring INTEGER DEFAULT 0, created_at TEXT DEFAULT CURRENT_TIMESTAMP, FOREIGN KEY (category_id) REFERENCES categories(id), FOREIGN KEY (goal_id) REFERENCES goals(id))');
+            // Transactions table — recurring_source_id links a generated instance back to its template
+            tx.executeSql('CREATE TABLE IF NOT EXISTS transactions (id INTEGER PRIMARY KEY AUTOINCREMENT, amount REAL NOT NULL, type TEXT NOT NULL, category_id INTEGER NOT NULL, goal_id INTEGER, timestamp TEXT NOT NULL, note TEXT, payment_mode TEXT, receipt_image_path TEXT, is_recurring INTEGER DEFAULT 0, recurring_source_id INTEGER, created_at TEXT DEFAULT CURRENT_TIMESTAMP, FOREIGN KEY (category_id) REFERENCES categories(id), FOREIGN KEY (goal_id) REFERENCES goals(id))');
 
             // Goals table
             tx.executeSql('CREATE TABLE IF NOT EXISTS goals (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT NOT NULL, target_amount REAL NOT NULL, deadline TEXT NOT NULL, saved_amount REAL DEFAULT 0, is_active INTEGER DEFAULT 1, is_completed INTEGER DEFAULT 0, created_at TEXT DEFAULT CURRENT_TIMESTAMP)');
@@ -57,6 +58,26 @@ QtObject {
 
             // Split shares table
             tx.executeSql('CREATE TABLE IF NOT EXISTS split_shares (id INTEGER PRIMARY KEY AUTOINCREMENT, expense_id INTEGER NOT NULL, member_id INTEGER NOT NULL, share_amount REAL NOT NULL, is_settled INTEGER DEFAULT 0, settled_at TEXT, FOREIGN KEY (expense_id) REFERENCES split_expenses(id), FOREIGN KEY (member_id) REFERENCES split_members(id))');
+
+            // Performance indexes
+            tx.executeSql('CREATE INDEX IF NOT EXISTS idx_transactions_timestamp ON transactions(timestamp)');
+            tx.executeSql('CREATE INDEX IF NOT EXISTS idx_transactions_type ON transactions(type)');
+            tx.executeSql('CREATE INDEX IF NOT EXISTS idx_transactions_category_id ON transactions(category_id)');
+            tx.executeSql('CREATE INDEX IF NOT EXISTS idx_transactions_goal_id ON transactions(goal_id)');
+            tx.executeSql('CREATE INDEX IF NOT EXISTS idx_transactions_recurring ON transactions(is_recurring)');
+            tx.executeSql('CREATE INDEX IF NOT EXISTS idx_goal_contributions_goal_id ON goal_contributions(goal_id)');
+        });
+    }
+
+    // Applies incremental schema migrations to existing databases.
+    function migrate() {
+        db.transaction(function(tx) {
+            // Add recurring_source_id column if it does not exist yet
+            try {
+                tx.executeSql('ALTER TABLE transactions ADD COLUMN recurring_source_id INTEGER');
+            } catch(e) {
+                // Column already present — safe to ignore
+            }
         });
     }
 
@@ -145,6 +166,7 @@ QtObject {
     }
 
     function createUserSettings(monthlyIncome, currency) {
+        ensureInitialized();
         db.transaction(function(tx) {
             tx.executeSql('INSERT INTO user_settings (monthly_income, currency, is_onboarded) VALUES (?, ?, 1)',
                 [monthlyIncome, currency || "INR"]);
@@ -152,6 +174,7 @@ QtObject {
     }
 
     function updateUserSettings(monthlyIncome, currency) {
+        ensureInitialized();
         db.transaction(function(tx) {
             var result = tx.executeSql('SELECT COUNT(*) as count FROM user_settings');
             if (result.rows.item(0).count === 0) {
@@ -193,6 +216,7 @@ QtObject {
     }
 
     function getCategoryById(id) {
+        ensureInitialized();
         var category = null;
         db.transaction(function(tx) {
             var result = tx.executeSql('SELECT * FROM categories WHERE id = ?', [id]);
@@ -204,12 +228,14 @@ QtObject {
     }
 
     function updateCategoryBudget(categoryId, budget) {
+        ensureInitialized();
         db.transaction(function(tx) {
             tx.executeSql('UPDATE categories SET monthly_budget = ? WHERE id = ?', [budget, categoryId]);
         });
     }
 
     function clearCategoryBudget(categoryId) {
+        ensureInitialized();
         db.transaction(function(tx) {
             tx.executeSql('UPDATE categories SET monthly_budget = NULL WHERE id = ?', [categoryId]);
         });
@@ -225,14 +251,21 @@ QtObject {
                 [amount, type, categoryId, note || null, paymentMode || null, timestamp || new Date().toISOString(), goalId || null, receiptPath || null, isRecurring ? 1 : 0]
             );
             insertedId = result.insertId;
+
+            // Update goal saved amount atomically within this same transaction
+            if (goalId && type === "expense") {
+                tx.executeSql('UPDATE goals SET saved_amount = saved_amount + ? WHERE id = ?', [amount, goalId]);
+                var goalResult = tx.executeSql('SELECT saved_amount, target_amount FROM goals WHERE id = ?', [goalId]);
+                if (goalResult.rows.length > 0) {
+                    var g = goalResult.rows.item(0);
+                    if (g.saved_amount >= g.target_amount) {
+                        tx.executeSql('UPDATE goals SET is_completed = 1 WHERE id = ?', [goalId]);
+                    }
+                }
+            }
         });
 
-        // Update goal saved amount if linked
-        if (goalId && type === "expense") {
-            updateGoalSavedAmount(goalId, amount);
-        }
-
-        // Learn categorization from this transaction
+        // Learn categorization from this transaction (non-critical, runs after main commit)
         if (note) {
             learnFromTransaction(note, categoryId);
         }
@@ -241,6 +274,7 @@ QtObject {
     }
 
     function updateTransaction(id, amount, type, categoryId, note, paymentMode, timestamp, goalId, receiptPath) {
+        ensureInitialized();
         db.transaction(function(tx) {
             tx.executeSql(
                 'UPDATE transactions SET amount = ?, type = ?, category_id = ?, note = ?, payment_mode = ?, timestamp = ?, goal_id = ?, receipt_image_path = ? WHERE id = ?',
@@ -250,15 +284,29 @@ QtObject {
     }
 
     function deleteTransaction(id) {
-        // First get the transaction to check if goal linked
-        var transaction = getTransactionById(id);
-        if (transaction && transaction.goal_id && transaction.type === "expense") {
-            // Subtract from goal
-            updateGoalSavedAmount(transaction.goal_id, -transaction.amount);
-        }
-
+        ensureInitialized();
+        // Perform the goal adjustment and the delete atomically in one transaction
         db.transaction(function(tx) {
-            tx.executeSql('DELETE FROM transactions WHERE id = ?', [id]);
+            var result = tx.executeSql(
+                'SELECT * FROM transactions WHERE id = ?', [id]
+            );
+            if (result.rows.length > 0) {
+                var transaction = result.rows.item(0);
+                if (transaction.goal_id && transaction.type === "expense") {
+                    tx.executeSql('UPDATE goals SET saved_amount = MAX(0, saved_amount - ?) WHERE id = ?',
+                        [transaction.amount, transaction.goal_id]);
+                    // Re-evaluate completion status after reducing saved_amount
+                    var goalResult = tx.executeSql('SELECT saved_amount, target_amount FROM goals WHERE id = ?',
+                        [transaction.goal_id]);
+                    if (goalResult.rows.length > 0) {
+                        var g = goalResult.rows.item(0);
+                        if (g.saved_amount < g.target_amount) {
+                            tx.executeSql('UPDATE goals SET is_completed = 0 WHERE id = ?', [transaction.goal_id]);
+                        }
+                    }
+                }
+                tx.executeSql('DELETE FROM transactions WHERE id = ?', [id]);
+            }
         });
     }
 
@@ -424,6 +472,7 @@ QtObject {
 
     // ===== BUDGET =====
     function getBudgetStats(month, year) {
+        ensureInitialized();
         var stats = {
             totalBudget: 0,
             totalSpent: 0,
@@ -474,6 +523,7 @@ QtObject {
     }
 
     function getCategoryAverageSpending(categoryId, months) {
+        ensureInitialized();
         var average = 0;
         db.transaction(function(tx) {
             var result = tx.executeSql(
@@ -491,6 +541,7 @@ QtObject {
 
     // ===== GOALS =====
     function addGoal(name, targetAmount, deadline) {
+        ensureInitialized();
         var insertedId = -1;
         db.transaction(function(tx) {
             var result = tx.executeSql(
@@ -503,6 +554,7 @@ QtObject {
     }
 
     function updateGoal(id, name, targetAmount, deadline) {
+        ensureInitialized();
         db.transaction(function(tx) {
             tx.executeSql(
                 'UPDATE goals SET name = ?, target_amount = ?, deadline = ? WHERE id = ?',
@@ -512,6 +564,7 @@ QtObject {
     }
 
     function deleteGoal(id) {
+        ensureInitialized();
         db.transaction(function(tx) {
             // Delete contributions first
             tx.executeSql('DELETE FROM goal_contributions WHERE goal_id = ?', [id]);
@@ -521,6 +574,7 @@ QtObject {
     }
 
     function getGoals(activeOnly) {
+        ensureInitialized();
         var goals = [];
         db.transaction(function(tx) {
             var sql = activeOnly ?
@@ -538,6 +592,7 @@ QtObject {
     }
 
     function getGoalById(id) {
+        ensureInitialized();
         var goal = null;
         db.transaction(function(tx) {
             var result = tx.executeSql('SELECT * FROM goals WHERE id = ?', [id]);
@@ -551,15 +606,18 @@ QtObject {
     }
 
     function updateGoalSavedAmount(goalId, amountDelta) {
+        ensureInitialized();
         db.transaction(function(tx) {
-            tx.executeSql('UPDATE goals SET saved_amount = saved_amount + ? WHERE id = ?', [amountDelta, goalId]);
+            tx.executeSql('UPDATE goals SET saved_amount = MAX(0, saved_amount + ?) WHERE id = ?', [amountDelta, goalId]);
 
-            // Check if goal is completed
-            var result = tx.executeSql('SELECT * FROM goals WHERE id = ?', [goalId]);
+            // Re-evaluate completion status
+            var result = tx.executeSql('SELECT saved_amount, target_amount FROM goals WHERE id = ?', [goalId]);
             if (result.rows.length > 0) {
                 var goal = result.rows.item(0);
                 if (goal.saved_amount >= goal.target_amount) {
                     tx.executeSql('UPDATE goals SET is_completed = 1 WHERE id = ?', [goalId]);
+                } else {
+                    tx.executeSql('UPDATE goals SET is_completed = 0 WHERE id = ?', [goalId]);
                 }
             }
         });
@@ -567,6 +625,7 @@ QtObject {
 
     // ===== GOAL CONTRIBUTIONS =====
     function addContribution(goalId, amount, note) {
+        ensureInitialized();
         db.transaction(function(tx) {
             tx.executeSql(
                 'INSERT INTO goal_contributions (goal_id, amount, note) VALUES (?, ?, ?)',
@@ -583,14 +642,24 @@ QtObject {
     }
 
     function deleteContribution(id) {
+        ensureInitialized();
         db.transaction(function(tx) {
             // Get contribution details first
             var result = tx.executeSql('SELECT * FROM goal_contributions WHERE id = ?', [id]);
             if (result.rows.length > 0) {
                 var contribution = result.rows.item(0);
-                // Subtract from goal
-                tx.executeSql('UPDATE goals SET saved_amount = saved_amount - ?, is_completed = 0 WHERE id = ?',
+                // Subtract from goal, never go below zero
+                tx.executeSql('UPDATE goals SET saved_amount = MAX(0, saved_amount - ?) WHERE id = ?',
                     [contribution.amount, contribution.goal_id]);
+                // Re-evaluate completion status
+                var goalResult = tx.executeSql('SELECT saved_amount, target_amount FROM goals WHERE id = ?',
+                    [contribution.goal_id]);
+                if (goalResult.rows.length > 0) {
+                    var g = goalResult.rows.item(0);
+                    if (g.saved_amount < g.target_amount) {
+                        tx.executeSql('UPDATE goals SET is_completed = 0 WHERE id = ?', [contribution.goal_id]);
+                    }
+                }
                 // Delete contribution
                 tx.executeSql('DELETE FROM goal_contributions WHERE id = ?', [id]);
             }
@@ -598,6 +667,7 @@ QtObject {
     }
 
     function getContributions(goalId) {
+        ensureInitialized();
         var contributions = [];
         db.transaction(function(tx) {
             var result = tx.executeSql(
@@ -612,6 +682,7 @@ QtObject {
 
     // ===== ASSETS =====
     function addAsset(name, type, value, isLiability, note) {
+        ensureInitialized();
         db.transaction(function(tx) {
             tx.executeSql(
                 'INSERT INTO assets (name, type, value, is_liability, note) VALUES (?, ?, ?, ?, ?)',
@@ -621,6 +692,7 @@ QtObject {
     }
 
     function updateAsset(id, name, type, value, isLiability, note) {
+        ensureInitialized();
         db.transaction(function(tx) {
             tx.executeSql(
                 'UPDATE assets SET name = ?, type = ?, value = ?, is_liability = ?, note = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?',
@@ -630,12 +702,14 @@ QtObject {
     }
 
     function deleteAsset(id) {
+        ensureInitialized();
         db.transaction(function(tx) {
             tx.executeSql('DELETE FROM assets WHERE id = ?', [id]);
         });
     }
 
     function getAssets(typeFilter) {
+        ensureInitialized();
         var assets = [];
         db.transaction(function(tx) {
             var sql = typeFilter ?
@@ -651,6 +725,7 @@ QtObject {
     }
 
     function getNetWorthData() {
+        ensureInitialized();
         var data = {
             totalAssets: 0,
             totalLiabilities: 0,
@@ -689,6 +764,7 @@ QtObject {
     }
 
     function getMonthlyNetWorth() {
+        ensureInitialized();
         var months = [];
         db.transaction(function(tx) {
             var result = tx.executeSql(
@@ -730,6 +806,7 @@ QtObject {
 
     // ===== AUTO-CATEGORIZATION =====
     function suggestCategory(note) {
+        ensureInitialized();
         if (!note || note.trim().length === 0) return null;
 
         var suggestion = null;
@@ -774,6 +851,7 @@ QtObject {
     }
 
     function learnFromTransaction(note, categoryId) {
+        ensureInitialized();
         if (!note || note.trim().length === 0) return;
 
         db.transaction(function(tx) {
@@ -808,12 +886,15 @@ QtObject {
 
     // ===== RECURRING TRANSACTIONS =====
     function processRecurringTransactions() {
+        ensureInitialized();
         db.transaction(function(tx) {
             var now = new Date();
             var currentMonth = now.getMonth() + 1;
             var currentYear = now.getFullYear();
-            var monthStart = currentYear + '-' + String(currentMonth).padStart(2, '0') + '-01';
-            var monthEnd = currentYear + '-' + String(currentMonth).padStart(2, '0') + '-31';
+            var currentYM = currentYear + '-' + String(currentMonth).padStart(2, '0');
+            var monthStart = currentYM + '-01';
+            var lastDay = new Date(currentYear, currentMonth, 0).getDate();
+            var monthEnd = currentYM + '-' + String(lastDay).padStart(2, '0');
 
             // Get all recurring templates
             var templates = tx.executeSql('SELECT * FROM transactions WHERE is_recurring = 1');
@@ -821,18 +902,27 @@ QtObject {
             for (var i = 0; i < templates.rows.length; i++) {
                 var template = templates.rows.item(i);
 
-                // Check if transaction already exists this month
+                // If the template's own timestamp falls within the current month it
+                // already acts as this month's entry — do not create a duplicate.
+                var templateYM = template.timestamp ? template.timestamp.substring(0, 7) : '';
+                if (templateYM === currentYM) continue;
+
+                // Check if an instance for this specific template already exists this month.
+                // We use recurring_source_id so each template is checked independently,
+                // preventing both false positives (same category, different template) and
+                // duplicates on every app launch.
                 var existing = tx.executeSql(
-                    'SELECT COUNT(*) as count FROM transactions WHERE category_id = ? AND type = ? AND is_recurring = 0 AND date(timestamp) >= date(?) AND date(timestamp) <= date(?)',
-                    [template.category_id, template.type, monthStart, monthEnd]
+                    'SELECT COUNT(*) as count FROM transactions ' +
+                    'WHERE recurring_source_id = ? AND date(timestamp) >= date(?) AND date(timestamp) <= date(?)',
+                    [template.id, monthStart, monthEnd]
                 );
 
                 if (existing.rows.item(0).count === 0) {
-                    // Create new instance
-                    var newDate = currentYear + '-' + String(currentMonth).padStart(2, '0') + '-01T00:00:00.000Z';
+                    // Create a new non-recurring instance linked back to the template
+                    var newDate = currentYM + '-01T00:00:00.000Z';
                     tx.executeSql(
-                        'INSERT INTO transactions (amount, type, category_id, note, payment_mode, timestamp, is_recurring) VALUES (?, ?, ?, ?, ?, ?, 0)',
-                        [template.amount, template.type, template.category_id, template.note, template.payment_mode, newDate]
+                        'INSERT INTO transactions (amount, type, category_id, note, payment_mode, timestamp, is_recurring, recurring_source_id) VALUES (?, ?, ?, ?, ?, ?, 0, ?)',
+                        [template.amount, template.type, template.category_id, template.note, template.payment_mode, newDate, template.id]
                     );
                 }
             }
@@ -840,8 +930,15 @@ QtObject {
     }
 
     function createSalaryTransaction(amount) {
+        ensureInitialized();
         var now = new Date();
         var firstOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+        var lastDayOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
+        var monthStart = firstOfMonth.getFullYear() + '-' +
+                         String(firstOfMonth.getMonth() + 1).padStart(2, '0') + '-01';
+        var monthEnd   = firstOfMonth.getFullYear() + '-' +
+                         String(firstOfMonth.getMonth() + 1).padStart(2, '0') + '-' +
+                         String(lastDayOfMonth).padStart(2, '0');
 
         db.transaction(function(tx) {
             // Get salary category
@@ -849,20 +946,20 @@ QtObject {
             if (catResult.rows.length > 0) {
                 var salaryId = catResult.rows.item(0).id;
 
-                // Check if salary exists this month
-                var monthStart = Qt.formatDate(firstOfMonth, "yyyy-MM-01");
-                var monthEnd = Qt.formatDate(firstOfMonth, "yyyy-MM-31");
-
                 var existing = tx.executeSql(
                     'SELECT * FROM transactions WHERE category_id = ? AND type = "income" AND date(timestamp) >= date(?) AND date(timestamp) <= date(?)',
                     [salaryId, monthStart, monthEnd]
                 );
 
                 if (existing.rows.length > 0) {
-                    // Update existing
+                    // Update existing salary transaction for this month
                     tx.executeSql('UPDATE transactions SET amount = ? WHERE id = ?', [amount, existing.rows.item(0).id]);
                 } else {
-                    // Create new
+                    // Create a new recurring salary template (is_recurring = 1).
+                    // processRecurringTransactions will generate non-recurring monthly
+                    // instances from this template for future months. For the current month,
+                    // this template row itself acts as the salary entry, so
+                    // processRecurringTransactions skips it (see templateDate check there).
                     tx.executeSql(
                         'INSERT INTO transactions (amount, type, category_id, note, timestamp, is_recurring) VALUES (?, "income", ?, "Monthly Salary", ?, 1)',
                         [amount, salaryId, firstOfMonth.toISOString()]
@@ -874,6 +971,7 @@ QtObject {
 
     // ===== CALENDAR DATA =====
     function getCalendarData(month, year) {
+        ensureInitialized();
         var data = {};
         db.transaction(function(tx) {
             var startDate = year + '-' + String(month).padStart(2, '0') + '-01';
@@ -902,6 +1000,7 @@ QtObject {
     }
 
     function getMonthTotals(month, year) {
+        ensureInitialized();
         var totals = { income: 0, expenses: 0, net: 0 };
         db.transaction(function(tx) {
             var startDate = year + '-' + String(month).padStart(2, '0') + '-01';
@@ -928,6 +1027,7 @@ QtObject {
 
     // ===== INSIGHTS ENGINE =====
     function generateInsights() {
+        ensureInitialized();
         var insights = [];
         var settings = getUserSettings();
         var monthlyIncome = settings ? settings.monthly_income : 0;
@@ -1263,6 +1363,9 @@ QtObject {
 
     // ===== DATA MANAGEMENT =====
     function clearAllData() {
+        ensureInitialized();
+        // Delete all user data and re-seed defaults in a single atomic transaction
+        // so the DB is never left in a partially-cleared state.
         db.transaction(function(tx) {
             tx.executeSql('DELETE FROM transactions');
             tx.executeSql('DELETE FROM goals');
@@ -1270,13 +1373,71 @@ QtObject {
             tx.executeSql('DELETE FROM assets');
             tx.executeSql('DELETE FROM user_settings');
             tx.executeSql('DELETE FROM categorization_rules');
-            // Re-seed categories and rules
             tx.executeSql('DELETE FROM categories');
+
+            // Re-seed default categories
+            var expenseCategories = [
+                { name: "Food & Dining", icon: "restaurant" },
+                { name: "Transport", icon: "directions_car" },
+                { name: "Shopping", icon: "shopping_bag" },
+                { name: "Entertainment", icon: "movie" },
+                { name: "Bills & Utilities", icon: "receipt_long" },
+                { name: "Health", icon: "local_hospital" },
+                { name: "Education", icon: "school" },
+                { name: "Self Care", icon: "spa" },
+                { name: "Groceries", icon: "local_grocery_store" },
+                { name: "Gifts", icon: "card_giftcard" },
+                { name: "Savings", icon: "savings" },
+                { name: "Investments", icon: "show_chart" },
+                { name: "Family", icon: "family_restroom" },
+                { name: "Other", icon: "more_horiz" }
+            ];
+            for (var i = 0; i < expenseCategories.length; i++) {
+                tx.executeSql('INSERT INTO categories (name, icon, type, is_default) VALUES (?, ?, "expense", 1)',
+                    [expenseCategories[i].name, expenseCategories[i].icon]);
+            }
+
+            var incomeCategories = [
+                { name: "Salary", icon: "work" },
+                { name: "Freelance", icon: "laptop" },
+                { name: "Investment", icon: "trending_up" },
+                { name: "Other Income", icon: "attach_money" }
+            ];
+            for (var j = 0; j < incomeCategories.length; j++) {
+                tx.executeSql('INSERT INTO categories (name, icon, type, is_default) VALUES (?, ?, "income", 1)',
+                    [incomeCategories[j].name, incomeCategories[j].icon]);
+            }
+
+            // Re-seed default categorization rules
+            var rules = [
+                { keywords: ["zomato", "swiggy", "restaurant", "cafe", "food", "lunch", "dinner", "breakfast", "mcdonalds", "kfc", "dominos", "pizza"], category: "Food & Dining" },
+                { keywords: ["uber", "ola", "rapido", "petrol", "fuel", "metro", "bus", "train", "taxi", "auto"], category: "Transport" },
+                { keywords: ["amazon", "flipkart", "myntra", "ajio", "nykaa", "shopping"], category: "Shopping" },
+                { keywords: ["netflix", "prime", "hotstar", "movie", "spotify", "youtube", "cinema", "theatre"], category: "Entertainment" },
+                { keywords: ["electricity", "water", "internet", "mobile", "rent", "wifi", "gas", "recharge"], category: "Bills & Utilities" },
+                { keywords: ["bigbasket", "blinkit", "zepto", "instamart", "grocery", "vegetables", "fruits"], category: "Groceries" },
+                { keywords: ["hospital", "doctor", "medicine", "pharmacy", "medical", "clinic", "health"], category: "Health" },
+                { keywords: ["school", "college", "tuition", "course", "books", "education", "fees"], category: "Education" },
+                { keywords: ["salon", "spa", "haircut", "grooming", "skincare", "beauty"], category: "Self Care" },
+                { keywords: ["gift", "present", "birthday", "anniversary"], category: "Gifts" },
+                { keywords: ["salary", "paycheck", "wage"], category: "Salary" },
+                { keywords: ["freelance", "consulting", "contract", "project"], category: "Freelance" }
+            ];
+            for (var k = 0; k < rules.length; k++) {
+                var catResult = tx.executeSql('SELECT id FROM categories WHERE name = ?', [rules[k].category]);
+                if (catResult.rows.length > 0) {
+                    var catId = catResult.rows.item(0).id;
+                    for (var m = 0; m < rules[k].keywords.length; m++) {
+                        tx.executeSql('INSERT INTO categorization_rules (keyword, category_id, weight) VALUES (?, ?, 1)',
+                            [rules[k].keywords[m], catId]);
+                    }
+                }
+            }
         });
-        seedDefaultData();
     }
 
     function exportData() {
+        ensureInitialized();
         var data = {
             settings: getUserSettings(),
             transactions: getTransactions(null, null, null, null),
