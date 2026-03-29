@@ -218,7 +218,7 @@ Page {
                         validator: RegExpValidator {
                             regExp: /^[0-9]{4}-[0-9]{2}-[0-9]{2}$/
                         }
-                        onEditingFinished: {
+                        function normalizeDate() {
                             var parts = text.split("-");
                             if (parts.length !== 3) {
                                 text = Qt.formatDate(new Date(), "yyyy-MM-dd");
@@ -235,6 +235,14 @@ Page {
                                 text = Qt.formatDate(new Date(), "yyyy-MM-dd");
                             } else {
                                 text = Qt.formatDate(d, "yyyy-MM-dd");
+                            }
+                        }
+
+                        onAccepted: normalizeDate()
+
+                        onFocusChanged: {
+                            if (!focus) {
+                                normalizeDate();
                             }
                         }
                     }
