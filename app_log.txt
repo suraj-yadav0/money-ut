@@ -1,0 +1,86 @@
+nohup: ignoring input
+[92mv8.7.0 of clickable is available, update to get the latest features and improvements![0m
+[92mBuilding app[0m
+-- Configuring done
+-- Generating done
+-- Build files have been written to: /home/suraj/money-ut/build/all/app
+[ 50%] Merging translations into money-ut.desktop...
+[ 50%] Built target money-ut_FILES
+[100%] Generating translation template
+Wrote money-ut.desktop.in.h
+Merging translations into money-ut.desktop.
+[100%] Built target money-ut.desktop
+[100%] Built target money-ut.surajyadav.pot
+[ 50%] Merging translations into money-ut.desktop...
+Merging translations into money-ut.desktop.
+[ 50%] Built target money-ut.desktop
+[ 50%] Built target money-ut_FILES
+[100%] Generating translation template
+Wrote money-ut.desktop.in.h
+[100%] Built target money-ut.surajyadav.pot
+Install the project...
+-- Install configuration: "Release"
+-- Installing: /home/suraj/money-ut/build/all/app/install/./manifest.json
+-- Installing: /home/suraj/money-ut/build/all/app/install//money-ut.apparmor
+-- Installing: /home/suraj/money-ut/build/all/app/install//assets
+-- Installing: /home/suraj/money-ut/build/all/app/install//assets/logo.svg
+-- Installing: /home/suraj/money-ut/build/all/app/install//qml
+-- Installing: /home/suraj/money-ut/build/all/app/install//qml/components
+-- Installing: /home/suraj/money-ut/build/all/app/install//qml/components/EmptyState.qml
+-- Installing: /home/suraj/money-ut/build/all/app/install//qml/components/IconHelper.qml
+-- Installing: /home/suraj/money-ut/build/all/app/install//qml/components/BalanceCard.qml
+-- Installing: /home/suraj/money-ut/build/all/app/install//qml/components/GlassContainer.qml
+-- Installing: /home/suraj/money-ut/build/all/app/install//qml/components/ProgressBar.qml
+-- Installing: /home/suraj/money-ut/build/all/app/install//qml/components/TransactionItem.qml
+-- Installing: /home/suraj/money-ut/build/all/app/install//qml/components/LineChart.qml
+-- Installing: /home/suraj/money-ut/build/all/app/install//qml/components/SplitSharesView.qml
+-- Installing: /home/suraj/money-ut/build/all/app/install//qml/components/BarChart.qml
+-- Installing: /home/suraj/money-ut/build/all/app/install//qml/components/CategoryChip.qml
+-- Installing: /home/suraj/money-ut/build/all/app/install//qml/components/PieChart.qml
+-- Installing: /home/suraj/money-ut/build/all/app/install//qml/components/DateFilterBar.qml
+-- Installing: /home/suraj/money-ut/build/all/app/install//qml/components/SegmentedButton.qml
+-- Installing: /home/suraj/money-ut/build/all/app/install//qml/components/GlassCard.qml
+-- Installing: /home/suraj/money-ut/build/all/app/install//qml/pages
+-- Installing: /home/suraj/money-ut/build/all/app/install//qml/pages/SettingsPage.qml
+-- Installing: /home/suraj/money-ut/build/all/app/install//qml/pages/GoalsPage.qml
+-- Installing: /home/suraj/money-ut/build/all/app/install//qml/pages/NetWorthPage.qml
+-- Installing: /home/suraj/money-ut/build/all/app/install//qml/pages/CalendarPage.qml
+-- Installing: /home/suraj/money-ut/build/all/app/install//qml/pages/DayTransactionsPage.qml
+-- Installing: /home/suraj/money-ut/build/all/app/install//qml/pages/DashboardPage.qml
+-- Installing: /home/suraj/money-ut/build/all/app/install//qml/pages/AllTransactionsPage.qml
+-- Installing: /home/suraj/money-ut/build/all/app/install//qml/pages/SplitPage.qml
+-- Installing: /home/suraj/money-ut/build/all/app/install//qml/pages/SplitGroupDetailPage.qml
+-- Installing: /home/suraj/money-ut/build/all/app/install//qml/pages/AddSplitExpensePage.qml
+-- Installing: /home/suraj/money-ut/build/all/app/install//qml/pages/InsightsPage.qml
+-- Installing: /home/suraj/money-ut/build/all/app/install//qml/pages/AddTransactionPage.qml
+-- Installing: /home/suraj/money-ut/build/all/app/install//qml/pages/OnboardingPage.qml
+-- Installing: /home/suraj/money-ut/build/all/app/install//qml/pages/BudgetPage.qml
+-- Installing: /home/suraj/money-ut/build/all/app/install//qml/Database.qml
+-- Installing: /home/suraj/money-ut/build/all/app/install//qml/Main.qml
+-- Installing: /home/suraj/money-ut/build/all/app/install//qml/qmldir
+-- Installing: /home/suraj/money-ut/build/all/app/install//qml/Theme.qml
+-- Installing: /home/suraj/money-ut/build/all/app/install//money-ut.desktop
+non-network local connections being added to access control list
+[92mMounting device home to /home/suraj/.clickable/home[0m
+QStandardPaths: XDG_RUNTIME_DIR not set, defaulting to '/tmp/runtime-suraj'
+MESA: warning: Driver does not support the 0x7d55 PCI ID.
+libGL error: failed to create dri screen
+libGL error: failed to load driver: iris
+Failed to create /home/suraj/.cache for shader cache (Permission denied)---disabling.
+qml: USER_SETTING ROW: {"id":1,"monthly_income":0,"currency":"INR","is_onboarded":1,"biometric_enabled":0,"show_income_chart":0,"created_at":"2026-02-27 17:39:51"}
+ShaderEffect: Property 'source' is not assigned a valid texture provider (QQuickItem*).
+[PERFORMANCE]: Last frame took 48 ms to render.
+[PERFORMANCE]: Last frame took 116 ms to render.
+[PERFORMANCE]: Last frame took 71 ms to render.
+[PERFORMANCE]: Last frame took 41 ms to render.
+ShaderEffect: Property 'source' is not assigned a valid texture provider (QQuickItem*).
+[PERFORMANCE]: Last frame took 54 ms to render.
+file:///home/suraj/money-ut/build/all/app/install/qml/pages/SplitPage.qml:151:21: QML MouseArea: Detected anchors on an item that is managed by a layout. This is undefined behavior; use Layout.alignment instead.
+[PERFORMANCE]: Last frame took 327 ms to render.
+[PERFORMANCE]: Last frame took 45 ms to render.
+file:///home/suraj/money-ut/build/all/app/install/qml/pages/SplitPage.qml:151:21: QML MouseArea: Detected anchors on an item that is managed by a layout. This is undefined behavior; use Layout.alignment instead.
+file:///home/suraj/money-ut/build/all/app/install/qml/pages/SplitPage.qml:151:21: QML MouseArea: Detected anchors on an item that is managed by a layout. This is undefined behavior; use Layout.alignment instead.
+file:///home/suraj/money-ut/build/all/app/install/qml/pages/SplitPage.qml:151:21: QML MouseArea: Detected anchors on an item that is managed by a layout. This is undefined behavior; use Layout.alignment instead.
+file:///home/suraj/money-ut/build/all/app/install/qml/pages/SplitPage.qml:151:21: QML MouseArea: Detected anchors on an item that is managed by a layout. This is undefined behavior; use Layout.alignment instead.
+file:///home/suraj/money-ut/build/all/app/install/qml/pages/SplitPage.qml:151:21: QML MouseArea: Detected anchors on an item that is managed by a layout. This is undefined behavior; use Layout.alignment instead.
+file:///home/suraj/money-ut/build/all/app/install/qml/pages/SplitPage.qml:151:21: QML MouseArea: Detected anchors on an item that is managed by a layout. This is undefined behavior; use Layout.alignment instead.

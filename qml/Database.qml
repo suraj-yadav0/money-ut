@@ -181,7 +181,7 @@ QtObject {
                 tx.executeSql('INSERT INTO user_settings (monthly_income, currency, is_onboarded) VALUES (?, ?, 1)',
                     [monthlyIncome, currency || "INR"]);
             } else {
-                tx.executeSql('UPDATE user_settings SET monthly_income = ?, currency = ?, is_onboarded = 1 WHERE id = 1',
+                tx.executeSql('UPDATE user_settings SET monthly_income = ?, currency = ?, is_onboarded = 1',
                     [monthlyIncome, currency || "INR"]);
             }
         });

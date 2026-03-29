@@ -33,19 +33,17 @@ MainView {
         Database.ensureInitialized();
         isOnboarded = Database.isOnboarded();
         Database.processRecurringTransactions();
+        
+        if (isOnboarded) {
+            pageStack.push(appShell);
+        } else {
+            pageStack.push(onboardingPage);
+        }
     }
 
     PageStack {
         id: pageStack
         anchors.fill: parent
-
-        Component.onCompleted: {
-            if (root.isOnboarded) {
-                push(appShell);
-            } else {
-                push(onboardingPage);
-            }
-        }
     }
 
     // ---- Onboarding ----
