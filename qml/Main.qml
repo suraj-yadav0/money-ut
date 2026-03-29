@@ -17,6 +17,7 @@ MainView {
 
     property bool isOnboarded: false
     property int currentTab: 0
+    property var currentSplitDetailPage: null
 
     // Convergent layout: side rail on wide/desktop, bottom nav on phone
     property bool isWideLayout: root.width >= units.gu(90)
@@ -81,6 +82,7 @@ MainView {
                         case 1: budgetPage.refreshData(); break;
                         case 2: netWorthPage.refreshData(); break;
                         case 3: goalsPage.refreshData(); break;
+                        case 4: splitPage.refreshData(); break;
                     }
                 }
             }
@@ -134,7 +136,8 @@ MainView {
                             { icon: "home", label: "Home", tab: 0 },
                             { icon: "tag", label: "Budget", tab: 1 },
                             { icon: "view-grid-symbolic", label: "Worth", tab: 2 },
-                            { icon: "starred", label: "Goals", tab: 3 }
+                            { icon: "starred", label: "Goals", tab: 3 },
+                            { icon: "contact-group", label: "Split", tab: 4 }
                         ]
 
                         Item {
@@ -257,6 +260,19 @@ MainView {
                     id: goalsPage
                     anchors.fill: parent
                     visible: currentTab === 3
+                }
+
+                SplitPage {
+                    id: splitPage
+                    anchors.fill: parent
+                    visible: currentTab === 4
+                    onOpenGroupDetail: {
+                        var pg = splitGroupDetailPageComponent.createObject(null);
+                        pg.groupId = group.id;
+                        pg.groupName = group.name;
+                        pg.refreshData();
+                        root.navigateTo(pg);
+                    }
                 }
             }
 
@@ -465,6 +481,38 @@ MainView {
                             onClicked: switchTab(3)
                         }
                     }
+
+                    // Split tab
+                    Item {
+                        Layout.fillWidth: true
+                        Layout.fillHeight: true
+
+                        ColumnLayout {
+                            anchors.centerIn: parent
+                            spacing: units.dp(4)
+
+                            Icon {
+                                width: units.gu(3)
+                                height: units.gu(3)
+                                name: "contact-group"
+                                Layout.alignment: Qt.AlignHCenter
+                                color: currentTab === 4 ? Theme.primary : Theme.gray500
+                            }
+
+                            Label {
+                                text: "Split"
+                                fontSize: "x-small"
+                                color: currentTab === 4 ? Theme.primary : Theme.gray500
+                                font.weight: currentTab === 4 ? Font.DemiBold : Font.Normal
+                                Layout.alignment: Qt.AlignHCenter
+                            }
+                        }
+
+                        MouseArea {
+                            anchors.fill: parent
+                            onClicked: switchTab(4)
+                        }
+                    }
                 }
             }
 
@@ -476,6 +524,7 @@ MainView {
                     case 1: budgetPage.refreshData(); break;
                     case 2: netWorthPage.refreshData(); break;
                     case 3: goalsPage.refreshData(); break;
+                    case 4: splitPage.refreshData(); break;
                 }
             }
         }
@@ -546,6 +595,36 @@ MainView {
             onTransactionSaved: {
                 root.navigateBack();
                 root.transactionDataChanged();
+            }
+            onCancelled: {
+                root.navigateBack();
+            }
+        }
+    }
+
+    Component {
+        id: splitGroupDetailPageComponent
+
+        SplitGroupDetailPage {
+            id: detailPg
+            Component.onCompleted: root.currentSplitDetailPage = detailPg
+            onAddExpenseRequested: {
+                var pg = addSplitExpensePageComponent.createObject(null);
+                pg.loadGroup(gid, mems);
+                root.navigateTo(pg);
+            }
+        }
+    }
+
+    Component {
+        id: addSplitExpensePageComponent
+
+        AddSplitExpensePage {
+            onExpenseSaved: {
+                root.navigateBack();
+                if (root.currentSplitDetailPage) {
+                    root.currentSplitDetailPage.refreshData();
+                }
             }
             onCancelled: {
                 root.navigateBack();
