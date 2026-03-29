@@ -159,7 +159,7 @@ Page {
                             Item { Layout.fillWidth: true }
 
                             Text {
-                                text: Theme.formatCurrency(modelData.amount, currencyCode)
+                                text: Theme.formatFullCurrency(modelData.amount, currencyCode)
                                 font.pixelSize: Theme.fontSizeMD
                                 font.weight: Font.Bold
                                 color: Theme.gray900

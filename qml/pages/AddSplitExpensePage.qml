@@ -214,6 +214,29 @@ Page {
                         Layout.fillWidth: true
                         placeholderText: "YYYY-MM-DD"
                         text: Qt.formatDate(new Date(), "yyyy-MM-dd")
+                        inputMask: "0000-00-00;_"
+                        validator: RegExpValidator {
+                            regExp: /^[0-9]{4}-[0-9]{2}-[0-9]{2}$/
+                        }
+                        onEditingFinished: {
+                            var parts = text.split("-");
+                            if (parts.length !== 3) {
+                                text = Qt.formatDate(new Date(), "yyyy-MM-dd");
+                                return;
+                            }
+                            var year = parseInt(parts[0], 10);
+                            var month = parseInt(parts[1], 10) - 1;
+                            var day = parseInt(parts[2], 10);
+                            var d = new Date(year, month, day);
+                            if (isNaN(d.getTime()) ||
+                                    d.getFullYear() !== year ||
+                                    d.getMonth() !== month ||
+                                    d.getDate() !== day) {
+                                text = Qt.formatDate(new Date(), "yyyy-MM-dd");
+                            } else {
+                                text = Qt.formatDate(d, "yyyy-MM-dd");
+                            }
+                        }
                     }
                 }
             }
@@ -386,14 +409,31 @@ Page {
 
         var shares = [];
         if (splitMode === "equal") {
-            var each = amt / sharesModel.count;
+            // Use the already-rounded UI values to avoid rounding drift
             for (var i = 0; i < sharesModel.count; i++) {
-                shares.push({ memberId: sharesModel.get(i).memberId, shareAmount: each });
+                var equalShareAmt = parseFloat(sharesModel.get(i).shareAmount) || 0;
+                shares.push({ memberId: sharesModel.get(i).memberId, shareAmount: equalShareAmt });
             }
         } else {
+            var totalShares = 0;
             for (var j = 0; j < sharesModel.count; j++) {
-                var shareAmt = parseFloat(sharesModel.get(j).shareAmount) || 0;
+                var rawShare = sharesModel.get(j).shareAmount;
+                var shareAmt = parseFloat(rawShare);
+                if (rawShare === "" || rawShare === null || rawShare === undefined || isNaN(shareAmt)) {
+                    validationError.text = "Please enter valid numeric share amounts for all members.";
+                    return;
+                }
+                if (shareAmt < 0) {
+                    validationError.text = "Share amounts cannot be negative.";
+                    return;
+                }
+                totalShares += shareAmt;
                 shares.push({ memberId: sharesModel.get(j).memberId, shareAmount: shareAmt });
+            }
+            var epsilon = 0.01; // Tolerance for floating-point rounding in share sums
+            if (Math.abs(totalShares - amt) > epsilon) {
+                validationError.text = "The sum of all shares (" + totalShares.toFixed(2) + ") must equal the total amount (" + amt.toFixed(2) + ").";
+                return;
             }
         }
 

@@ -11,11 +11,17 @@ Item {
 
     implicitHeight: sharesCol.implicitHeight
 
-    Component.onCompleted: {
+    function refresh() {
         if (expenseId > 0) {
             sharesData = Database.getSplitShares(expenseId);
+        } else {
+            sharesData = [];
         }
     }
+
+    onExpenseIdChanged: refresh()
+
+    Component.onCompleted: refresh()
 
     ColumnLayout {
         id: sharesCol
@@ -43,7 +49,7 @@ Item {
                 }
 
                 Text {
-                    text: Theme.formatCurrency(modelData.share_amount, currencyCode)
+                    text: Theme.formatFullCurrency(modelData.share_amount, currencyCode)
                     font.pixelSize: Theme.fontSizeXS
                     color: modelData.is_settled ? Theme.income : Theme.gray700
                     font.weight: Font.DemiBold

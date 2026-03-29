@@ -1136,8 +1136,15 @@ QtObject {
             var res = tx.executeSql('SELECT last_insert_rowid() as id');
             expenseId = res.rows.item(0).id;
             for (var i = 0; i < shares.length; i++) {
-                tx.executeSql('INSERT INTO split_shares (expense_id, member_id, share_amount) VALUES (?, ?, ?)',
-                    [expenseId, shares[i].memberId, shares[i].shareAmount]);
+                var share = shares[i];
+                if (share.memberId === paidByMemberId) {
+                    // The payer's own share is immediately settled
+                    tx.executeSql('INSERT INTO split_shares (expense_id, member_id, share_amount, is_settled, settled_at) VALUES (?, ?, ?, 1, CURRENT_TIMESTAMP)',
+                        [expenseId, share.memberId, share.shareAmount]);
+                } else {
+                    tx.executeSql('INSERT INTO split_shares (expense_id, member_id, share_amount) VALUES (?, ?, ?)',
+                        [expenseId, share.memberId, share.shareAmount]);
+                }
             }
         });
         return expenseId;
@@ -1172,43 +1179,11 @@ QtObject {
     }
 
     // Returns balances: array of { fromMemberId, fromName, toMemberId, toName, amount }
+    // Shows direct payer/debtor debt pairs so that "Settle" always corresponds
+    // to the exact shares that settleBetweenMembers will clear.
     function getSplitGroupBalances(groupId) {
         ensureInitialized();
         var members = getSplitMembers(groupId);
-        // Build net balance map: how much each member owes/is owed
-        var balance = {};
-        for (var i = 0; i < members.length; i++) {
-            balance[members[i].id] = 0;
-        }
-
-        db.transaction(function(tx) {
-            // For each expense, payer is owed back shares from others
-            var expenses = tx.executeSql(
-                'SELECT e.paid_by_member_id, s.member_id, s.share_amount, s.is_settled FROM split_expenses e JOIN split_shares s ON s.expense_id = e.id WHERE e.group_id = ? AND s.is_settled = 0',
-                [groupId]);
-            for (var j = 0; j < expenses.rows.length; j++) {
-                var row = expenses.rows.item(j);
-                var payer = row.paid_by_member_id;
-                var debtor = row.member_id;
-                if (payer !== debtor) {
-                    // debtor owes payer share_amount
-                    if (balance[debtor] !== undefined) balance[debtor] -= row.share_amount;
-                    if (balance[payer] !== undefined) balance[payer] += row.share_amount;
-                }
-            }
-        });
-
-        // Simplify debts: generate minimal transactions
-        var BALANCE_EPSILON = 0.005;
-        var creditors = [];
-        var debtors = [];
-        for (var mid in balance) {
-            if (balance[mid] > BALANCE_EPSILON) {
-                creditors.push({ id: parseInt(mid), amount: balance[mid] });
-            } else if (balance[mid] < -BALANCE_EPSILON) {
-                debtors.push({ id: parseInt(mid), amount: -balance[mid] });
-            }
-        }
 
         // Build member name map
         var nameMap = {};
@@ -1216,24 +1191,36 @@ QtObject {
             nameMap[members[k].id] = members[k].name;
         }
 
+        // Aggregate unsettled shares per (payer, debtor) pair
+        var pairTotals = {};
+        db.transaction(function(tx) {
+            var result = tx.executeSql(
+                'SELECT e.paid_by_member_id, s.member_id, SUM(s.share_amount) as total FROM split_expenses e JOIN split_shares s ON s.expense_id = e.id WHERE e.group_id = ? AND s.is_settled = 0 AND e.paid_by_member_id <> s.member_id GROUP BY e.paid_by_member_id, s.member_id',
+                [groupId]);
+            for (var j = 0; j < result.rows.length; j++) {
+                var row = result.rows.item(j);
+                var key = row.paid_by_member_id + "_" + row.member_id;
+                pairTotals[key] = {
+                    toMemberId: row.paid_by_member_id,
+                    fromMemberId: row.member_id,
+                    amount: row.total
+                };
+            }
+        });
+
+        var BALANCE_EPSILON = 0.005;
         var settlements = [];
-        var ci = 0;
-        var di = 0;
-        while (ci < creditors.length && di < debtors.length) {
-            var credit = creditors[ci];
-            var debt = debtors[di];
-            var settled = Math.min(credit.amount, debt.amount);
-            settlements.push({
-                fromMemberId: debt.id,
-                fromName: nameMap[debt.id] || "?",
-                toMemberId: credit.id,
-                toName: nameMap[credit.id] || "?",
-                amount: settled
-            });
-            credit.amount -= settled;
-            debt.amount -= settled;
-            if (credit.amount < BALANCE_EPSILON) ci++;
-            if (debt.amount < BALANCE_EPSILON) di++;
+        for (var key in pairTotals) {
+            var pair = pairTotals[key];
+            if (pair.amount > BALANCE_EPSILON) {
+                settlements.push({
+                    fromMemberId: pair.fromMemberId,
+                    fromName: nameMap[pair.fromMemberId] || "?",
+                    toMemberId: pair.toMemberId,
+                    toName: nameMap[pair.toMemberId] || "?",
+                    amount: pair.amount
+                });
+            }
         }
         return settlements;
     }
