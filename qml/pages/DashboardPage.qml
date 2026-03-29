@@ -226,7 +226,7 @@ Page {
 
                 Column {
                     id: recentList
-                    width: parent.width
+                    Layout.fillWidth: true
 
                     Repeater {
                         model: recentTransactions
