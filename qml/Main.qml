@@ -277,12 +277,13 @@ MainView {
             // ---- FAB: Add Transaction (phone layout only) ----
             LomiriShape {
                 id: fab
-                visible: !root.isWideLayout
+                visible: !root.isWideLayout && root.currentTab !== 4
                 z: 10
                 anchors {
-                    horizontalCenter: parent.horizontalCenter
+                    right: parent.right
                     bottom: bottomNav.top
-                    bottomMargin: -height / 2
+                    rightMargin: units.gu(2)
+                    bottomMargin: units.gu(2)
                 }
                 width: units.gu(7)
                 height: units.gu(7)
@@ -410,11 +411,6 @@ MainView {
                         }
                     }
 
-                    // Center spacer for FAB
-                    Item {
-                        Layout.preferredWidth: units.gu(8)
-                        Layout.fillHeight: true
-                    }
 
                     // Net Worth tab
                     Item {
