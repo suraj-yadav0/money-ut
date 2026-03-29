@@ -72,27 +72,28 @@ Page {
             right: parent.right
             bottom: parent.bottom
         }
-        contentHeight: formColumn.height + Theme.spacing3XL
+        contentHeight: formColumn.height + units.gu(4)
         clip: true
 
         ColumnLayout {
             id: formColumn
-            width: parent.width - Theme.spacingLG * 2
+            width: parent.width - units.gu(4)
             anchors.horizontalCenter: parent.horizontalCenter
-            spacing: Theme.spacingLG
+            spacing: units.gu(2)
 
-            Item { Layout.preferredHeight: Theme.spacingSM }
+            Item { Layout.preferredHeight: units.gu(1) }
 
             // Description
             GlassCard {
                 Layout.fillWidth: true
 
                 ColumnLayout {
-                    spacing: Theme.spacingSM
+                    Layout.fillWidth: true
+                    spacing: units.gu(1)
 
-                    Text {
+                    Label {
                         text: "Description"
-                        font.pixelSize: Theme.fontSizeSM
+                        fontSize: "small"
                         color: Theme.gray600
                         font.weight: Font.DemiBold
                     }
@@ -110,22 +111,23 @@ Page {
                 Layout.fillWidth: true
 
                 ColumnLayout {
-                    spacing: Theme.spacingSM
+                    Layout.fillWidth: true
+                    spacing: units.gu(1)
 
-                    Text {
+                    Label {
                         text: "Total Amount"
-                        font.pixelSize: Theme.fontSizeSM
+                        fontSize: "small"
                         color: Theme.gray600
                         font.weight: Font.DemiBold
                     }
 
                     RowLayout {
                         Layout.fillWidth: true
-                        spacing: Theme.spacingSM
+                        spacing: units.gu(1)
 
-                        Text {
+                        Label {
                             text: Theme.getCurrencySymbol(currencyCode)
-                            font.pixelSize: Theme.fontSizeXL
+                            fontSize: "x-large"
                             color: Theme.gray500
                             font.weight: Font.DemiBold
                         }
@@ -135,7 +137,7 @@ Page {
                             Layout.fillWidth: true
                             placeholderText: "0"
                             inputMethodHints: Qt.ImhFormattedNumbersOnly
-                            font.pixelSize: Theme.fontSize2XL
+                            font.pixelSize: units.gu(3.5)
                             font.weight: Font.Bold
                             onTextChanged: updateEqualShares()
                         }
@@ -148,18 +150,19 @@ Page {
                 Layout.fillWidth: true
 
                 ColumnLayout {
-                    spacing: Theme.spacingSM
+                    Layout.fillWidth: true
+                    spacing: units.gu(1)
 
-                    Text {
+                    Label {
                         text: "Paid by"
-                        font.pixelSize: Theme.fontSizeSM
+                        fontSize: "small"
                         color: Theme.gray600
                         font.weight: Font.DemiBold
                     }
 
                     Flow {
                         Layout.fillWidth: true
-                        spacing: Theme.spacingSM
+                        spacing: units.gu(1)
 
                         Repeater {
                             id: paidByRepeater
@@ -167,19 +170,20 @@ Page {
 
                             property int selectedIndex: 0
 
-                            Rectangle {
-                                width: paidByLabel.width + Theme.spacingLG
-                                height: 32
-                                radius: 16
-                                color: paidByRepeater.selectedIndex === index
+                            LomiriShape {
+                                aspect: LomiriShape.Flat
+                                radius: "medium"
+                                implicitWidth: paidByLabel.implicitWidth + units.gu(2)
+                                implicitHeight: units.gu(4)
+                                backgroundColor: paidByRepeater.selectedIndex === index
                                     ? Theme.primary
                                     : Qt.rgba(Theme.primary.r, Theme.primary.g, Theme.primary.b, 0.1)
 
-                                Text {
+                                Label {
                                     id: paidByLabel
                                     anchors.centerIn: parent
                                     text: model.memberName
-                                    font.pixelSize: Theme.fontSizeSM
+                                    fontSize: "small"
                                     font.weight: Font.DemiBold
                                     color: paidByRepeater.selectedIndex === index ? Theme.white : Theme.primary
                                 }
@@ -200,11 +204,12 @@ Page {
                 Layout.fillWidth: true
 
                 ColumnLayout {
-                    spacing: Theme.spacingSM
+                    Layout.fillWidth: true
+                    spacing: units.gu(1)
 
-                    Text {
+                    Label {
                         text: "Date"
-                        font.pixelSize: Theme.fontSizeSM
+                        fontSize: "small"
                         color: Theme.gray600
                         font.weight: Font.DemiBold
                     }
@@ -254,11 +259,12 @@ Page {
                 Layout.fillWidth: true
 
                 ColumnLayout {
-                    spacing: Theme.spacingMD
+                    Layout.fillWidth: true
+                    spacing: units.gu(1.5)
 
-                    Text {
+                    Label {
                         text: "Split"
-                        font.pixelSize: Theme.fontSizeSM
+                        fontSize: "small"
                         color: Theme.gray600
                         font.weight: Font.DemiBold
                     }
@@ -266,18 +272,19 @@ Page {
                     // Mode selector
                     RowLayout {
                         Layout.fillWidth: true
-                        spacing: Theme.spacingSM
+                        spacing: units.gu(1)
 
-                        Rectangle {
+                        LomiriShape {
                             Layout.fillWidth: true
-                            height: 36
-                            radius: Theme.radiusMD
-                            color: splitMode === "equal" ? Theme.primary : Theme.gray100
+                            aspect: LomiriShape.Flat
+                            radius: "medium"
+                            implicitHeight: units.gu(4.5)
+                            backgroundColor: splitMode === "equal" ? Theme.primary : Theme.gray100
 
-                            Text {
+                            Label {
                                 anchors.centerIn: parent
                                 text: "Equal"
-                                font.pixelSize: Theme.fontSizeSM
+                                fontSize: "small"
                                 font.weight: Font.DemiBold
                                 color: splitMode === "equal" ? Theme.white : Theme.gray600
                             }
@@ -291,16 +298,17 @@ Page {
                             }
                         }
 
-                        Rectangle {
+                        LomiriShape {
                             Layout.fillWidth: true
-                            height: 36
-                            radius: Theme.radiusMD
-                            color: splitMode === "custom" ? Theme.primary : Theme.gray100
+                            aspect: LomiriShape.Flat
+                            radius: "medium"
+                            implicitHeight: units.gu(4.5)
+                            backgroundColor: splitMode === "custom" ? Theme.primary : Theme.gray100
 
-                            Text {
+                            Label {
                                 anchors.centerIn: parent
                                 text: "Custom"
-                                font.pixelSize: Theme.fontSizeSM
+                                fontSize: "small"
                                 font.weight: Font.DemiBold
                                 color: splitMode === "custom" ? Theme.white : Theme.gray600
                             }
@@ -319,20 +327,20 @@ Page {
 
                         RowLayout {
                             Layout.fillWidth: true
-                            spacing: Theme.spacingSM
+                            spacing: units.gu(1)
 
-                            Text {
+                            Label {
                                 text: model.memberName
-                                font.pixelSize: Theme.fontSizeSM
+                                fontSize: "small"
                                 color: Theme.gray700
                                 font.weight: Font.DemiBold
                                 Layout.preferredWidth: 80
                                 elide: Text.ElideRight
                             }
 
-                            Text {
+                            Label {
                                 text: Theme.getCurrencySymbol(currencyCode)
-                                font.pixelSize: Theme.fontSizeSM
+                                fontSize: "small"
                                 color: Theme.gray500
                             }
 
@@ -354,38 +362,24 @@ Page {
             }
 
             // Validation error
-            Text {
+            Label {
                 id: validationError
                 visible: text !== ""
-                font.pixelSize: Theme.fontSizeSM
+                fontSize: "small"
                 color: Theme.expense
                 wrapMode: Text.WordWrap
                 Layout.fillWidth: true
             }
 
             // Save button
-            Rectangle {
+            Button {
                 Layout.fillWidth: true
-                height: 50
-                radius: Theme.radiusButton
+                text: "Save Expense"
                 color: Theme.primary
-
-                Text {
-                    anchors.centerIn: parent
-                    text: "Save Expense"
-                    font.pixelSize: Theme.fontSizeLG
-                    font.weight: Font.DemiBold
-                    color: Theme.white
-                }
-
-                MouseArea {
-                    anchors.fill: parent
-                    cursorShape: Qt.PointingHandCursor
-                    onClicked: saveExpense()
-                }
+                onClicked: saveExpense()
             }
 
-            Item { Layout.preferredHeight: Theme.spacingLG }
+            Item { Layout.preferredHeight: units.gu(2) }
         }
     }
 

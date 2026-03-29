@@ -58,49 +58,51 @@ Page {
             right: parent.right
             bottom: parent.bottom
         }
-        contentHeight: contentColumn.height + Theme.spacing2XL
+        contentHeight: contentColumn.height + units.gu(3)
         clip: true
 
         ColumnLayout {
             id: contentColumn
-            width: parent.width - Theme.spacingLG * 2
+            width: parent.width - units.gu(4)
             anchors.horizontalCenter: parent.horizontalCenter
-            spacing: Theme.spacingLG
+            spacing: units.gu(2)
 
-            Item { Layout.preferredHeight: Theme.spacingSM }
+            Item { Layout.preferredHeight: units.gu(1) }
 
             // Members row
             GlassCard {
                 Layout.fillWidth: true
 
                 ColumnLayout {
-                    spacing: Theme.spacingSM
+                    Layout.fillWidth: true
+                    spacing: units.gu(1)
 
-                    Text {
+                    Label {
                         text: "Members"
-                        font.pixelSize: Theme.fontSizeMD
+                        fontSize: "medium"
                         font.weight: Font.DemiBold
                         color: Theme.gray700
                     }
 
                     Flow {
                         Layout.fillWidth: true
-                        spacing: Theme.spacingSM
+                        spacing: units.gu(1)
 
                         Repeater {
                             model: members
 
-                            Rectangle {
-                                width: memberNameText.width + Theme.spacingLG
-                                height: 28
-                                radius: 14
-                                color: Qt.rgba(Theme.primary.r, Theme.primary.g, Theme.primary.b, 0.12)
+                            LomiriShape {
+                                aspect: LomiriShape.Flat
+                                radius: "medium"
+                                implicitWidth: memberNameLabel.implicitWidth + units.gu(2)
+                                implicitHeight: units.gu(3.5)
+                                backgroundColor: Qt.rgba(Theme.primary.r, Theme.primary.g, Theme.primary.b, 0.12)
 
-                                Text {
-                                    id: memberNameText
+                                Label {
+                                    id: memberNameLabel
                                     anchors.centerIn: parent
                                     text: modelData.name
-                                    font.pixelSize: Theme.fontSizeSM
+                                    fontSize: "small"
                                     color: Theme.primary
                                     font.weight: Font.DemiBold
                                 }
@@ -116,11 +118,12 @@ Page {
                 visible: balances.length > 0
 
                 ColumnLayout {
-                    spacing: Theme.spacingSM
+                    Layout.fillWidth: true
+                    spacing: units.gu(1)
 
-                    Text {
+                    Label {
                         text: "Balances"
-                        font.pixelSize: Theme.fontSizeMD
+                        fontSize: "medium"
                         font.weight: Font.DemiBold
                         color: Theme.gray700
                     }
@@ -130,26 +133,26 @@ Page {
 
                         RowLayout {
                             Layout.fillWidth: true
-                            spacing: Theme.spacingSM
+                            spacing: units.gu(1)
 
-                            Text {
+                            Label {
                                 text: modelData.fromName
-                                font.pixelSize: Theme.fontSizeMD
+                                fontSize: "medium"
                                 font.weight: Font.DemiBold
                                 color: Theme.expense
                                 Layout.preferredWidth: 80
                                 elide: Text.ElideRight
                             }
 
-                            Text {
+                            Label {
                                 text: "owes"
-                                font.pixelSize: Theme.fontSizeSM
+                                fontSize: "small"
                                 color: Theme.gray500
                             }
 
-                            Text {
+                            Label {
                                 text: modelData.toName
-                                font.pixelSize: Theme.fontSizeMD
+                                fontSize: "medium"
                                 font.weight: Font.DemiBold
                                 color: Theme.income
                                 Layout.preferredWidth: 80
@@ -158,25 +161,26 @@ Page {
 
                             Item { Layout.fillWidth: true }
 
-                            Text {
+                            Label {
                                 text: Theme.formatFullCurrency(modelData.amount, currencyCode)
-                                font.pixelSize: Theme.fontSizeMD
+                                fontSize: "medium"
                                 font.weight: Font.Bold
                                 color: Theme.gray900
                             }
 
                             // Settle button
-                            Rectangle {
-                                width: settleText.width + Theme.spacingMD
-                                height: 28
-                                radius: 14
-                                color: Theme.income
+                            LomiriShape {
+                                aspect: LomiriShape.Flat
+                                radius: "medium"
+                                implicitWidth: settleLabel.implicitWidth + units.gu(1.5)
+                                implicitHeight: units.gu(3.5)
+                                backgroundColor: Theme.income
 
-                                Text {
-                                    id: settleText
+                                Label {
+                                    id: settleLabel
                                     anchors.centerIn: parent
                                     text: "Settle"
-                                    font.pixelSize: Theme.fontSizeXS
+                                    fontSize: "x-small"
                                     font.weight: Font.DemiBold
                                     color: Theme.white
                                 }
@@ -201,16 +205,19 @@ Page {
                 visible: balances.length === 0 && expenses.length > 0
 
                 RowLayout {
-                    spacing: Theme.spacingMD
+                    Layout.fillWidth: true
+                    spacing: units.gu(1.5)
 
-                    Text {
-                        text: "✅"
-                        font.pixelSize: 24
+                    Icon {
+                        name: "tick"
+                        width: units.gu(3)
+                        height: units.gu(3)
+                        color: Theme.income
                     }
 
-                    Text {
+                    Label {
                         text: "All settled up!"
-                        font.pixelSize: Theme.fontSizeMD
+                        fontSize: "medium"
                         font.weight: Font.DemiBold
                         color: Theme.income
                     }
@@ -221,18 +228,18 @@ Page {
             RowLayout {
                 Layout.fillWidth: true
 
-                Text {
+                Label {
                     text: "Expenses"
-                    font.pixelSize: Theme.fontSizeLG
+                    fontSize: "large"
                     font.weight: Font.Bold
                     color: Theme.gray900
                 }
 
                 Item { Layout.fillWidth: true }
 
-                Text {
+                Label {
                     text: expenses.length + " total"
-                    font.pixelSize: Theme.fontSizeSM
+                    fontSize: "small"
                     color: Theme.gray500
                 }
             }
@@ -245,22 +252,27 @@ Page {
                     Layout.fillWidth: true
 
                     ColumnLayout {
-                        spacing: Theme.spacingSM
+                        Layout.fillWidth: true
+                        spacing: units.gu(1)
 
                         RowLayout {
                             Layout.fillWidth: true
-                            spacing: Theme.spacingMD
+                            spacing: units.gu(1.5)
 
-                            Rectangle {
-                                width: 40
-                                height: 40
-                                radius: 20
-                                color: Qt.rgba(Theme.secondary.r, Theme.secondary.g, Theme.secondary.b, 0.15)
+                            LomiriShape {
+                                width: units.gu(5)
+                                height: units.gu(5)
+                                aspect: LomiriShape.Flat
+                                radius: "large"
+                                relativeRadius: 0.5
+                                backgroundColor: Qt.rgba(Theme.secondary.r, Theme.secondary.g, Theme.secondary.b, 0.15)
 
-                                Text {
+                                Icon {
                                     anchors.centerIn: parent
-                                    text: "💳"
-                                    font.pixelSize: 18
+                                    width: units.gu(2.5)
+                                    height: units.gu(2.5)
+                                    name: "payment"
+                                    color: Theme.secondary
                                 }
                             }
 
@@ -268,18 +280,18 @@ Page {
                                 Layout.fillWidth: true
                                 spacing: 2
 
-                                Text {
+                                Label {
                                     text: modelData.description
-                                    font.pixelSize: Theme.fontSizeMD
+                                    fontSize: "medium"
                                     font.weight: Font.DemiBold
                                     color: Theme.gray900
                                     elide: Text.ElideRight
                                     Layout.fillWidth: true
                                 }
 
-                                Text {
+                                Label {
                                     text: "Paid by " + modelData.paid_by_name + " · " + modelData.date
-                                    font.pixelSize: Theme.fontSizeXS
+                                    fontSize: "x-small"
                                     color: Theme.gray500
                                 }
                             }
@@ -287,9 +299,9 @@ Page {
                             ColumnLayout {
                                 spacing: 2
 
-                                Text {
+                                Label {
                                     text: Theme.formatCurrency(modelData.amount, currencyCode)
-                                    font.pixelSize: Theme.fontSizeLG
+                                    fontSize: "large"
                                     font.weight: Font.Bold
                                     color: Theme.gray900
                                     horizontalAlignment: Text.AlignRight
@@ -297,9 +309,10 @@ Page {
                                 }
 
                                 // Delete button
-                                Text {
-                                    text: "🗑"
-                                    font.pixelSize: 14
+                                Icon {
+                                    name: "delete"
+                                    width: units.gu(2)
+                                    height: units.gu(2)
                                     color: Theme.gray400
                                     Layout.alignment: Qt.AlignRight
 
@@ -328,37 +341,39 @@ Page {
             // Empty state for expenses
             EmptyState {
                 Layout.fillWidth: true
-                Layout.topMargin: Theme.spacing2XL
+                Layout.topMargin: units.gu(3)
                 visible: expenses.length === 0
-                emoji: "💳"
+                iconName: "payment"
                 title: "No Expenses Yet"
                 subtitle: "Add the first shared expense"
                 actionText: "Add Expense"
                 onActionClicked: splitGroupDetailPage.addExpenseRequested(groupId, members)
             }
 
-            Item { Layout.preferredHeight: 80 }
+            Item { Layout.preferredHeight: units.gu(10) }
         }
     }
 
     // FAB: Add expense
-    Rectangle {
+    LomiriShape {
         anchors {
             right: parent.right
             bottom: parent.bottom
-            rightMargin: Theme.spacingLG
-            bottomMargin: Theme.spacingLG
+            rightMargin: units.gu(2)
+            bottomMargin: units.gu(2)
         }
-        width: 56
-        height: 56
-        radius: 28
-        color: Theme.primary
+        width: units.gu(7)
+        height: units.gu(7)
+        aspect: LomiriShape.Flat
+        radius: "large"
+        relativeRadius: 0.5
+        backgroundColor: Theme.primary
 
-        Text {
+        Icon {
             anchors.centerIn: parent
-            text: "+"
-            font.pixelSize: 28
-            font.weight: Font.Bold
+            width: units.gu(3.5)
+            height: units.gu(3.5)
+            name: "add"
             color: Theme.white
         }
 

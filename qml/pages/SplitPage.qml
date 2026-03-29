@@ -1,6 +1,7 @@
 import QtQuick 2.7
 import QtQuick.Layouts 1.3
 import Lomiri.Components 1.3
+import Lomiri.Components.Popups 1.3
 import ".."
 import "../components"
 
@@ -42,43 +43,46 @@ Page {
             right: parent.right
             bottom: parent.bottom
         }
-        contentHeight: contentColumn.height + Theme.spacing2XL
+        contentHeight: contentColumn.height + units.gu(3)
         clip: true
 
         ColumnLayout {
             id: contentColumn
-            width: parent.width - Theme.spacingLG * 2
+            width: parent.width - units.gu(4)
             anchors.horizontalCenter: parent.horizontalCenter
-            spacing: Theme.spacingLG
+            spacing: units.gu(2)
 
-            Item { Layout.preferredHeight: Theme.spacingSM }
+            Item { Layout.preferredHeight: units.gu(1) }
 
             // Info banner
             GlassCard {
                 Layout.fillWidth: true
 
                 RowLayout {
-                    spacing: Theme.spacingMD
+                    Layout.fillWidth: true
+                    spacing: units.gu(1.5)
 
-                    Text {
-                        text: "🤝"
-                        font.pixelSize: 28
+                    Icon {
+                        name: "contact-group"
+                        width: units.gu(3.5)
+                        height: units.gu(3.5)
+                        color: Theme.primary
                     }
 
                     ColumnLayout {
                         Layout.fillWidth: true
                         spacing: 2
 
-                        Text {
+                        Label {
                             text: "Split Expenses"
-                            font.pixelSize: Theme.fontSizeLG
+                            fontSize: "large"
                             font.weight: Font.DemiBold
                             color: Theme.gray900
                         }
 
-                        Text {
+                        Label {
                             text: "Track shared expenses with friends & groups"
-                            font.pixelSize: Theme.fontSizeSM
+                            fontSize: "small"
                             color: Theme.gray500
                             wrapMode: Text.WordWrap
                             Layout.fillWidth: true
@@ -95,19 +99,24 @@ Page {
                     Layout.fillWidth: true
 
                     RowLayout {
-                        spacing: Theme.spacingMD
+                        Layout.fillWidth: true
+                        spacing: units.gu(1.5)
 
-                        // Group icon circle
-                        Rectangle {
-                            width: 44
-                            height: 44
-                            radius: 22
-                            color: Qt.rgba(Theme.primary.r, Theme.primary.g, Theme.primary.b, 0.12)
+                        // Group icon
+                        LomiriShape {
+                            width: units.gu(5.5)
+                            height: units.gu(5.5)
+                            aspect: LomiriShape.Flat
+                            radius: "large"
+                            relativeRadius: 0.5
+                            backgroundColor: Qt.rgba(Theme.primary.r, Theme.primary.g, Theme.primary.b, 0.12)
 
-                            Text {
+                            Icon {
                                 anchors.centerIn: parent
-                                text: "👥"
-                                font.pixelSize: 20
+                                width: units.gu(2.5)
+                                height: units.gu(2.5)
+                                name: "contact-group"
+                                color: Theme.primary
                             }
                         }
 
@@ -115,25 +124,26 @@ Page {
                             Layout.fillWidth: true
                             spacing: 2
 
-                            Text {
+                            Label {
                                 text: modelData.name
-                                font.pixelSize: Theme.fontSizeLG
+                                fontSize: "large"
                                 font.weight: Font.DemiBold
                                 color: Theme.gray900
                                 elide: Text.ElideRight
                                 Layout.fillWidth: true
                             }
 
-                            Text {
+                            Label {
                                 text: modelData.member_count + " members · " + modelData.expense_count + " expenses"
-                                font.pixelSize: Theme.fontSizeSM
+                                fontSize: "small"
                                 color: Theme.gray500
                             }
                         }
 
-                        Text {
-                            text: "›"
-                            font.pixelSize: 22
+                        Icon {
+                            name: "go-next"
+                            width: units.gu(2)
+                            height: units.gu(2)
                             color: Theme.gray400
                         }
                     }
@@ -148,37 +158,39 @@ Page {
             // Empty state
             EmptyState {
                 Layout.fillWidth: true
-                Layout.topMargin: Theme.spacing3XL
+                Layout.topMargin: units.gu(4)
                 visible: groups.length === 0
-                emoji: "🤝"
+                iconName: "contact-group"
                 title: "No Groups Yet"
                 subtitle: "Create a group to start splitting expenses"
                 actionText: "Create Group"
                 onActionClicked: openCreateGroup()
             }
 
-            Item { Layout.preferredHeight: 80 }
+            Item { Layout.preferredHeight: units.gu(10) }
         }
     }
 
     // FAB
-    Rectangle {
+    LomiriShape {
         anchors {
             right: parent.right
             bottom: parent.bottom
-            rightMargin: Theme.spacingLG
-            bottomMargin: Theme.spacingLG
+            rightMargin: units.gu(2)
+            bottomMargin: units.gu(2)
         }
-        width: 56
-        height: 56
-        radius: 28
-        color: Theme.primary
+        width: units.gu(7)
+        height: units.gu(7)
+        aspect: LomiriShape.Flat
+        radius: "large"
+        relativeRadius: 0.5
+        backgroundColor: Theme.primary
 
-        Text {
+        Icon {
             anchors.centerIn: parent
-            text: "+"
-            font.pixelSize: 28
-            font.weight: Font.Bold
+            width: units.gu(3.5)
+            height: units.gu(3.5)
+            name: "add"
             color: Theme.white
         }
 
@@ -190,164 +202,77 @@ Page {
     }
 
     // ---- Create Group Dialog ----
-    property bool showGroupDialog: false
-    property string groupDialogError: ""
+    Component {
+        id: groupDialogComponent
 
-    Rectangle {
-        id: groupDialogOverlay
-        anchors.fill: parent
-        color: Qt.rgba(0, 0, 0, 0.5)
-        visible: showGroupDialog
-        z: 20
+        Dialog {
+            id: groupDialog
+            title: "Create Group"
 
-        MouseArea {
-            anchors.fill: parent
-            onClicked: showGroupDialog = false
-        }
-
-        Rectangle {
-            anchors {
-                left: parent.left
-                right: parent.right
-                bottom: parent.bottom
-            }
-            height: groupDialogContent.implicitHeight + Theme.spacing2XL
-            radius: Theme.radiusXL
-            color: Theme.white
-
-            MouseArea {
-                anchors.fill: parent
+            TextField {
+                id: groupNameInput
+                placeholderText: "Group name (e.g., Goa Trip)"
             }
 
-            ColumnLayout {
-                id: groupDialogContent
-                anchors {
-                    top: parent.top
-                    left: parent.left
-                    right: parent.right
-                    margins: Theme.spacingLG
-                }
-                spacing: Theme.spacingMD
+            TextField {
+                id: groupDescInput
+                placeholderText: "Description (optional)"
+            }
 
-                Text {
-                    text: "Create Group"
-                    font.pixelSize: Theme.fontSizeXL
-                    font.weight: Font.Bold
-                    color: Theme.gray900
-                }
+            Label {
+                text: "Members (comma-separated)"
+                fontSize: "small"
+                color: Theme.gray600
+            }
 
-                // Group name
-                TextField {
-                    id: groupNameInput
-                    Layout.fillWidth: true
-                    placeholderText: "Group name (e.g., Goa Trip)"
-                }
+            TextField {
+                id: groupMembersInput
+                placeholderText: "Alice, Bob, You"
+            }
 
-                // Description
-                TextField {
-                    id: groupDescInput
-                    Layout.fillWidth: true
-                    placeholderText: "Description (optional)"
-                }
+            Label {
+                id: groupDialogError
+                visible: text !== ""
+                fontSize: "small"
+                color: Theme.expense
+                wrapMode: Text.WordWrap
+            }
 
-                Text {
-                    text: "Members (comma-separated)"
-                    font.pixelSize: Theme.fontSizeSM
-                    color: Theme.gray600
-                }
+            Button {
+                text: "Create"
+                color: Theme.primary
+                onClicked: splitPage.saveGroup(groupNameInput.text, groupDescInput.text, groupMembersInput.text, groupDialog, groupDialogError)
+            }
 
-                TextField {
-                    id: groupMembersInput
-                    Layout.fillWidth: true
-                    placeholderText: "Alice, Bob, You"
-                }
-
-                // Error message
-                Text {
-                    visible: groupDialogError !== ""
-                    text: groupDialogError
-                    font.pixelSize: Theme.fontSizeSM
-                    color: Theme.expense
-                    wrapMode: Text.WordWrap
-                    Layout.fillWidth: true
-                }
-
-                // Buttons
-                RowLayout {
-                    Layout.fillWidth: true
-                    spacing: Theme.spacingMD
-
-                    Rectangle {
-                        Layout.fillWidth: true
-                        height: 44
-                        radius: Theme.radiusButton
-                        color: Theme.gray100
-
-                        Text {
-                            anchors.centerIn: parent
-                            text: "Cancel"
-                            font.pixelSize: Theme.fontSizeMD
-                            color: Theme.gray700
-                        }
-
-                        MouseArea {
-                            anchors.fill: parent
-                            onClicked: showGroupDialog = false
-                        }
-                    }
-
-                    Rectangle {
-                        Layout.fillWidth: true
-                        height: 44
-                        radius: Theme.radiusButton
-                        color: Theme.primary
-
-                        Text {
-                            anchors.centerIn: parent
-                            text: "Create"
-                            font.pixelSize: Theme.fontSizeMD
-                            font.weight: Font.DemiBold
-                            color: Theme.white
-                        }
-
-                        MouseArea {
-                            anchors.fill: parent
-                            onClicked: saveGroup()
-                        }
-                    }
-                }
-
-                Item { Layout.preferredHeight: Theme.spacingSM }
+            Button {
+                text: "Cancel"
+                onClicked: PopupUtils.close(groupDialog)
             }
         }
     }
 
     function openCreateGroup() {
-        groupNameInput.text = "";
-        groupDescInput.text = "";
-        groupMembersInput.text = "";
-        groupDialogError = "";
-        showGroupDialog = true;
+        PopupUtils.open(groupDialogComponent)
     }
 
-    function saveGroup() {
-        var name = groupNameInput.text.trim();
+    function saveGroup(nameText, descText, membersText, dialog, errorLabel) {
+        var name = nameText.trim();
         if (name === "") {
-            groupDialogError = "Group name is required.";
+            errorLabel.text = "Group name is required.";
             return;
         }
-        var memberParts = groupMembersInput.text.split(",");
+        var memberParts = membersText.split(",");
         var members = [];
         for (var i = 0; i < memberParts.length; i++) {
             var m = memberParts[i].trim();
             if (m !== "") members.push(m);
         }
         if (members.length < 2) {
-            groupDialogError = "Please add at least 2 members (comma-separated).";
+            errorLabel.text = "Please add at least 2 members (comma-separated).";
             return;
         }
-        Database.createSplitGroup(name, groupDescInput.text.trim(), members);
-        showGroupDialog = false;
+        Database.createSplitGroup(name, descText.trim(), members);
+        PopupUtils.close(dialog);
         refreshData();
     }
 }
