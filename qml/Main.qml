@@ -17,6 +17,7 @@ MainView {
 
     property bool isOnboarded: false
     property int currentTab: 0
+    property var currentSplitDetailPage: null
 
     // Convergent layout: side rail on wide/desktop, bottom nav on phone
     property bool isWideLayout: root.width >= units.gu(90)
@@ -82,6 +83,7 @@ MainView {
                         case 1: budgetPage.refreshData(); break;
                         case 2: netWorthPage.refreshData(); break;
                         case 3: goalsPage.refreshData(); break;
+                        case 4: splitPage.refreshData(); break;
                     }
                 }
             }
@@ -135,7 +137,8 @@ MainView {
                             { emoji: "🏠", label: "Home", tab: 0 },
                             { emoji: "💰", label: "Budget", tab: 1 },
                             { emoji: "📊", label: "Worth", tab: 2 },
-                            { emoji: "🎯", label: "Goals", tab: 3 }
+                            { emoji: "🎯", label: "Goals", tab: 3 },
+                            { emoji: "🤝", label: "Split", tab: 4 }
                         ]
 
                         Item {
@@ -259,6 +262,19 @@ MainView {
                     anchors.fill: parent
                     visible: currentTab === 3
                 }
+
+                SplitPage {
+                    id: splitPage
+                    anchors.fill: parent
+                    visible: currentTab === 4
+                    onOpenGroupDetail: {
+                        var pg = splitGroupDetailPageComponent.createObject(null);
+                        pg.groupId = group.id;
+                        pg.groupName = group.name;
+                        pg.refreshData();
+                        root.navigateTo(pg);
+                    }
+                }
             }
 
             // ---- FAB: Add Transaction (phone layout only) ----
@@ -337,7 +353,7 @@ MainView {
 
                     // Home tab
                     Item {
-                        Layout.preferredWidth: (parent.width - 60) / 4
+                        Layout.preferredWidth: (parent.width - 60) / 5
                         Layout.fillHeight: true
 
                         ColumnLayout {
@@ -368,7 +384,7 @@ MainView {
 
                     // Budget tab
                     Item {
-                        Layout.preferredWidth: (parent.width - 60) / 4
+                        Layout.preferredWidth: (parent.width - 60) / 5
                         Layout.fillHeight: true
 
                         ColumnLayout {
@@ -405,7 +421,7 @@ MainView {
 
                     // Net Worth tab
                     Item {
-                        Layout.preferredWidth: (parent.width - 60) / 4
+                        Layout.preferredWidth: (parent.width - 60) / 5
                         Layout.fillHeight: true
 
                         ColumnLayout {
@@ -436,7 +452,7 @@ MainView {
 
                     // Goals tab
                     Item {
-                        Layout.preferredWidth: (parent.width - 60) / 4
+                        Layout.preferredWidth: (parent.width - 60) / 5
                         Layout.fillHeight: true
 
                         ColumnLayout {
@@ -464,6 +480,37 @@ MainView {
                             onClicked: switchTab(3)
                         }
                     }
+
+                    // Split tab
+                    Item {
+                        Layout.preferredWidth: (parent.width - 60) / 5
+                        Layout.fillHeight: true
+
+                        ColumnLayout {
+                            anchors.centerIn: parent
+                            spacing: 4
+
+                            Text {
+                                text: "🤝"
+                                font.pixelSize: 22
+                                Layout.alignment: Qt.AlignHCenter
+                                opacity: currentTab === 4 ? 1 : 0.5
+                            }
+
+                            Text {
+                                text: "Split"
+                                font.pixelSize: Theme.fontSizeXS
+                                color: currentTab === 4 ? Theme.primary : Theme.gray500
+                                font.weight: currentTab === 4 ? Font.DemiBold : Font.Normal
+                                Layout.alignment: Qt.AlignHCenter
+                            }
+                        }
+
+                        MouseArea {
+                            anchors.fill: parent
+                            onClicked: switchTab(4)
+                        }
+                    }
                 }
             }
 
@@ -475,6 +522,7 @@ MainView {
                     case 1: budgetPage.refreshData(); break;
                     case 2: netWorthPage.refreshData(); break;
                     case 3: goalsPage.refreshData(); break;
+                    case 4: splitPage.refreshData(); break;
                 }
             }
         }
@@ -545,6 +593,36 @@ MainView {
             onTransactionSaved: {
                 root.navigateBack();
                 root.transactionDataChanged();
+            }
+            onCancelled: {
+                root.navigateBack();
+            }
+        }
+    }
+
+    Component {
+        id: splitGroupDetailPageComponent
+
+        SplitGroupDetailPage {
+            id: detailPg
+            Component.onCompleted: root.currentSplitDetailPage = detailPg
+            onAddExpenseRequested: {
+                var pg = addSplitExpensePageComponent.createObject(null);
+                pg.loadGroup(gid, mems);
+                root.navigateTo(pg);
+            }
+        }
+    }
+
+    Component {
+        id: addSplitExpensePageComponent
+
+        AddSplitExpensePage {
+            onExpenseSaved: {
+                root.navigateBack();
+                if (root.currentSplitDetailPage) {
+                    root.currentSplitDetailPage.refreshData();
+                }
             }
             onCancelled: {
                 root.navigateBack();
